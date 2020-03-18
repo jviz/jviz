@@ -3,6 +3,10 @@ import {propTypes} from "../props.js";
 //Export spacing transform properties
 export const spacingTransform = {
     "transform": function (context, data, props) {
+        //Check for empty data --> skip transform
+        if (data.length === 0) {
+            return data; //Nothing to do
+        }
         //Get the scale to apply
         let scale = context.scales[props.scale].value;
         //Initialize the items to space
