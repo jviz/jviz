@@ -176,6 +176,13 @@ let parseFactor = function (ctx) {
         if (name === "null") {
             x = null;
         }
+        //Check for boolean value (true or false)
+        else if (name === "true") {
+            x = true; //True boolean
+        }
+        else if (name === "false") {
+            x = false; //False boolean
+        }
         //Check if there is a function to apply
         else if (typeof ctx.values[name] === "function") {
             //Check if the next char is a pharentesis
