@@ -1,6 +1,5 @@
-import {propTypes} from "../props.js";
-import {parseProps} from "../parser.js";
-import {polyline} from "./paths/polyline.js";
+import {parseProps, propTypes} from "../props.js";
+import {polyline} from "../render/primitives/polyline.js";
 
 //Segment line default props
 let defaultProps = {

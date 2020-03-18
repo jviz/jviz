@@ -1,6 +1,5 @@
-import {parseProps} from "../parser.js";
-import {propTypes} from "../props.js";
-import {rectangle} from "./paths/rectangle.js";
+import {parseProps, propTypes} from "../props.js";
+import {rectangle} from "../render/primitives/rectangle.js";
 
 //Rectangle default props
 let defaultProps = {

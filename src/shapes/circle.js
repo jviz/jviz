@@ -1,6 +1,5 @@
-import {parseProps} from "../parser.js";
-import {propTypes} from "../props.js";
-import {circle} from "./paths/circle.js";
+import {propTypes, parseProps} from "../props.js";
+import {circle} from "../render/primitives/circle.js";
 
 //Circle shape default props
 let defaultProps = {

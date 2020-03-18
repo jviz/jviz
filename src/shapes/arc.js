@@ -1,6 +1,5 @@
-import {propTypes} from "../props.js";
-import {parseProps} from "../parser.js";
-import {arc} from "./paths/arc.js";
+import {propTypes, parseProps} from "../props.js";
+import {arc} from "../render/primitives/arc.js";
 
 //Arc default props
 let defaultProps = {

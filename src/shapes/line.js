@@ -1,6 +1,6 @@
 import {propTypes} from "../props.js";
-import {path} from "../path.js";
-import {getCurve} from "./curves/index.js";
+import {path} from "../render/path.js";
+import {getCurve} from "../render/curves/index.js";
 
 //Line default props
 let defaultProps = {

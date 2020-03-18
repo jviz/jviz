@@ -1,5 +1,4 @@
-import {parseProps} from "../parser.js";
-import {propTypes} from "../props.js";
+import {parseProps, propTypes} from "../props.js";
 
 //Text default props
 let defaultProps = {
