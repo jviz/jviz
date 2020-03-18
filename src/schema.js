@@ -357,8 +357,8 @@ let initializeSpec = function () {
     };
 };
 
-//Export compiler method
-export function compile (xmlString) {
+//Export schema compiler
+export function parseSchema (xmlString) {
     let spec = initializeSpec(); //Initialize spec object
     parseXml(xmlString).forEach(function (element) {
         //Parse shape element
