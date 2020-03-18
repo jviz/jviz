@@ -47,24 +47,19 @@ export function emptyNode (node) {
 
 //Create a new node
 export function createNode (tag, root) {
-    //Get the uri namespace of the root element
-    let rootNamespace = root.namespaceURI;
     let parsedTag = extractNamespace(tag);
     //Check if the namespace has been defined in the node tag
     if (parsedTag.space !== null) {
-        return function () {
-            return document.createElementNS(parsedTag.space, parsedTag.tag);
-        };
+        return document.createElementNS(parsedTag.space, parsedTag.tag);
     }
     //Check the namespace of the root element
-    else if (rootNamespace !== getNamespace("xhtml")) {
-        return function () {
+    else if (typeof root !== "undefined" && root !== null) {
+        let rootNamespace = root.namespaceURI; //Get the uri namespace of the root element
+        if (rootNamespace !== getNamespace("xhtml")) {
             return document.createElementNS(rootNamespace, tag);
-        };
+        }
     }
     //By default, create the node without a namespace
-    return function () {
-        return document.createElement(tag);
-    };
+    return document.createElement(tag);
 }
 
