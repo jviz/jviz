@@ -6,21 +6,22 @@ import {expression} from "./runtime/expression.js";
 import {transform} from "./runtime/transform.js";
 import {value} from "./runtime/value.js";
 import {source} from "./runtime/source.js";
+import {createScene} from "../render/scene.js";
 
 //Context class
-export function Context (schema, parent) {
+export function Context (schema, options) {
     //let self = this;
+    this.scene = createScene(); //Create a new scene
     //Assign context 
     Object.assign(this, {
         "nodes": createNodeList(), //Context data nodes
         "actions": creareNodeList(), //To store pending actions to the context
-        "target": parent.append("g"), //Context target group
+        "target": this.scene.append("g"), //Context target group
         "draw": {}, //Draw configuration (width, height and padding)
         "input": {}, //Store the input data
         "state": {}, //State nodes by Ids
         "data": {}, //Data nodes by Ids
         "scales": {}, //Scale nodes by ids
-        "layout": null, //Layout node
         "events": dispatch(), //Events dispatching
         "ready": false,
         "running": false
