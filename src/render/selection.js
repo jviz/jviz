@@ -1,22 +1,23 @@
-import {nodeCreator} from "./create.js";
-import {emptyNode, selectNodes, removeNode} from "./nodes.js";
+import {createNode, emptyNode, selectNodes, removeNode} from "./util/nodes.js";
+import {getNamespace} from "./util/namespaces.js";
 
 //Selection class
-export class Selection {
-    constructor(nodes, root) {
-        this.nodes = nodes;
-        this.root = root;
-        //this.data = (typeof data === "object") ? data : null;
-    }
+export function Selection (nodes, root) {
+    this.nodes = nodes;
+    this.root = root;
+};
+
+//Selection prototype
+Selection.prototype = {
     //Iterate over the nodes of the selection
-    each(callback) {
+    "each": function (callback) {
         for (let i = 0; i < this.nodes.length; i++) {
             callback.call(this.nodes[i], this, i);
         }
         return this;
-    }
+    },
     //Set or get an attribute for each node
-    attr(name, value) {
+    "attr": function (name, value) {
         //Check for undefined value to set --> get the current attribute value
         if (typeof value === "undefined") {
             if (this.nodes.length === 0) {
@@ -40,23 +41,9 @@ export class Selection {
                 this.setAttribute(name, value);
             }
         });
-    }
-    //Add a class name to all nodes
-    addClass() {
-        let list = arguments;
-        return this.each(function () {
-            this.classList.add.apply(this.classList, list);
-        });
-    }
-    //Remove a class-name from all nodes
-    removeClass() {
-        let list = arguments;
-        return this.each(function () {
-            this.classList.remove.apply(this.classList, list);
-        });
-    }
+    },
     //Set the style of all nodes
-    style(name, value) {
+    "style": function (name, value) {
         //Check for undefined value to set --> get the current attribute value
         if (typeof value === "undefined") {
             if (this.nodes.length === 0) {
@@ -80,9 +67,9 @@ export class Selection {
                 this.style.setProperty(name, value);
             }
         });
-    }
+    },
     //Get the size of the first element
-    size() {
+    "size": function () {
         if (this.nodes.length > 0) {
             let bb = this.nodes[0].getBoundingClientRect();
             return {
@@ -92,81 +79,73 @@ export class Selection {
         }
         //No nodes on the selection
         return null;
-    }
+    },
     //Register element listeners
-    on(name, listener) {
+    "on": function (name, listener) {
         return this.each(function () {
             this.addEventListener(name, listener, false);
         });
     }
+    //Remove an event listener
+    "off": function (name, listener) {
+        return this.each(function () {
+            this.removeEventListener(name, listener, false);
+        });
+    },
     //Remove all children element of the selection
-    empty() {
+    "empty": function () {
         return this.each(function () {
             return emptyNode(this);
         });
-    }
+    },
     //Set the text of the elements
-    text(content) {
+    "text": function (content) {
         return this.each(function () {
             this.textContent = content;
         });
-    }
+    },
     //Set the html of the selected elements
-    html(content) {
+    "html": function (content) {
         return this.each(function () {
             this.innerHTML = content;
         });
-    }
+    },
     //Remove the selection
-    remove() {
+    "remove": function () {
         return this.each(function () {
             return removeNode(this);
         });
-    }
+    },
     //Append a new DOM element
-    append(name) {
+    "append": function (name) {
         let parent = (this.nodes.length > 0) ? this.nodes[0] : this.root;
-        let node = nodeCreator(name, parent)();
+        let node = createNode(name, parent);
         parent.appendChild(node);
         //Return a new selection instance
         return new Selection([node], parent);
-    }
+    },
     //Select all children nodes that matches the specified pattern
-    selectAll(selector) {
+    "selectAll": function (selector) {
         //Get the root element
         let rootElement = (this.nodes.length === 0) ? this.root : this.nodes[0];
         let selection = selectNodes(selector, rootElement);
         //Return a new selection instance with the selected nodes list and the root element
         return new Selection(selection.nodes, selection.root);
     }
-    //Get or set the dataset
-    dataset(key, value) {
-        if (typeof value === "undefined") {
-            if (this.nodes.length === 0) {
-                return null;
-            }
-            //Return the current dataset value
-            return this.nodes[0].dataset[key];
-        }
-        //Update the dataset of each selected node
-        return this.each(function () {
-            //Check for null dataset value
-            if (value === null) {
-                delete this.dataset[key];
-            }
-            else {
-                this.dataset[key] = value;
-            }
-        });
-    }
-    //Execute a function for each item in the data object
-    call(data, callback) {
-        let self = this;
-        //Execute the callback function for each item in the provided object
-        data.forEach(function (item, index) {
-            callback.call(null, self, item, index);
-        });
-        return this;
-    }
+};
+
+//Select the first element
+export function select (selector) {
+    let selection = selectNodes(selector, null);
+    //Get only the first node
+    let firstNode = (selection.nodes.length === 0) ? [] : [selection.nodes[0]];
+    return new Selection(firstNode, selection.root);
+}
+
+//Select all elements
+export function selectAll (selector) {
+    let selection = selectNodes(selector, null);
+    //Return a new instance for the selected nodes
+    return new Selection(selection.nodes, selection.root, null);
 }
 
