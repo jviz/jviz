@@ -1,23 +1,3 @@
-//Create a plot node item
-export function createNode (initialValues) {
-    let context = this;
-    //Initialize a new node object
-    let newNode = {
-        "index": context.nodes.length,
-        "id": null,
-        "type": null,
-        "source": null,
-        "targets": null, //createNodeList(),
-        "value": null,
-        "props": null
-    };
-    Object.assign(newNode, initialValues);
-    //Save this node in the nodes objects
-    context.nodes.push(newNode);
-    //Return the new node object
-    return newNode;
-}
-
 //Node unique list
 let NodeUniqueList = function () {
     Object.assign(this, {
@@ -34,7 +14,7 @@ NodeUniqueList.prototype = {
     },
     //Check if a node is on this list
     "has": function (node) {
-        if (node === null) {
+        if (typeof node !== "object" || node === null) {
             return false; //Terrible hack for preventing null nodes
         }
         return typeof this._index[node.id] !== "undefined";
