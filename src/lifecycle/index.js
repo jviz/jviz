@@ -1,18 +1,16 @@
 import {isArray, isObject, values as objectValues, each} from "../util.js";
-import {json} from "../load.js";
+import {load} from "../load.js";
 import {createNodeList} from "../node.js";
-import {parsePadding} from "../parser.js";
-//import {createStateNode, updateStateNode} from "./state.js";
+import {parsePadding} from "../render/padding.js";
 import {createDataNode, updateDataNode} from "./data.js";
 import {createScaleNode, updateScaleNode} from "./scale.js";
-//import {buildLayout, updateLayout} from "./layout.js";
 import {createShapeNode, updateShapeNode} from "./shape.js";
 import {createAxisNode, updateAxisNode} from "./axes.js";
 
 //Update the context
 export function updateContext (context, forceUpdate, callback) {
     //Check for no pending updates
-    if (context.actions.length === 0 && forceUpdate === false) {
+    if (context.actions.length() === 0 && forceUpdate === false) {
         //TODO: display in context logs
         return callback();
     }
@@ -54,6 +52,9 @@ export function updateContext (context, forceUpdate, callback) {
         };
         //Apply the new padding values
         context.target.attr("transform", `translate(${padding.left},${padding.top})`);
+        //Update the scene size
+        context.scene.width(context.draw.width.value); //Update scene width
+        context.scene.height(context.draw.height.value); //Update scene height
     }
     //Loop for all nodes
     context.nodes.forEach(function (node) {
@@ -87,7 +88,7 @@ export function updateContext (context, forceUpdate, callback) {
             });
         }
     });
-    context.actions = []; //Remove the actions list
+    context.actions.empty(); //Remove the actions list
     return callback();
 }
 
@@ -106,13 +107,14 @@ export function buildContext (context, callback) {
         //Get input name
         let name = sources[index];
         //Import data
-        return json(context.input[name].props.url, function (response) {
-            //Check for error loading data
-            //TODO
+        return load(context.input[name].props.url).then(function (data) {
             //Save this data to the sources cache
-            context.input[name].value = response.content;
+            context.input[name].value = JSON.parse(data); //TODO: convert the data type
             //Continue
             return loadDataAsync(index + 1);
+        }).catch(function (error) {
+            //TODO: manage error
+            console.error(error);
         });
     };
     //Start laoding data
@@ -190,7 +192,7 @@ export function initContext (context, schema) {
         createScaleNode(context, name, props);
     });
     //Clean svg target group
-    context.target.empty();
+    //context.target.empty();
     //Render all shapes
     each(schema.shapes, function (index, props) {
         createShapeNode(context, context.target.append("g"), props, index);
