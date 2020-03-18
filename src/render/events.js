@@ -1,9 +1,9 @@
 //Basic events list
 let basicEvents = {
     "click": "click", //Click to an element
-    "doubleclick": "dblclick", // Double click to an element
-    "clickdown": "mousedown", // The mouse button is pressed
-    "clickup": "mouseup", // The mouse button is released
+    "doubleClick": "dblclick", // Double click to an element
+    "clickDown": "mousedown", // The mouse button is pressed
+    "clickUp": "mouseup", // The mouse button is released
     "enter": "mouseenter", // the pointer enters in the element
     "leave": "mouseleave", // the pointer leaves the element
     "move": "mousemove" // the pointer is moving over the element
@@ -48,14 +48,8 @@ export function setEvent (element, name, listener) {
     //TODO: throw error
 }
 
-//Parse event name
-export function parseEventName (name) {
-    return name.replace(/-/, "").toLowerCase();
-}
-
 //Check for provided event listener
 export function isEventName (name) {
-    name = parseEventName(name);
     return typeof basicEvents[name] !== "undefined" || typeof combinedEvents[name] !== "undefined";
 }
 
