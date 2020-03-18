@@ -1,0 +1,25 @@
+@import "@siimple/css/scss/variables.scss";
+
+//Splash content
+.splash {
+    display: flex;
+    width: calc(100% - 20px);
+    height: calc(100% - 20px);
+    padding: 10px;
+    background-color: siimple-default-color("light");
+    justify-content: center;
+    align-items: center;
+    //Splash content
+    &Content {
+        max-width: 300px;
+        //padding: 10px;
+        opacity: 0.5;
+    }
+    //Icon 
+    &Icon {
+        font-size: 100px;
+        color: siimple-default-color("dark");
+    }
+}
+
+

@@ -1,0 +1,36 @@
+@import "@siimple/css/scss/variables.scss";
+
+//Editor header menu button styles
+.menu {
+    display: inline-block;
+    height: calc(100% - 2px);
+    //line-height: calc(100% - 2px);
+    //color: rgba(#ffffff, 0.5);
+    color: rgba(siimple-default-color("dark"), 0.8);
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: normal;
+    padding-left: 10px;
+    padding-right: 10px;
+    //Menu button hover
+    &:hover {
+        //color: #ffffff;
+        color: siimple-default-color("dark");
+        border-bottom-color: siimple-default-color("primary");
+    }
+    //Menu button icon
+    &Icon {
+        display: inline-block;
+        vertical-align: middle;
+        margin-right: 4px;
+        font-size: 16px;
+    }
+    //Menu button text
+    &Text {
+        display: inline-block;
+        vertical-align: middle;
+    }
+}
+

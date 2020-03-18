@@ -1,0 +1,14 @@
+@import "@siimple/css/scss/variables.scss";
+
+//Editor header styles
+.header {
+    display: block;
+    height: 48px;
+    //background-color: siimple-default-color("dark", "dark");
+    background-color: darken(siimple-default-color("light"), 5%);
+    //color: rgba(#ffffff, 0.7);
+    //padding-top: 7px;
+    //padding-bottom: 7px;
+    line-height: 48px;
+}
+

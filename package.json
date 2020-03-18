@@ -1,0 +1,48 @@
+{
+    "name": "jviz",
+    "description": "Micro visualization library for building modern and interactive widgets for data exploration",
+    "private": true,
+    "version": "1.0.2",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/jviz/jviz.git"
+    },
+    "bugs": "https://github.com/jviz/jviz/issues",
+    "main": "jviz.cjs.min.js",
+    "module": "jviz.esm.min.js",
+    "browser": "jviz.umd.min.js",
+    "unpkg": "jviz.umd.min.js",
+    "keywords": [
+        "jviz",
+        "visualisation"
+    ],
+    "dependencies": {},
+    "devDependencies": {
+        "@babel/core": "^7.4.5",
+        "@babel/preset-env": "^7.4.5",
+        "@babel/preset-react": "^7.0.0",
+        "eslint": "^6.0.1",
+        "express": "^4.17.1",
+        "rollup": "^1.17.0",
+        "rollup-plugin-cleanup": "^3.1.1",
+        "rollup-plugin-includepaths": "^0.2.3",
+        "rollup-plugin-terser": "^5.1.1",
+        "babel-loader": "^8.0.6",
+        "css-loader": "^3.0.0",
+        "file-loader": "^4.0.0",
+        "sass-loader": "^7.1.0",
+        "style-loader": "^0.23.1",
+        "mini-css-extract-plugin": "^0.7.0",
+        "webpack": "^4.35.3",
+        "webpack-cli": "^3.3.6",
+        "sass": "^1.22.4",
+        "kofi": "^0.3.0",
+        "react": "^16.8.6",
+        "react-dom": "^16.8.6",
+        "rouct": "^0.2.1",
+        "@siimple/css": "^4.0.0-alpha.1",
+        "@siimple/neutrine": "^0.0.5",
+        "@siimple/icons": "^0.0.2"
+    },
+    "license": "MIT"
+}
