@@ -1,10 +1,10 @@
 import {isObject, isString, isArray} from "../util.js";
 import {each, values as objectValues} from "../util.js";
-import {propTypes} from "../props.js";
-import {applyStyle} from "../style.js";
+import {propTypes, parseProps} from "../props.js";
+import {setStyle, isStyleName} from "../render/style.js";
+import {setEvent, isEventName} from "../render/events.js";
 import {getValueSources} from "../runtime/value.js";
 import {getExpressionSources} from "../runtime/expression.js";
-import {addEventListener} from "../events.js";
 import {getShape} from "../shapes/index.js";
 
 //build shape data
@@ -76,6 +76,16 @@ let getShapeGroups = function (props) {
     //Else: return this shape props as an array
     return [props];
 };
+
+//Apply shape style
+let applyShapeStyle (context, datum, props, target) {
+    return each(props, function (key, value) {
+        if (value !== null && isStyleName(key) === true) {
+            let parsedValue = context.value(props[key], ((isArray(datum) === true) ? datum[0] : datum)); //Get value from context
+            setStyle(target, key, parsedValue); //Apply style
+        }
+    });
+}
 
 //Create a new shape node
 export function createShapeNode (context, parent, props, key) {
@@ -150,7 +160,7 @@ export function updateShapeNode (context, node, forceRender) {
                     shape.render(context, data, updateProps, element); //Redraw this element
                 }
                 //Apply style props
-                applyStyle(context, data, props.render.update, element);
+                applyShapeStyle(context, data, props.render.update, element);
             });
         }
         //Build shapes for each data group
@@ -167,7 +177,7 @@ export function updateShapeNode (context, node, forceRender) {
                         shape.render(context, data, hoverProps, element); //Redraw this element
                     }
                     //Apply style props
-                    applyStyle(context, data, props.render.hover, element);
+                    applyShapeStyle(context, data, props.render.hover, element);
                 });
                 //Check for update props provided
                 if (typeof props.render.update === "object" && props.render.update !== null) {
@@ -177,13 +187,13 @@ export function updateShapeNode (context, node, forceRender) {
                             shape.render(context, data, updateProps, element); //Redraw this element
                         }
                         //Apply style props
-                        applyStyle(context, data, props.render.update, element);
+                        applyShapeStyle(context, data, props.render.update, element);
                     });
                 }
             }
             //Register additional event listening
             each(props.on, function (eventIndex, eventProps) {
-                return addEventListener(element, eventProps.type, function (event) {
+                return setEvent(element, eventProps.type, function (event) {
                     //Check for signal update event
                     if (isString(eventProps.state) && isString(eventProps.value)) {
                         //Register an action to update this state
