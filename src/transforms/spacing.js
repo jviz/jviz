@@ -19,7 +19,7 @@ export const spacingTransform = {
         });
         //Get the other values
         let method = context.value(props.method, null, "equal");
-        let repulsion = context.value(props.repulsion, null, 0);
+        let repulsion = context.value(props.distance, null, 0);
         let minPosition = Math.min(scale.range[0], scale.range[1]);
         let maxPosition = Math.max(scale.range[0], scale.range[1]);
         //Optimized spaciong algorithm
@@ -106,7 +106,7 @@ export const spacingTransform = {
         //"space": propTypes.string(), //Space reserved for the spacing
         "field": propTypes.string(),
         "scale": propTypes.string(), //Scale to apply
-        "repulsion": propTypes.number(0), //Repulsion force
+        "distance": propTypes.number(0), //Spacing distance
         //"join": propTypes.boolean(false), //Join new positions to the original data
         "as": propTypes.string("x") //Field to store the new position
     }
