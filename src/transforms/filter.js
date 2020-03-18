@@ -1,4 +1,3 @@
-import {evaluate} from "../evaluate.js";
 import {propTypes} from "../props.js";
 
 //Export filter transform properties
