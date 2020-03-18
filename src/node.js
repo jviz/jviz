@@ -1,34 +1,32 @@
 //Node unique list
 let NodeUniqueList = function () {
-    Object.assign(this, {
-        "_list": [],
-        "_index": {}
-    });
+    this.list = []; //List of nodes
+    this.index = {}; //Nodes indexes
 };
 
 //Node unique list prototype
 NodeUniqueList.prototype = {
     //Get a node by index
     "get": function (index) {
-        return this._list[index];
+        return this.list[index];
     },
     //Check if a node is on this list
     "has": function (node) {
         if (typeof node !== "object" || node === null) {
             return false; //Terrible hack for preventing null nodes
         }
-        return typeof this._index[node.id] !== "undefined";
+        return typeof this.index[node.id] !== "undefined";
     },
     //Execute a function for each node in the list
     "forEach": function (callback) {
-        return this._list.forEach(callback);
+        return this.list.forEach(callback);
     },
     //Add a new node to the list
     "add": function (node) {
         //Check if this node is not in the list
-        if (typeof this._index[node.id] === "undefined") {
-            this._list.push(node);
-            this._index[node.id] = this._list.length - 1;
+        if (typeof this.index[node.id] === "undefined") {
+            this.list.push(node);
+            this.index[node.id] = this._list.length - 1;
         }
     },
     //Remove a node item from the list
@@ -37,7 +35,12 @@ NodeUniqueList.prototype = {
     },
     //Get the number of items of the node list
     "length": function () {
-        return this._list.length;
+        return this.list.length;
+    },
+    //Remove all nodes from list
+    "empty": function () {
+        this.list = []; //Clean list of nodes
+        this.index = {}; //Clean list of indexes
     }
 };
 
