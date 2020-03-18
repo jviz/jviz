@@ -79,10 +79,10 @@ let getShapeGroups = function (props) {
 
 //Apply shape style
 let applyShapeStyle (context, datum, props, target) {
+    let datumValue = (isArray(datum) === true) ? datum[0] : datum; //Get datum value
     return each(props, function (key, value) {
         if (value !== null && isStyleName(key) === true) {
-            let parsedValue = context.value(props[key], ((isArray(datum) === true) ? datum[0] : datum)); //Get value from context
-            setStyle(target, key, parsedValue); //Apply style
+            return setStyle(target, key, context.value(props[key], datumValue)); //Apply style
         }
     });
 }
