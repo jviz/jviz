@@ -1,7 +1,7 @@
 import {dispatch} from "./dispatch.js";
 import {call} from "./util.js";
 import {initContext, buildContext, updateContext} from "./lifecycle/index.js";
-import {createNodeList} from "./node.js";
+import {createHashMap} from "./hashmap.js";
 import {expression} from "./runtime/expression.js";
 import {transform} from "./runtime/transform.js";
 import {value} from "./runtime/value.js";
@@ -14,8 +14,8 @@ export function Context (schema, options) {
     this.scene = createScene(); //Create a new scene
     //Assign context 
     Object.assign(this, {
-        "nodes": createNodeList(), //Context data nodes
-        "actions": creareNodeList(), //To store pending actions to the context
+        "nodes": createHashMap(), //Context data nodes
+        "actions": creareHashMap(), //To store pending actions to the context
         "target": this.scene.append("g"), //Context target group
         "draw": {}, //Draw configuration (width, height and padding)
         "input": {}, //Store the input data
@@ -62,7 +62,7 @@ Context.prototype = {
     "expression": expression,
     "transform": transform,
     //Miscellanea methods
-    "createNode": function (values) {
+    "addNode": function (values) {
         //Initialize a new node object
         let newNode = Object.assign({
             "index": this.nodes.length(), //Get node index
@@ -74,29 +74,33 @@ Context.prototype = {
             "props": null
         }, values);
         //Save this node in the nodes objects
-        this.nodes.add(newNode);
+        this.nodes.add(newNode.id, newNode);
         return newNode; //Return the new node object
     },
-    "createAction": function (node, type, value) {
-        if (this.actions.has(node) === true) {
+    "addAction": function (node, type, value) {
+        if (this.actions.has(node.id) === true) {
             //Only update the node with the new value
             return Object.assign(this.actions.get(node.id), {
                 "value": value
             });
         }
         //Add a new actions node
-        return this.actions.add({
+        return this.actions.add(node.id, {
             "id": node.id, //This actions has the same id as the node
             "type": type,
             "target": node,
             "value": value,
             "date": Date.now()
         });
+    },
+    //Clear all pending actions
+    "clearActions": function () {
+        return this.actions.clear(); //Clear actions list
     }
 };
 
 //Create a new context
-export function createContext (target, props) {
-    return new Context(target, props);
+export function createContext (schema, options) {
+    return new Context(schema, options);
 }
 
