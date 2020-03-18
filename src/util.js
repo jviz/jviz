@@ -20,6 +20,11 @@ export function isNumber (value) {
     return typeof value === "number" && isNaN(value) === false;
 }
 
+//Check if a vaule is boolean
+export function isBool (value) {
+    return typeof value === "boolean";
+}
+
 //Check if a vaule is a string
 export function isString (value) {
     return typeof value === "string";
