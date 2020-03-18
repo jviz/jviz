@@ -1,4 +1,5 @@
-import {isString, isValid, isUndef} from "../util.js";
+import {isNull, isValid, isUndef} from "../util.js";
+import {isArray, isObject, isString, isNumber, isBool} from "../util.js";
 import {createNodeList} from "../node.js";
 import {clamp, random, format} from "../math.js";
 import {polarToCartesianX, polarToCartesianY} from "../math.js";
@@ -70,6 +71,12 @@ let defaultValues = {
     "kebabCase": kebabCase,
     "snakeCase": snakeCase,
     //General
+    "isString": isString,
+    "isNumber": isNumber,
+    "isBool": isBool,
+    "isNull": isNull,
+    "isObject": isObject,
+    "isArray": isArray,
     "isUndef": isUndef,
     "isValid": isValid
 };
