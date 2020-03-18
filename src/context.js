@@ -1,8 +1,7 @@
 import {dispatch} from "./dispatch.js";
 import {call} from "./util.js";
 import {initContext, buildContext, updateContext} from "./lifecycle/index.js";
-import {createNode} from "./node.js";
-import {createAction} from "./actions.js";
+import {createNodeList} from "./node.js";
 import {expression} from "./runtime/expression.js";
 import {transform} from "./runtime/transform.js";
 import {value} from "./runtime/value.js";
@@ -13,7 +12,8 @@ export function Context (schema, parent) {
     //let self = this;
     //Assign context 
     Object.assign(this, {
-        "nodes": [], //Context data nodes
+        "nodes": createNodeList(), //Context data nodes
+        "actions": creareNodeList(), //To store pending actions to the context
         "target": parent.append("g"), //Context target group
         "draw": {}, //Draw configuration (width, height and padding)
         "input": {}, //Store the input data
@@ -23,8 +23,7 @@ export function Context (schema, parent) {
         "layout": null, //Layout node
         "events": dispatch(), //Events dispatching
         "ready": false,
-        "running": false,
-        "actions": []  //To store pending actions to the context
+        "running": false
     });
     //Initialize the context
     initContext(this, schema);
@@ -62,8 +61,37 @@ Context.prototype = {
     "expression": expression,
     "transform": transform,
     //Miscellanea methods
-    "createNode": createNode,
-    "createAction": createAction
+    "createNode": function (values) {
+        //Initialize a new node object
+        let newNode = Object.assign({
+            "index": this.nodes.length(), //Get node index
+            "id": null,
+            "type": null,
+            "source": null,
+            "targets": null, //createNodeList(),
+            "value": null,
+            "props": null
+        }, values);
+        //Save this node in the nodes objects
+        this.nodes.add(newNode);
+        return newNode; //Return the new node object
+    },
+    "createAction": function (node, type, value) {
+        if (this.actions.has(node) === true) {
+            //Only update the node with the new value
+            return Object.assign(this.actions.get(node.id), {
+                "value": value
+            });
+        }
+        //Add a new actions node
+        return this.actions.add({
+            "id": node.id, //This actions has the same id as the node
+            "type": type,
+            "target": node,
+            "value": value,
+            "date": Date.now()
+        });
+    }
 };
 
 //Create a new context
