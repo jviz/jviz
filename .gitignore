@@ -1,0 +1,11 @@
+dist
+examples
+bower_components
+node_modules
+package-lock.json
+*.iml
+*.swp
+*.pyc
+vendor
+www
+
