@@ -1,4 +1,4 @@
-@import "@siimple/css/scss/variables.scss";
+@use "@siimple/lib" as siimple;
 
 //Splash content
 .splash {
@@ -6,7 +6,7 @@
     width: calc(100% - 20px);
     height: calc(100% - 20px);
     padding: 10px;
-    background-color: siimple-default-color("light");
+    background-color: siimple.color("light");
     justify-content: center;
     align-items: center;
     //Splash content
@@ -18,7 +18,7 @@
     //Icon 
     &Icon {
         font-size: 100px;
-        color: siimple-default-color("dark");
+        color: siimple.color("dark");
     }
 }
 
