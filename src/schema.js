@@ -27,7 +27,7 @@ let getParsedValue = function (value, type) {
     }
     //Check for boolean expression
     else if (value === "true" || value === "false" || type === "bool") {
-        return value === "true"; //Convert ot boolean
+        return value === "true"; //Convert to boolean
     }
     //Default: return the value in string format
     return value;
@@ -108,9 +108,9 @@ let parseXml = function (xmlString) {
     };
     //Initialize parser
     return parseChildren("</jviz>");
-    let output = parseChildren("</jviz>");
-    console.log(output);
-    return output;
+    //let output = parseChildren("</jviz>");
+    //console.log(output);
+    //return output;
 };
 
 //Parse props values
@@ -347,52 +347,63 @@ let parseShapeElement = function (element) {
 };
 
 //Initialize output object
-let initializeSpec = function () {
-    return {
+let initializeSchema = function () {
+    let schemaObject = {
         "state": [],
         "data": [],
         "scales": [],
         "axes": [],
         "shapes": []
     };
+    return schemaObject; //Return empty schema
 };
 
 //Export schema compiler
-export function parseSchema (xmlString) {
-    let spec = initializeSpec(); //Initialize spec object
+export function compileSchema (xmlString) {
+    let schema = initializeSchema(); //Initialize schema object
     parseXml(xmlString).forEach(function (element) {
         //Parse shape element
         if (element["name"] === "shape") {
-            spec.shapes.push(parseShapeElement(element));
+            schema.shapes.push(parseShapeElement(element));
         }
         //Parse scale element
         else if (element["name"] === "scale") {
-            spec.scales.push(parseScaleElement(element));
+            schema.scales.push(parseScaleElement(element));
         }
         //Parse axis element
         else if (element["name"] === "axis") {
-            spec.axes.push(parseAxisElement(element));
+            schema.axes.push(parseAxisElement(element));
         }
         //Check for define element --> multiple types
         else if (element["name"] === "define") {
             if (element["type"] === "state") {
-                spec.state.push(parseStateElement(element));
+                schema.state.push(parseStateElement(element));
             }
             else if (element["type"] === "data") {
-                spec.data.push(parseDataElement(element));
+                schema.data.push(parseDataElement(element));
             }
             else if (element["type"] === "width" || element["type"] === "height") {
-                spec[element["type"]] = parseInt(element["attributes"]["value"]);
+                schema[element["type"]] = parseInt(element["attributes"]["value"]);
             }
             else if (element["type"] === "padding") {
-                spec["padding"] = parsePaddingElement(element);
+                schema["padding"] = parsePaddingElement(element);
             }
             else {
                 //Other: throw error (TODO)
             }
         }
     });
-    //Return the compiled spec object
-    return spec;
+    //Return the compiled schema object
+    return schema;
+}
+
+//Validate a JSON schema
+export function validateSchema (schema) {
+    return schema; //TODO
+}
+
+//Compile + validate schema wrapper
+export function parseSchema (schema) {
+    return validateSchema(compileSchema(schema));
 }
 
