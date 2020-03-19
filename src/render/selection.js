@@ -85,7 +85,7 @@ Selection.prototype = {
         return this.each(function () {
             this.addEventListener(name, listener, false);
         });
-    }
+    },
     //Remove an event listener
     "off": function (name, listener) {
         return this.each(function () {
