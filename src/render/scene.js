@@ -4,6 +4,8 @@ import {Selection} from "./selection.js";
 //Scene class
 export function Scene () {
     this.node = createNode("svg", null); //Create the scene node
+    this.node.setAttribute("width", "0px"); //Initialize scene width
+    this.node.setAttribute("height", "0px"); //Initialize scene height
     //this.parent = null; //Parent node
 }
 
