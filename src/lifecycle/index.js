@@ -7,6 +7,15 @@ import {createScaleNode, updateScaleNode} from "./scale.js";
 import {createShapeNode, updateShapeNode} from "./shape.js";
 import {createAxisNode, updateAxisNode} from "./axes.js";
 
+//Parse size value
+let parseSizeValue = function (value) {
+    if (typeof value === "undefined" || value === null) {
+        return 0; //Default size value
+    }
+    //Return parsed value
+    return parseInt(value);
+};
+
 //Update the context
 export function updateContext (context, forceUpdate, callback) {
     //Check for no pending updates
@@ -127,13 +136,13 @@ export function initContext (context, schema) {
     context.draw = {
         "width": context.addNode("draw:width", {
             "id": "draw:width",
-            "value": schema["width"],
+            "value": parseSizeValue(schema["width"]),
             "targets": createHashMap(),
             "type": "width"
         }),
         "height": context.addNode("draw:height", {
             "id": "draw:height",
-            "value": schema["height"],
+            "value": parseSizeValue(schema["height"]),
             "targets": createHashMap(),
             "type": "height"
         }),
