@@ -6,7 +6,7 @@ import {expression} from "./runtime/expression.js";
 import {transform} from "./runtime/transform.js";
 import {value} from "./runtime/value.js";
 import {source} from "./runtime/source.js";
-import {createScene} from "../render/scene.js";
+import {createScene} from "./render/scene.js";
 
 //Context class
 export function Context (schema, options) {
