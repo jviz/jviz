@@ -1,4 +1,4 @@
-import {createNodeList} from "../node.js";
+import {createHashMap} from "../hashmap.js";
 import {getValueSources} from "../runtime/value.js";
 import {getScale} from "../scales/index.js";
 import {CONTINUOUS_SCALE, DISCRETE_SCALE} from "../scales/index.js";
@@ -93,16 +93,16 @@ let getScaleSources = function (context, value) {
 
 //Create a scale node
 export function createScaleNode (context, name, props) {
-    let node = context.createNode({
+    let node = context.createNode(`scale:${name}`, {
         "id": `scale:${name}`,
         "props": props,
-        "targets": createNodeList(),
+        "targets": createHashMap(),
         "type": "scale"
     });
     //Get sources from the scale range and domain
     [props.range, props.domain].forEach(function (scaleProps) {
         return getScaleSources(context, scaleProps).forEach(function (source) {
-            source.targets.add(node);
+            source.targets.add(node.id, node);
         });
     });
     //Build this scale

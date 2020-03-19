@@ -90,7 +90,7 @@ let applyShapeStyle (context, datum, props, target) {
 //Create a new shape node
 export function createShapeNode (context, parent, props, key) {
     //Initialize the shape node
-    let node = context.createNode({
+    let node = context.createNode(`shape:${key}`, {
         "id": `shape:${key}`,
         "type": "shape",
         "props": props,
@@ -107,7 +107,7 @@ export function createShapeNode (context, parent, props, key) {
                 "source": source
             });
             //Add this shape node as a target node for this data object
-            source.targets.add(node);
+            source.targets.add(node.id, node);
         }
     } 
     //Get values sources
@@ -116,7 +116,7 @@ export function createShapeNode (context, parent, props, key) {
             return each(renderProps, function (propKey, propValue) {
                 return getValueSources(context, propValue).forEach(function (source) {
                     //console.log(source);
-                    source.targets.add(node); //Add this shape as a target node
+                    source.targets.add(node.id, node); //Add this shape as a target node
                 });
             })
         });

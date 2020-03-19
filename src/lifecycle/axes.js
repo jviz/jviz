@@ -4,7 +4,7 @@ import {isArray} from "../util.js";
 import {isContinuousScale, isDiscreteScale} from "../scales/index.js";
 import {getExpressionSources} from "../runtime/expression.js";
 import {getValueSources} from "../runtime/value.js";
-import {createNodeList} from "../node.js";
+import {createHashMap} from "../hashmap.js";
 
 //Axis default props
 let defaultProps = {
@@ -105,8 +105,7 @@ let getDisplayValue = function (context, props, value) {
 
 //Create an axis node
 export function createAxisNode (context, parent, props, index) {
-    //Build the new axis node
-    let node = context.createNode({
+    let node = context.addNode(`axis:${index}`, {
         "id": `axis:${index}`,
         "props": props, //Object.assign({}, defaultProps, props),
         "type": "axis",
@@ -115,16 +114,16 @@ export function createAxisNode (context, parent, props, index) {
     });
     //Add sources fo this axis
     if (typeof node.props.scale === "string") {
-        context.scales[node.props.scale].targets.add(node);
+        context.scales[node.props.scale].targets.add(node.id, node);
     }
     //Axis position can be extracted from sources
     getValueSources(context, node.props.position).forEach(function (source) {
-        source.targets.add(node);
+        source.targets.add(node.id, node);
     });
     //Check if tickformat is a string --> evaluate as an expression
     if (typeof node.props.tickFormat === "strong") {
         getExpressionSources(context, node.props.tickFormat).forEach(function (source) {
-            source.targets.add(node);
+            source.targets.add(node.id, node);
         });
     }
     //Render this axis

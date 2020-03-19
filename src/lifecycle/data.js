@@ -1,15 +1,15 @@
 import {isArray, isObject} from "../util.js";
 import {getTransformSources} from "../runtime/transform.js";
-import {createNodeList} from "../node.js";
+import {createHashMap} from "../hashmap.js";
 
 //Create data node
 export function createDataNode (context, name, props) {
     //Import data from source
-    let node = context.createNode({
+    let node = context.createNode(`data:${name}`, {
         "id": `data:${name}`,
         "type": "data",
         "value": [],
-        "targets": createNodeList(),
+        "targets": createHashMap(),
         "props": {}
     });
     //Check the data props
@@ -19,7 +19,7 @@ export function createDataNode (context, name, props) {
         });
         //Get transform sources and add this data as a target 
         getTransformSources(context, props.transform).forEach(function (source) {
-            source.targets.add(node);
+            source.targets.add(node.id, node);
         });
     }
     //Check if this data comes from an input
@@ -28,7 +28,7 @@ export function createDataNode (context, name, props) {
             "source": context.input[name]
         });
         //Add this data as a target
-        context.input[name].targets.add(node);
+        context.input[name].targets.add(node.id, node);
     }
     //Check if the source is another dataset
     else if (typeof props.source === "string") {
@@ -36,7 +36,7 @@ export function createDataNode (context, name, props) {
             "source": context.data[props.source]
         });
         //Add this data as a target reference of the source data
-        context.data[props.source].targets.add(node);
+        context.data[props.source].targets.add(node.id, node);
     }
     else {
         //Other source: throw error
