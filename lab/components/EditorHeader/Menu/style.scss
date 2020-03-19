@@ -1,4 +1,4 @@
-@import "@siimple/css/scss/variables.scss";
+@use "@siimple/lib" as siimple;
 
 //Editor header menu button styles
 .menu {
@@ -6,7 +6,7 @@
     height: calc(100% - 2px);
     //line-height: calc(100% - 2px);
     //color: rgba(#ffffff, 0.5);
-    color: rgba(siimple-default-color("dark"), 0.8);
+    color: rgba(siimple.color("dark"), 0.8);
     border-bottom: 2px solid transparent;
     transition: all 0.3s;
     cursor: pointer;
@@ -17,8 +17,8 @@
     //Menu button hover
     &:hover {
         //color: #ffffff;
-        color: siimple-default-color("dark");
-        border-bottom-color: siimple-default-color("primary");
+        color: siimple.color("dark");
+        border-bottom-color: siimple.color("primary");
     }
     //Menu button icon
     &Icon {

@@ -1,4 +1,4 @@
-@import "@siimple/css/scss/variables.scss";
+@use "@siimple/lib" as siimple;
 
 //Editor header button styles
 .button {
@@ -8,7 +8,7 @@
     margin-top: auto;
     margin-bottom: auto;
     color: rgba(#ffffff, 0.5);
-    background-color: siimple-default-color("primary");
+    background-color: siimple.color("primary");
     border-radius: 5px;
     transition: all 0.3s;
     cursor: pointer;
@@ -19,7 +19,7 @@
     //Button hover
     &:hover {
         color: rgba(#ffffff, 0.8);
-        background-color: darken(siimple-default-color("primary"), 3%);
+        background-color: siimple.utils-darken(siimple.color("primary"), 3%);
     }
     //Button icon
     &Icon {

@@ -1,7 +1,7 @@
 import React from "react";
+
 import {HeaderButton} from "./Button/index.js";
 import {HeaderMenu} from "./Menu/index.js";
-
 import style from "./style.scss";
 
 //Export header editor component
