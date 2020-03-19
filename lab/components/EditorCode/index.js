@@ -1,11 +1,9 @@
 import React from "react";
-
 import {Renderer} from "@siimple/neutrine";
 
 //import {Panel, PanelHead, PanelBody} from "../../components/panel/index.js";
 //import {PanelButton} from "../../components/panel/index.js";
-import {TextEditor} from "../../../utils/text.js";
-
+import {TextEditor} from "../../utils/text.js";
 import style from "./style.scss";
 
 //Export editor input component

@@ -1,4 +1,4 @@
-@import "@siimple/css/scss/variables.scss";
+@use "@siimple/lib" as siimple;
 
 //Editor input code styles
 .code {
@@ -12,7 +12,7 @@
     overflow-y: auto;
     overflow-x: auto;
     position: relative;
-    background-color: siimple-default-color("light");
+    background-color: siimple.color("light");
     //background-color: #ffffff;
     //Input code content
     &Content {
@@ -31,20 +31,20 @@
         line-height: 20px;
         //margin-left: 50px;
         z-index: 1;
-        color: siimple-default-color("dark");
+        color: siimple.color("dark");
     }
     //Lines counter
     &Lines {
         display: block;
         width: calc(50px - 7px);
         min-height: calc(100% - 20px);
-        background-color: darken(siimple-default-color("light"), 3%);
+        background-color: siimple.utils-darken(siimple.color("light"), 3%);
         //background-color: #ffffff;
         font-family: monospace;
         font-size: 12px;
-        color: rgba(siimple-default-color("dark"), 0.4);
+        color: rgba(siimple.color("dark"), 0.4);
         line-height: 20px;
-        border-right: 2px solid siimple-default-color("light", "dark"); 
+        border-right: 2px solid siimple.color-darker("light"); 
         //overflow-x: auto;
         position: absolute;
         padding-top: 10px;
@@ -63,7 +63,7 @@
         font-size: 12px;
         //color: #ffffff;
         color: rgba(#ffffff, 0.9);
-        background-color: siimple-default-color("primary");
+        background-color: siimple.color("primary");
         padding-left: 5px;
         padding-right: 5px;
         position: absolute;
