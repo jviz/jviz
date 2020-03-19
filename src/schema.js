@@ -1,3 +1,5 @@
+import {camelCase} from "./util.js";
+
 //General regex
 let documentStartRegex = /<jviz(.*)>/; //Document start
 let documentEndRegex = /<\/jviz>/; //Document end
@@ -269,8 +271,10 @@ let parseAxisElement = function (element) {
 
 //Parse event element
 let parseEventElement = function (element) {
+    //Convert the event name to camelcase
+    //"click-down" --> "clickDown"
     return Object.assign(element["attributes"], {
-        "type": element["type"].toLowerCase()
+        "type": camelCase(element["type"].toLowerCase())
     });
 };
 
@@ -281,7 +285,8 @@ let parseRenderElement = function (element) {
         if (child["name"] !== "prop") {
             return null; //TODO: throw error
         }
-        render[child["type"]] = parsePropElement(child);
+        let name = camelCase(child["type"]); //Get prop type in camelcase
+        render[name] = parsePropElement(child);
     });
     //Return the render props
     return render;
