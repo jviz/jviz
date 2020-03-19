@@ -1,6 +1,6 @@
 import {isArray, isObject, values as objectValues, each} from "../util.js";
 import {load} from "../load.js";
-import {createNodeList} from "../node.js";
+import {createHashMap} from "../hashmap.js";
 import {parsePadding} from "../render/padding.js";
 import {createDataNode, updateDataNode} from "./data.js";
 import {createScaleNode, updateScaleNode} from "./scale.js";
@@ -14,7 +14,7 @@ export function updateContext (context, forceUpdate, callback) {
         //TODO: display in context logs
         return callback();
     }
-    let updateList = createNodeList(); //We will store all changed nodes on this list
+    let updateList = createHashMap(); //We will store all changed nodes on this list
     let recomputeDraw = forceUpdate === true; //Recompute the drawing values
     //Apply each change to the state object
     context.actions.forEach(function (action) {
@@ -34,7 +34,7 @@ export function updateContext (context, forceUpdate, callback) {
         //Add all targets nodes of this changed item
         if (node.targets !== null) {
             node.targets.forEach(function (targetNode) {
-                updateList.add(targetNode);
+                updateList.add(targetNode.id, targetNode);
             });
         }
     });
@@ -59,7 +59,7 @@ export function updateContext (context, forceUpdate, callback) {
     //Loop for all nodes
     context.nodes.forEach(function (node) {
         //Check if this node is not in the update list
-        if (updateList.has(node) === false && forceUpdate === false) {
+        if (updateList.has(node.id) === false && forceUpdate === false) {
             return null;
         }
         //Nodes that we will update: data|scale|axis|shape
@@ -78,17 +78,17 @@ export function updateContext (context, forceUpdate, callback) {
         else if (node.type === "shape") {
             //If the shape source data has changed we will force a re-rendering
             //If not, we will call only the update props of this shape
-            updateShapeNode(context, node, updateList.has(node.source) || forceUpdate);
+            updateShapeNode(context, node, (node.source !== null && updateList.has(node.source.id)) || forceUpdate);
         }
         //Add the targets nodes of the current node ot the list of nodes to update
         //We will ensure that all targets of the updated nodes will be visited.
         if (node.targets !== null && forceUpdate === false) {
             return node.targets.forEach(function (targetNode) {
-                updateList.add(targetNode);
+                updateList.add(targetNode.id, targetNode);
             });
         }
     });
-    context.actions.empty(); //Remove the actions list
+    context.actions.clear(); //Reset the actions list
     return callback();
 }
 
@@ -125,22 +125,22 @@ export function buildContext (context, callback) {
 export function initContext (context, schema) {
     //Save padding/width and height values from props
     context.draw = {
-        "width": context.createNode({
+        "width": context.addNode("draw:width", {
             "id": "draw:width",
             "value": schema["width"],
-            "targets": createNodeList(),
+            "targets": createHashMap(),
             "type": "width"
         }),
-        "height": context.createNode({
+        "height": context.addNode("draw:height", {
             "id": "draw:height",
             "value": schema["height"],
-            "targets": createNodeList(),
+            "targets": createHashMap(),
             "type": "height"
         }),
-        "padding": context.createNode({
+        "padding": context.addNode("draw:padding", {
             "id": "draw:padding",
             "value": parsePadding(schema["padding"]),
-            "targets": createNodeList(),
+            "targets": createHashMap(),
             "type": "padding"
         }),
         "computed": null //Computed width and height
@@ -150,33 +150,31 @@ export function initContext (context, schema) {
         let name = (typeof props["name"] === "string") ? props["name"] : index;
         //Check for value data --> save the values in a new node
         if (isArray(props["value"])) {
-            context.input[name] = context.createNode({
+            context.input[name] = context.addNode(`input:${name}`, {
                 "id": `input:${name}`,
-                //"type": "input",
                 "value": props["value"], //Save the data values
-                "targets": createNodeList()
+                //"type": "input",
+                "targets": createHashMap()
             });
         }
         //Check for data to be imported from url --> save the url
         else if (typeof props["url"] === "string") {
-            context.input[name] = context.createNode({
+            context.input[name] = context.addNode(`input:${name}`, {
                 "id": `input:${name}`,
+                "props": props,
                 //"type": "input",
-                "props": {
-                    "url": props["url"] //Save the url to load the data
-                },
                 "value": [], //Empty values list
-                "targets": createNodeList()
+                "targets": createHashMap()
             });
         }
     });
     //Initialize state nodes
     each(schema.state, function (index, props) {
         let name = (typeof props["name"] === "string") ? props["name"] : index;
-        context.state[name] = context.createNode({
+        context.state[name] = context.addNode(`state:${name}`, {
             "id": `state:${name}`,
             "value": props["value"],
-            "targets": createNodeList(),
+            "targets": createHashMap(),
             "type": "state"
         });
         //createStateNode(context, name, stateProps);
