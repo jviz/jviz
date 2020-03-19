@@ -1,6 +1,6 @@
 import {isNull, isValid, isUndef} from "../util.js";
 import {isArray, isObject, isString, isNumber, isBool} from "../util.js";
-import {createNodeList} from "../node.js";
+//import {createHashMap} from "../hashmap.js";
 import {clamp, random, format} from "../math.js";
 import {polarToCartesianX, polarToCartesianY} from "../math.js";
 import {evaluate} from "../evaluate.js";
