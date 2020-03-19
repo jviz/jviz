@@ -1,6 +1,5 @@
 import React from "react";
 import {If, classNames} from "@siimple/neutrine";
-
 import style from "./style.scss";
 
 //Export panel component
