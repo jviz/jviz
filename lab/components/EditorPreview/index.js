@@ -2,7 +2,7 @@ import React from "react";
 import {If} from "@siimple/neutrine";
 import {Paragraph, Heading} from "@siimple/neutrine";
 
-import {Splash} from "../../../components/Splash/index.js";
+import {Splash} from "../Splash/index.js";
 import style from "./style.scss";
 
 //Export editor preview component
