@@ -37,7 +37,7 @@ let jviz = function (schema, options) {
     this.context = createContext(schema, options);
     //Check for parent component provided
     if (typeof options.parent !== "undefined" && options.parent !== null) {
-        this.context.scene.mount(parent); //Mount scene
+        this.context.scene.mount(options.parent); //Mount scene
     }
 };
 
