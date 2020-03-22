@@ -16,15 +16,11 @@ Selection.prototype = {
         }
         return this;
     },
-    //Set or get an attribute for each node
+    //Set an attribute for each node
     "attr": function (name, value) {
-        //Check for undefined value to set --> get the current attribute value
+        //Check for undefined value to set --> nothing to do
         if (typeof value === "undefined") {
-            if (this.nodes.length === 0) {
-                return null;
-            }
-            //Return the attribute value only of the first node
-            return this.nodes[0].getAttribute(name);
+            return this;
         }
         //Set the value for each node in the selection
         return this.each(function (self, index) {
@@ -44,13 +40,9 @@ Selection.prototype = {
     },
     //Set the style of all nodes
     "style": function (name, value) {
-        //Check for undefined value to set --> get the current attribute value
+        //Check for undefined value to set --> nothing to do
         if (typeof value === "undefined") {
-            if (this.nodes.length === 0) {
-                return null;
-            }
-            //Return the style value of the first node
-            return this.nodes[0].style.getPropertyValue(name);
+            return this;
         }
         //Set the value for each node in the selection
         return this.each(function (self, index) {
