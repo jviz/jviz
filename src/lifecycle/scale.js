@@ -100,7 +100,7 @@ let getScaleSources = function (context, value) {
 
 //Create a scale node
 export function createScaleNode (context, name, props) {
-    let node = context.createNode(`scale:${name}`, {
+    let node = context.addNode({
         "id": `scale:${name}`,
         "props": props,
         "targets": createHashMap(),
