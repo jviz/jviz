@@ -15,7 +15,7 @@ export function Context (schema, options) {
     //Assign context 
     Object.assign(this, {
         "nodes": createHashMap(), //Context data nodes
-        "actions": creareHashMap(), //To store pending actions to the context
+        "actions": createHashMap(), //To store pending actions to the context
         "target": this.scene.append("g"), //Context target group
         "draw": {}, //Draw configuration (width, height and padding)
         "input": {}, //Store the input data
