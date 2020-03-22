@@ -200,6 +200,7 @@ let parseTransformElement = function (element) {
         }
         //Assign transform attributes
         Object.assign(transform, {
+            "join": transform["join"] === "true" || transform["join"] === true,
             "fields": [],
             "op": [],
             "as": []
