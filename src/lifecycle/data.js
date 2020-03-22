@@ -5,13 +5,14 @@ import {createHashMap} from "../hashmap.js";
 //Create data node
 export function createDataNode (context, name, props) {
     //Import data from source
-    let node = context.createNode(`data:${name}`, {
+    let node = context.addNode({
         "id": `data:${name}`,
         "type": "data",
         "value": [],
         "targets": createHashMap(),
         "props": {}
     });
+    //console.log(node);
     //Check the data props
     if (isArray(props.transform) || isObject(props.transform)) {
         Object.assign(node.props, {
