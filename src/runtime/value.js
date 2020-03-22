@@ -86,12 +86,6 @@ export function value (props, datum, defaultValue) {
         //Return the scaled value
         //return value;
     }
-    //Check to apply a layout transformation
-    else if (typeof props.layout === "string" && context.layout !== null) {
-        //let layoutID = (datum !== null) ? datum[props.layout] : props.layout;
-        //TODO: think about better ways to do that
-        value = context.layout.value(datum[props.layout], value);
-    }
     //Return the value
     return value;
 }
