@@ -145,7 +145,7 @@ export function updateAxisNode (context, node) {
     //let axisStart = scale.range[0];
     //let axisEnd = scale.range[1];
     //Axis position
-    let position = context.value(props.position, 0); //defaultProps.position);
+    let position = context.value(props.position, 0, 0); //defaultProps.position);
     //Get the axis type
     let orientation = getOrientation(props.orientation);
     let hasAxisLine = context.value(props.line, null, defaultProps.line); //Display axis line
