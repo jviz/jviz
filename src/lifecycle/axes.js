@@ -1,6 +1,6 @@
 import {colors} from "../color.js";
 import {polyline} from "../render/primitives/polyline.js";
-import {isArray} from "../util.js";
+import {isArray, isObject} from "../util.js";
 import {isContinuousScale, isDiscreteScale} from "../scales/index.js";
 import {getExpressionSources} from "../runtime/expression.js";
 import {getValueSources} from "../runtime/value.js";
