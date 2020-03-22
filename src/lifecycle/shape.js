@@ -90,7 +90,7 @@ let applyShapeStyle = function (context, datum, props, target) {
 //Create a new shape node
 export function createShapeNode (context, parent, props, key) {
     //Initialize the shape node
-    let node = context.createNode(`shape:${key}`, {
+    let node = context.addNode({
         "id": `shape:${key}`,
         "type": "shape",
         "props": props,
