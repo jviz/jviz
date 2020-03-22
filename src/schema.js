@@ -186,8 +186,8 @@ let parseTransformElement = function (element) {
         delete transform["source-key"]; //Remove original source-key attribute
         delete transform["target-key"]; //Remove original target-key attribute
         element.children.forEach(function (child) {
-            if (child.name !== "copy") {
-                return null; //TODO: throw error
+            if (child.name !== "field") {
+                throw new Error(`Invalid tag name "${child.name}" at line ${child.index}: only "field" tags are allowed.`);
             }
             transform["fields"].push(child.attributes["field"]); //Save rename field attr
             transform["as"].push(child.attributes["as"]); //Save rename as attr
@@ -205,8 +205,8 @@ let parseTransformElement = function (element) {
             "as": []
         });
         element.children.forEach(function (child) {
-            if (child.name !== "op" || typeof child.attributes["field"] !== "string") {
-                return null; //TODO: invalid transform child
+            if (child.name !== "field" || typeof child.attributes["field"] !== "string") {
+                throw new Error(`Invalid tag name "${child.name}" at line ${child.index}: only "field" tags are allowed.`);
             }
             //Get field and as attributes
             let field = child.attributes["field"];
@@ -215,6 +215,29 @@ let parseTransformElement = function (element) {
             transform.op.push(child.attributes["type"]); //Save operation type
             transform.as.push((typeof as === "string") ? as : field); //Save as 
         });
+    }
+    //Check for rename transform
+    else if (transform["type"] === "rename") {
+        if (element.closed === true) {
+            transform["fields"] = [transform["field"]]; //Change fields as array
+            transform["as"] = [transform["as"]]; //Convert to array
+            delete transform["field"]; //Remove old field
+        }
+        else {
+            Object.assign(transform, {
+                "fields": [],
+                "as": []
+            });
+            //Insert rename fields
+            element.children.forEach(function (child) {
+                if (child.name !== "field") {
+                    throw new Error(`Invalid tag name "${child.name}" at line ${child.index}: only "field" tags are allowed.`);
+                }
+                //Save rename field
+                transform.fields.push(child.attributes["field"]);
+                transform.as.push(child.attributes["as"]);
+            });
+        }
     }
     //Return the transform object
     return transform;
