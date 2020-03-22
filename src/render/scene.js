@@ -26,8 +26,8 @@ Scene.prototype = {
     //Mount the scene
     "mount": function (query) {
         let parent = selectNodes(query); //Select parent node
-        if (parentNode.nodes.length > 0) {
-            parentNode.nodes[0].appendChild(this.node); //Mount 
+        if (parent.nodes.length > 0) {
+            parent.nodes[0].appendChild(this.node); //Mount 
         }
     },
     //Unmount the scene
