@@ -172,7 +172,7 @@ let parseTransformElement = function (element) {
     //Check for extend transform --> convert source-key and target-key
     if (transform["type"] === "extend") {
         //Check for no children --> throw error
-        if (element.closed === false) {
+        if (element.closed === true) {
             throw new Error(""); //TODO
         }
         //Assign extend attributes
@@ -194,7 +194,7 @@ let parseTransformElement = function (element) {
     }
     //Check for summarize transform
     else if (transform["type"] === "summarize") {
-        if (element.closed === false) {
+        if (element.closed === true) {
             throw new Error(""); //TODO: summarize transform sould contain at least one child
         }
         //Assign transform attributes
@@ -203,7 +203,7 @@ let parseTransformElement = function (element) {
             "op": [],
             "as": []
         });
-        element["children"].forEach(function (child) {
+        element.children.forEach(function (child) {
             if (child.name !== "op" || typeof child.attributes["field"] !== "string") {
                 return null; //TODO: invalid transform child
             }
@@ -397,17 +397,17 @@ let parseRenderElement = function (element) {
     //Initialize allowed render elements
     let render = {
         "shapes": [],
-        "axis": []
+        "axes": []
     };
     //Parse children elements
-    elementchildren.forEach(function (child) {
+    element.children.forEach(function (child) {
         //Check for no allowed child type
         if (renderChildren.indexOf(child.name) === -1) {
             throw new Error(`Unknown tag name "${child.name}" at line ${child.index}`);
         }
         //Check for axis child
         if (child.name === "axis") {
-            render.axis.push(parseAxisElement(child)); //Save as axis element
+            render.axes.push(parseAxisElement(child)); //Save as axis element
         }
         //Other element --> parse as shape
         else {
