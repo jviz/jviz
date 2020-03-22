@@ -2,30 +2,33 @@ import {createHashMap} from "../hashmap.js";
 import {getValueSources} from "../runtime/value.js";
 import {getScale} from "../scales/index.js";
 import {CONTINUOUS_SCALE, DISCRETE_SCALE} from "../scales/index.js";
-import {isArray, unique, range as rangeOf, each} from "../util.js";
+import {isArray, isObject, unique, range as rangeOf, each} from "../util.js";
 
 //Parse scale range
 let parseScaleRange = function (context, scale, value) {
-    //Check for string value
-    if (typeof value === "string") {
+    //Check for array range object --> parse each item
+    if (isArray(value) === true) {
+        return value.map(function (v) {
+            return context.value(v, null);
+        });
+    }
+    //Check for object value
+    else if (isObject(value) === true) {
         //Check for width range value
-        if (value === "width") {
+        if (typeof value["draw"] === "string" && value["draw"] === "width") {
             return [0, context.draw.computed.width];
         }
         //Check for height range value
-        else if (value === "height") {
+        else if (typeof value["draw"] === "string" && value["draw"] === "height") {
             return [context.draw.computed.height, 0];
         }
+        //Other type --> parse from value or state
+        else {
+            return context.value(value, null);
+        }
     }
-    //Check for array range object
-    else if (isArray(value) === true) {
-        //Parse each item of the range
-        return value.map(function (v) {
-            return context.value(v, v);
-        });
-    }
-    //Other range value, return the provided value
-    return value;
+    //Other range value --> throw error
+    throw new Error("Invalid range provided");
 };
 
 //Parse scale domain
@@ -33,20 +36,24 @@ let parseScaleDomain = function (context, scale, value) {
     //Check if provided domain is an array
     if (isArray(value) === true) {
         return value.map(function (v) {
-            return context.value(v, v);
+            return context.value(v, null);
         });
     }
     //Check if the provided value is an object
-    if (value !== null && typeof value === "object") {
+    if (isObject(value) === true) {
         //Check for state data
-        if (typeof value.state === "string") {
-            return context.state[value.state];
+        if (typeof value["state"] === "string") {
+            return context.state[value["state"]];
+        }
+        //Check for manual domain
+        else if (typeof value["value"] !== "undefined") {
+            return value["value"]; //Return value data
         }
         //Get domain from data
         let data = context.source(value)[0];
         //Generate a function to extract the domain value of a datum
         let valueOf = function (datum) {
-            return (typeof value.field === "string") ? datum[value.field] : datum;
+            return (typeof value["field"] === "string") ? datum[value["field"]] : datum;
         };
         //Check for continuous scale
         if (scale.category === CONTINUOUS_SCALE) {
