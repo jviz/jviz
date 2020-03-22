@@ -108,6 +108,7 @@ export function buildContext (context, callback) {
         let node = context.input[key];
         return node.props !== null && typeof node.props.url === "string";
     });
+    //console.log(sources);
     //Method for importing data async
     let loadDataAsync = function (index) {
         if (index >= sources.length) {
@@ -134,19 +135,19 @@ export function buildContext (context, callback) {
 export function initContext (context, schema) {
     //Save padding/width and height values from props
     context.draw = {
-        "width": context.addNode("draw:width", {
+        "width": context.addNode({
             "id": "draw:width",
             "value": parseSizeValue(schema["width"]),
             "targets": createHashMap(),
             "type": "width"
         }),
-        "height": context.addNode("draw:height", {
+        "height": context.addNode({
             "id": "draw:height",
             "value": parseSizeValue(schema["height"]),
             "targets": createHashMap(),
             "type": "height"
         }),
-        "padding": context.addNode("draw:padding", {
+        "padding": context.addNode({
             "id": "draw:padding",
             "value": parsePadding(schema["padding"]),
             "targets": createHashMap(),
@@ -157,18 +158,9 @@ export function initContext (context, schema) {
     //Initialize input data
     each(schema.data, function (index, props) {
         let name = (typeof props["name"] === "string") ? props["name"] : index;
-        //Check for value data --> save the values in a new node
-        if (isArray(props["value"])) {
-            context.input[name] = context.addNode(`input:${name}`, {
-                "id": `input:${name}`,
-                "value": props["value"], //Save the data values
-                //"type": "input",
-                "targets": createHashMap()
-            });
-        }
         //Check for data to be imported from url --> save the url
-        else if (typeof props["url"] === "string") {
-            context.input[name] = context.addNode(`input:${name}`, {
+        if (typeof props["url"] === "string") {
+            context.input[name] = context.addNode({
                 "id": `input:${name}`,
                 "props": props,
                 //"type": "input",
@@ -176,11 +168,20 @@ export function initContext (context, schema) {
                 "targets": createHashMap()
             });
         }
+        //Check for value data --> save the values in a new node
+        else if (isArray(props["value"])) {
+            context.input[name] = context.addNode({
+                "id": `input:${name}`,
+                "value": props["value"], //Save the data values
+                //"type": "input",
+                "targets": createHashMap()
+            });
+        }
     });
     //Initialize state nodes
     each(schema.state, function (index, props) {
         let name = (typeof props["name"] === "string") ? props["name"] : index;
-        context.state[name] = context.addNode(`state:${name}`, {
+        context.state[name] = context.addNode({
             "id": `state:${name}`,
             "value": props["value"],
             "targets": createHashMap(),
