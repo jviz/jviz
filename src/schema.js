@@ -212,7 +212,7 @@ let parseTransformElement = function (element) {
             let field = child.attributes["field"];
             let as = child.attributes["as"];
             transform.fields.push(field); //Save field
-            transform.op.push(child.attributes["type"]); //Save operation type
+            transform.op.push(child.attributes["op"]); //Save operation type
             transform.as.push((typeof as === "string") ? as : field); //Save as 
         });
     }
