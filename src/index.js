@@ -32,7 +32,7 @@ let jviz = function (schema, options) {
     }
     //TODO: validate options object
     //this.options = options;
-    options = Object.assing({}, defaultOptions, options);
+    options = Object.assign({}, defaultOptions, options);
     //Create the new viewer context
     this.context = createContext(schema, options);
     //Check for parent component provided
