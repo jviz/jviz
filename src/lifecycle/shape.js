@@ -168,7 +168,7 @@ export function updateShapeNode (context, node, forceRender) {
             let element = createShapeElement(shape, node.parent, index, groupIndex);
             shape.render(context, data, updateProps, element);  // --> render mount + update props
             //Apply style props
-            applyStyle(context, data, updateProps, element);
+            applyShapeStyle(context, data, updateProps, element);
             //Register on hover events
             if (typeof props.render.hover === "object" && props.render.hover !== null) {
                 //Register enter event listener --> apply hover props
