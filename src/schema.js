@@ -139,6 +139,7 @@ let parseValueAttributes = function (attr) {
         attr["value"] = getParsedValue(attr["value"], attr["format"]); //Get parsed value
         delete attr["format"]; //Remove format attribute
     }
+    //delete attr["name"]; //Remove name attribute
     //Return the attributes object
     return attr;
 };
@@ -315,13 +316,14 @@ let parseAxisElement = function (element) {
         if (child.name !== "attr") {
             throw new Error(`Unkown tag name "${child.name}" on line ${child.index}`);
         }
-        let name = child.attributes["name"]; //Get attribute name
+        let name = child.attributes["name"] + ""; //Get attribute name
         //Check for no attribute name provided
         if (typeof name !== "string" || name.length === 0) {
             throw new Error(`No attribute name provided at line ${child.index}`);
         }
         //Add this attribute to the axis
         axis[name] = parseAttrElement(child);
+        delete axis[name]["name"]; //Remove name field
     });
     //Return the parsed axis config
     return axis;
@@ -367,13 +369,14 @@ let parseShapeElement = function (element) {
         }
         //Check for attr child --> parse
         else if (child.name === "attr" && element.name !== "group") {
-            let name = child.attributes["name"]; //Get attribute name
+            let name = child.attributes["name"] + ""; //Get attribute name
             let key = (typeof child.attributes["on"] === "string") ? child.attributes["on"] : "mount";
             if (typeof shape.render[key] === "undefined") {
                 shape.render[key] = {}; //Initialize
             }
             //Save render attribute
             shape.render[key][name] = parseAttrElement(child);
+            delete shape.render[key][name]["name"]; //Remove name field
         }
         //Check for other shape
         else if (shapeTags.indexOf(child.name) > -1 && shape.type === "group") {
