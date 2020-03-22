@@ -107,7 +107,7 @@ let getOrientation = function (value) {
 
 //Create an axis node
 export function createAxisNode (context, parent, props, index) {
-    let node = context.addNode(`axis:${index}`, {
+    let node = context.addNode({
         "id": `axis:${index}`,
         "props": props, //Object.assign({}, defaultProps, props),
         "type": "axis",
