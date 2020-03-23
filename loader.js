@@ -8,7 +8,7 @@ let schemaStringify = function (schema) {
 //Export jviz schema loader
 module.exports = function (source) {
     //Build schema
-    let schema = jviz.schemaSync(source);
+    let schema = jviz.parseSync(source);
     //Return parsed schema
     return `export default ${schemaStringify(schema)}`
 };
