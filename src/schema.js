@@ -399,8 +399,12 @@ let parseShapeElement = function (element) {
                 shape.render[key] = {}; //Initialize
             }
             //Save render attribute
-            shape.render[key][name] = parseAttrElement(child);
-            delete shape.render[key][name]["name"]; //Remove name field
+            let shapeAttr = parseAttrElement(child);
+            delete shapeAttr["name"]; //Remove name field
+            if (typeof shapeAttr["interval"] === "string") {
+                shapeAttr["interval"] = Number(shapeAttr["interval"]); //Parse interval attr
+            }
+            shape.render[key][name] = shapeAttr; //parseAttrElement(child);
         }
         //Check for other shape
         else if (shapeTags.indexOf(child.name) > -1 && shape.type === "group") {
