@@ -5,6 +5,7 @@ import {isContinuousScale, isDiscreteScale} from "../scales/index.js";
 import {getExpressionSources} from "../runtime/expression.js";
 import {getValueSources} from "../runtime/value.js";
 import {createHashMap} from "../hashmap.js";
+import {ticks as generateTicks} from "../math.js";
 
 //Available orientation values
 let orientationValues = ["top", "bottom", "left", "right"];
@@ -44,41 +45,10 @@ let generateValues = function (scale, count) {
     //Check for continuous scale
     if (isContinuousScale(scale) === true) {
         //Get the range values
-        let range = {
-            "start": Math.min.apply(null, scale.domain),
-            "end": Math.max.apply(null, scale.domain)
-        };
-        //Output values list
-        let values = [];
-        //Check for the same range values
-        if(range.start === range.end) {
-            return [range.start];
-        }
-        //Determine Range length
-        range.length = range.end - range.start; // + 1;
-        //console.log(range);
-        // Adjust ticks if needed
-        if (count < 3) {
-            count = 3; //At least add the start and end values
-        }
-        //Get the raw tick size
-        let unroundedTickSize = range.length / count;
-        //Round the tick size into nice amounts
-        let mag = Math.ceil(Math.log10(unroundedTickSize)-1);
-        let magPow = Math.pow(10, mag);
-        let roundedTickRange = Math.ceil(unroundedTickSize / magPow) * magPow;
-        //Adjust the lower and upper bound accordingly
-        let minRounded = roundedTickRange * Math.floor(range.start / roundedTickRange);
-        let maxRounded = roundedTickRange * Math.ceil(range.end / roundedTickRange);
-        //Generate the values
-        for(let x = minRounded; x <= maxRounded; x = x + roundedTickRange) {
-            //Add this value only if is in the range interval
-            if (range.start <= x && x <= range.end) {
-                values.push(parseFloat(x.toFixed(8))); //Convert 1.2000000000000002 --> 1.2
-            }
-        }
-        //Return the interpolated values
-        return values;
+        let start = Math.min.apply(null, scale.domain); //Get start value
+        let end = Math.max.apply(null, scale.domain); //Get end value
+        //Return ticks values
+        return generateTicks(start, end, count);
     }
     //Check for discrete scale
     else if (isDiscreteScale(scale) === true) {
