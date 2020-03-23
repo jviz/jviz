@@ -33,27 +33,26 @@ export function Context (schema, options) {
 //Context methods
 Context.prototype = {
     //Lifecycle methods
-    "render": function (callback) {
+    "render": function () {
         let context = this;
         //Check if context is running
         if (context.running === true) {
             //TODO: display warning in logs
-            return null;
+            return Promise.resolve(null); //Return a resolved promise
         }
         //Check if context has been initialized
         if (context.ready === true) {
-            //console.warn("viewer is already initialized. Call update() method to re-render the view");
-            return updateContext(context, false, function () {
-                return call(callback, null, []); //Call the provided callback function
-            });
+            return updateContext(context, false);
         }
         context.running = true; //Disable any update to the context while running
-        return buildContext(context, function () {
+        return buildContext(context).then(function () {
+            return updateContext(context, true);
+        }).then(function () {
             Object.assign(context, {
                 "running": false, //Enable updates run
                 "ready": true //Disable build context again
             });
-            return call(callback, null, []);
+            return Promise.resolve(); //Continue
         });
     },
     //Context runtime
