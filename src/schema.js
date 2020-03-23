@@ -513,7 +513,14 @@ export function validateSchema (schema) {
 }
 
 //Compile + validate schema wrapper
-export function parseSchema (schema) {
+export function parseSchemaSync (schema) {
     return validateSchema(compileSchema(schema));
+}
+
+//Parse schema async
+export function parseSchemaAsync (content) {
+    return new Promise(function (resolve, reject) {
+        resolve(parseSchemaSync(content));
+    });
 }
 
