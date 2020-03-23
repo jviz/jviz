@@ -1,4 +1,4 @@
-@import "@siimple/css/scss/variables.scss";
+@use "@siimple/lib" as siimple;
 
 //Main editor class
 .editor {
@@ -14,11 +14,11 @@
     }
     //Panel separator
     &Resize {
-        background-color: darken(siimple-default-color("light"), 5%);
+        background-color: siimple.utils-darken(siimple.color("light"), 5%);
         transition: background-color 0.3s;
         //Hover style
         &:hover {
-            background-color: darken(siimple-default-color("light"), 10%);
+            background-color: siimple.utils-darken(siimple.color("light"), 10%);
         }
     }
 }

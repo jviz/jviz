@@ -1,28 +1,15 @@
 import React from "react";
 import kofi from "kofi";
-import {Choose, ChooseIf} from "@siimple/neutrine";
+import {If, Choose, ChooseIf} from "@siimple/neutrine";
 import {Renderer} from "@siimple/neutrine";
 import {SplitPanel, SplitPanelItem} from "@siimple/neutrine";
 import {Spinner} from "@siimple/neutrine";
 
 import {Splash} from "../../components/Splash/index.js";
-
-import {EditorHeader} from "./Header/index.js";
-import {EditorCode} from "./Code/index.js";
-import {EditorPreview} from "./Preview/index.js";
+import {EditorHeader} from "../../components/EditorHeader/index.js";
+import {EditorCode} from "../../components/EditorCode/index.js";
+import {EditorPreview} from "../../components/EditorPreview/index.js";
 import style from "./style.scss";
-
-//Fetch url
-let fetchUrl = function (url, callback) {
-    let options = {
-        "url": url,
-        "method": "get",
-        "json": false
-    };
-    return kofi.request(options, function (error, response, body) {
-        return callback(error, body);
-    });
-};
 
 //Export sandbox editor component
 export class EditorPage extends React.Component {
@@ -31,9 +18,7 @@ export class EditorPage extends React.Component {
         //Initial state
         this.state = {
             "ready": false,
-            "content": "",
-            "deployContent": null,
-            "deployDate": null
+            "content": ""
         };
         //Referenced elements
         this.ref = {
@@ -48,7 +33,7 @@ export class EditorPage extends React.Component {
     //Component did mount
     componentDidMount() {
         let self = this;
-        return kofi.delay(1000, function () {
+        return kofi.delay(1000).then(function () {
             return self.handleLoad();
         });
     }
@@ -58,12 +43,16 @@ export class EditorPage extends React.Component {
         let params = this.props.request.query;
         //Check for url provided
         if (typeof params.url === "string") {
-            return fetchUrl(params.url, function (error, content) {
-                //TODO: check for error
+            return kofi.request({
+                "url": params.url,
+                "method": "get"
+            }).then(function (response) {
                 return self.setState({
                     "ready": true,
-                    "content": content
+                    "content": response.body
                 });
+            }).catch(function (response) {
+                console.error(response.error);
             });
         }
         //Create a new sandbox
@@ -78,12 +67,13 @@ export class EditorPage extends React.Component {
     }
     //Handle run
     handleRun() {
-        //let self = this;
-        let content = this.getContent();
-        return this.setState({
-            "content": content,
-            "deployContent": JSON.parse(content),
-            "deployDate": Date.now()
+        let self = this;
+        let newState = {
+            "content": this.getContent()
+        };
+        //Update the state with the current editor content and run in preview
+        return this.setState(newState, function () {
+            self.ref.preview.current.run(newState.content);
         });
     }
     //Get current content
@@ -127,8 +117,6 @@ export class EditorPage extends React.Component {
                         <SplitPanelItem>
                             <Renderer render={function () {
                                 return React.createElement(EditorPreview, {
-                                    "content": self.state.deployContent,
-                                    "key": self.state.deployDate,
                                     "ref": self.ref.preview
                                 });
                             }} />
