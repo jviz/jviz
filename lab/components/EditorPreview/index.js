@@ -1,5 +1,5 @@
 import React from "react";
-import {If} from "@siimple/neutrine";
+import {Choose, ChooseIf, If} from "@siimple/neutrine";
 import {Paragraph, Heading} from "@siimple/neutrine";
 
 import {Splash} from "../Splash/index.js";
@@ -9,32 +9,62 @@ import style from "./style.scss";
 export class EditorPreview extends React.Component {
     constructor(props) {
         super(props);
+        this.state = {
+            "content": null,
+            "error": null
+        };
         //Referenced elements
         this.ref = {
             "parent": React.createRef()
         };
         //Viewer
         this.viewer = null;
-    }
-    //Mount the viewer
-    componentDidMount() {
-        if (this.props.content === null) {
-            return null;
-        }
-        //Create the viewer
-        this.viewer = jviz(this.props.content, {
-            "parent": this.ref.parent.current
-        });
-        //Draw this plot
-        this.viewer.render(function () {
-            console.log("plot live");
-        });
-        //Hack to obtain the reference to the viewer element
-        window.viewer = this.viewer;
+        //Bind methods
+        this.run = this.run.bind(this);
+        this.destroy = this.destroy.bind(this);
     }
     //Component unmount
     componentWillUnmount() {
-        delete this.viewer;
+        return this.destroy();
+    }
+    //Mount the viewer
+    run(content) {
+        let self = this;
+        this.destroy(); //Remove the current plot
+        let newState = {
+            "content": content,
+            "error": null //Reset error
+        };
+        return this.setState(newState, function () {
+            //Compile the provided schema and mount the viewer
+            return jviz.parse(content).then(function (schema) {
+                console.log(schema); //Print schema
+                //Create the viewer
+                return jviz(schema, {
+                    "parent": self.ref.parent.current
+                });
+            }).then(function (viewer) {
+                self.viewer = viewer; //Save viewer instance
+                //Hack to obtain the reference to the viewer element
+                window.viewer = self.viewer;
+                //console.log(self.viewer); //Print viewer instance
+                return self.viewer.render();
+            }).then(function () {
+                console.log("plot live");
+            }).catch(function (error) {
+                console.error(error); //Display error and abort
+                return self.setState({
+                    "error": error
+                });
+            });
+        });
+    }
+    //Remove the current plot (if exists)
+    destroy() {
+        if (typeof this.viewer === "object" && this.viewer !== null) {
+            this.viewer.destroy(); //Remove bounds
+            delete this.viewer; //Remove reference
+        }
     }
     //Get current viewer
     getViewer() {
@@ -42,14 +72,13 @@ export class EditorPreview extends React.Component {
     }
     //Render the sandbox preview
     render() {
+        let self = this;
+        let hasContent = this.state.content !== null && this.state.content !== "";
+        let hasError = this.state.error !== null;
         return (
-            <React.Fragment>
-                <If condition={this.props.content !== null}>
-                    <div className={style.preview}>
-                        <svg width="100%" height="100%" ref={this.ref.parent} />
-                    </div>
-                </If>
-                <If condition={this.props.content === null}>
+            <Choose>
+                {/* No content to display */}
+                <ChooseIf condition={hasContent === false}>
                     <Splash icon="chart-bar">
                         <div className="">
                             <Heading type="h5" className="siimple--mb-1">
@@ -60,8 +89,20 @@ export class EditorPreview extends React.Component {
                             </Paragraph>
                         </div>
                     </Splash>
-                </If>
-            </React.Fragment>
+                </ChooseIf>
+                {/* Error running viewer --> display error */}
+                <ChooseIf condition={hasError === true} render={function () {
+                    //console.log(self.state.error);
+                    return React.createElement("div", {}, self.state.error.message);
+                }} />
+                {/* Content without errors --> render plot wrapper */}
+                <ChooseIf condition={true} render={function () {
+                    return React.createElement("div", {
+                        "className": style.preview,
+                        "ref": self.ref.parent
+                    });
+                }} />
+            </Choose>
         );
     }
 }
