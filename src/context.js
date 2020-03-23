@@ -77,7 +77,7 @@ Context.prototype = {
         this.nodes.add(newNode.id, newNode);
         return newNode; //Return the new node object
     },
-    "addAction": function (node, type, value) {
+    "addAction": function (node, value) {
         if (this.actions.has(node.id) === true) {
             //Only update the node with the new value
             return Object.assign(this.actions.get(node.id), {
@@ -87,7 +87,7 @@ Context.prototype = {
         //Add a new actions node
         return this.actions.add(node.id, {
             "id": node.id, //This actions has the same id as the node
-            "type": type,
+            "type": "update", //type,
             "target": node,
             "value": value,
             "date": Date.now()
