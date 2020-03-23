@@ -1,9 +1,10 @@
 import {colors} from "./color.js";
 import {parseSchemaAsync, parseSchemaSync} from "./schema.js";
-import {each} from "./util.js";
 import {evaluate} from "./evaluate.js";
 import {select, selectAll} from "./render/selection.js";
 import {createContext} from "./context.js";
+import * as math from "./math.js";
+import * as util from "./util.js";
 
 //Get or set context values
 let getOrSetContextValue = function (self, node, name, value) {
@@ -99,12 +100,13 @@ let jvizSync = function (parent, options) {
 Object.assign(jvizAsync, {
     "sync": jvizSync,
     "colors": colors,
-    "each": each,
     "evaluate": evaluate,
     "parse": parseSchemaAsync,
     "parseSync": parseSchemaSync,
     "select": select,
-    "selectAll": selectAll
+    "selectAll": selectAll,
+    "math": math,
+    "util": util
 });
 
 //Export jviz
