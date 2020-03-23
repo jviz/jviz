@@ -45,10 +45,7 @@ let jviz = function (schema, options) {
 jviz.prototype = {
     //Render the plot
     "render": function () {
-        let self = this;
-        return new Promise(function (resolve, reject) {
-            return self.context.render(resolve);
-        });
+        return this.context.render();
     },
     //Get or set context state values
     "state": function (name, value) {
@@ -104,8 +101,8 @@ Object.assign(jvizAsync, {
     "colors": colors,
     "each": each,
     "evaluate": evaluate,
-    "schema": parseSchemaAsync,
-    "schemaSync": parseSchemaSync,
+    "parse": parseSchemaAsync,
+    "parseSync": parseSchemaSync,
     "select": select,
     "selectAll": selectAll
 });
