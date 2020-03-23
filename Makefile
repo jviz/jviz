@@ -7,12 +7,17 @@ init:
 build:
 	./node_modules/.bin/rollup -c rollup.config.js
 	cp README.md dist/
+	cp loader.js dist/
 	node ./scripts/publish.js
 
 .PHONY: publish
 publish:
 	@${MAKE} build
 	cd ./dist && npm publish
+
+.PHONY: test
+test:
+	./node_modules/mocha/bin/mocha
 
 .PHONY: lab
 lab:
