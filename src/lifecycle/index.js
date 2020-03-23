@@ -169,7 +169,7 @@ export function initContext (context, schema) {
             });
         }
         //Check for value data --> save the values in a new node
-        else if (isArray(props["value"])) {
+        else if (isArray(props["value"]) && typeof props["source"] !== "string") {
             context.input[name] = context.addNode({
                 "id": `input:${name}`,
                 "value": props["value"], //Save the data values
