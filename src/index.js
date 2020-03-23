@@ -1,5 +1,5 @@
 import {colors} from "./color.js";
-import {parseSchema} from "./schema.js";
+import {parseSchemaAsync, parseSchemaSync} from "./schema.js";
 import {each} from "./util.js";
 import {evaluate} from "./evaluate.js";
 import {select, selectAll} from "./render/selection.js";
@@ -27,9 +27,9 @@ let defaultOptions = {
 //Main Jviz instance
 let jviz = function (schema, options) {
     //Hack to remove the new operator
-    if (!(this instanceof jviz)) {
-        return new jviz(schema, options);
-    }
+    //if (!(this instanceof jviz)) {
+    //    return new jviz(schema, options);
+    //}
     //TODO: validate options object
     //this.options = options;
     options = Object.assign({}, defaultOptions, options);
@@ -44,8 +44,11 @@ let jviz = function (schema, options) {
 //Initialize api methods
 jviz.prototype = {
     //Render the plot
-    "render": function (callback) {
-        return this.context.render(callback);
+    "render": function () {
+        let self = this;
+        return new Promise(function (resolve, reject) {
+            return self.context.render(resolve);
+        });
     },
     //Get or set context state values
     "state": function (name, value) {
@@ -82,16 +85,31 @@ jviz.prototype = {
     }
 };
 
+//Run jviz in async mode
+let jvizAsync = function (parent, options) {
+    return new Promise(function (resolve, reject) {
+        let jvizInstance = new jviz(parent, options); //Create jviz instance
+        return resolve(jvizInstance);
+    });
+};
+
+//Run jviz in sync mode
+let jvizSync = function (parent, options) {
+    return new jviz(parent, options);
+};
+
 //Assign some utils
-Object.assign(jviz, {
+Object.assign(jvizAsync, {
+    "sync": jvizSync,
     "colors": colors,
     "each": each,
     "evaluate": evaluate,
-    "schema": parseSchema,
+    "schema": parseSchemaAsync,
+    "schemaSync": parseSchemaSync,
     "select": select,
     "selectAll": selectAll
 });
 
 //Export jviz
-export default jviz;
+export default jvizAsync;
 
