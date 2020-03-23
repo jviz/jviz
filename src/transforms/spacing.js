@@ -1,5 +1,25 @@
 import {propTypes} from "../props.js";
 
+//Available methods
+let defaultMethods = ["equal", "optimized"];
+let parseMethod = function (value) {
+    if (typeof value !== "string" || defaultMethods.indexOf(value.toLowerCase()) === -1) {
+        return defaultMethods[0]; //Return first method
+    }
+    //Return parsed method
+    return value.toLowerCase();
+};
+
+//Parse repulsion distance
+let parseRepulsion = function (value) {
+    if (typeof value === "undefined" || value === null) {
+        return 0; //Return default value
+    }
+    //Convert to number
+    value = Number(value);
+    return (isNaN(value) === true) ? 0 : value;
+};
+
 //Export spacing transform properties
 export const spacingTransform = {
     "transform": function (context, data, props) {
@@ -18,8 +38,8 @@ export const spacingTransform = {
             };
         });
         //Get the other values
-        let method = context.value(props.method, null, "equal");
-        let repulsion = context.value(props.distance, null, 0);
+        let method = parseMethod(props.method); //context.value(props.method, null, "equal");
+        let repulsion = parseRepulsion(props.distance); //context.value(props.distance, null, 0);
         let minPosition = Math.min(scale.range[0], scale.range[1]);
         let maxPosition = Math.max(scale.range[0], scale.range[1]);
         //Optimized spaciong algorithm
