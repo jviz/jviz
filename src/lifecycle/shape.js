@@ -199,7 +199,7 @@ export function updateShapeNode (context, node, forceRender) {
                         //Register an action to update this state
                         let stateNode = context.state[eventProps.state];
                         if (typeof stateNode !== "undefined") {
-                            context.createAction(stateNode, context.expression(eventProps.value, {
+                            context.addAction(stateNode, context.expression(eventProps.value, {
                                 "datum": data,
                                 "event": event //TODO: process event values
                             }));
