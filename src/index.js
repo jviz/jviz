@@ -83,13 +83,13 @@ jviz.prototype = {
     }
 };
 
-//Run jviz in async mode
-let jvizAsync = function (parent, options) {
-    return new Promise(function (resolve, reject) {
-        let jvizInstance = new jviz(parent, options); //Create jviz instance
-        return resolve(jvizInstance);
-    });
-};
+////Run jviz in async mode
+//let jvizAsync = function (parent, options) {
+//    return new Promise(function (resolve, reject) {
+//        let jvizInstance = new jviz(parent, options); //Create jviz instance
+//        return resolve(jvizInstance);
+//    });
+//};
 
 //Run jviz in sync mode
 let jvizSync = function (parent, options) {
@@ -97,8 +97,7 @@ let jvizSync = function (parent, options) {
 };
 
 //Assign some utils
-Object.assign(jvizAsync, {
-    "sync": jvizSync,
+Object.assign(jvizSync, {
     "colors": colors,
     "evaluate": evaluate,
     "parse": parseSchemaAsync,
