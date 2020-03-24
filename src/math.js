@@ -151,6 +151,7 @@ export function ticks (start, end, count) {
     let length = end - start; // + 1;
     //console.log(range);
     // Adjust ticks if needed
+    count = count + 1;
     if (count < 3) {
         count = 3; //At least add the start and end values
     }
