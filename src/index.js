@@ -109,5 +109,5 @@ Object.assign(jvizSync, {
 });
 
 //Export jviz
-export default jvizAsync;
+export default jvizSync;
 
