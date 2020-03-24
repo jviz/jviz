@@ -40,13 +40,11 @@ export class EditorPreview extends React.Component {
             return jviz.parse(content).then(function (schema) {
                 console.log(schema); //Print schema
                 //Create the viewer
-                return jviz(schema, {
+                self.viewer = jviz(schema, {
                     "parent": self.ref.parent.current
                 });
-            }).then(function (viewer) {
                 self.viewer = viewer; //Save viewer instance
-                //Hack to obtain the reference to the viewer element
-                window.viewer = self.viewer;
+                window.viewer = self.viewer; //Save the viewer instance in the window object
                 //console.log(self.viewer); //Print viewer instance
                 return self.viewer.render();
             }).then(function () {
