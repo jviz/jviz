@@ -43,7 +43,6 @@ export class EditorPreview extends React.Component {
                 self.viewer = jviz(schema, {
                     "parent": self.ref.parent.current
                 });
-                self.viewer = viewer; //Save viewer instance
                 window.viewer = self.viewer; //Save the viewer instance in the window object
                 //console.log(self.viewer); //Print viewer instance
                 return self.viewer.render();
