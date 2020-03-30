@@ -301,15 +301,15 @@ let parseScaleElement = function (element) {
         }
         //Check for domain or range only tag
         if (child.name === "domain" || child.name === "range") {
-            scale[child.name] = parseValueAttributes(child["attributes"]);
+            scale[child.name] = parseAttrElement(child);
         }
         //Check for start tag
         else if (child.name.indexOf("-start") > 0) {
-            scale[child.name.replace("-start", "")][0] = parseValueAttributes(child.attributes);
+            scale[child.name.replace("-start", "")][0] = parseAttrElement(child);
         }
         //Check for end tag
         else if (child.name.indexOf("-end") > 0) {
-            scale[child.name.replace("-end", "")][1] = parseValueAttributes(child.attributes);
+            scale[child.name.replace("-end", "")][1] = parseAttrElement(child);
         }
     });
     //Return the scale
