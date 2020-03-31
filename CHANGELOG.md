@@ -11,16 +11,22 @@ We use the following tags to categorize changes we made in each new release:
 - :house:      **Internal**: internal changes (organization or structure).
 
 
+## v1.1.1 (2020-03-31)
+
+#### :hammer: Improvements
+
+- Allow conditional values in domain and range attributes of XML schema.
+
 
 ## v1.1.0 (2020-03-24)
 
-### :boom: Breaking changes
+#### :boom: Breaking changes
 
 - Changed `jviz` constructor arguments and now accepts only two arguments: the compiled schema and an options object.
 - `parent` option must be a `<div>` element reference instead of a `<svg>`.
 - Using promise in `render` method instead of callback.
 
-### :rocket: New features
+#### :rocket: New features
 
 - Implemented new XML based schema. Now constructor only accepts a compiled and validated XML schema.
 - `axis` accepts now `context.value` attributes.
@@ -31,7 +37,7 @@ We use the following tags to categorize changes we made in each new release:
 - Added `indexOf`, `isUndef` and `isValid` methods to expression parser.
 - Added loader for webpack to compile and parse XML schemas in webpack.
 
-### :bug: Bug Fix
+#### :bug: Bug Fix
 
 - Fixed bug when empty data is passes to `spacing` transform. 
 
