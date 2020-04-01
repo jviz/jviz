@@ -3,8 +3,8 @@ let documentStartRegex = /<jviz(.*)>/; //Document start
 let documentEndRegex = /<\/jviz>/; //Document end
 //let tagStartRegex = /<\/?([a-z]+):(\w+)\s?(.*?)\/?>/; //Capturing a tag start
 //let tagEndRegex = /<\/?([a-z]+):(\w)>/; //Capturing a tag end
-let tagStartRegex = /<jviz:([a-z\-]+)\s?(.*?)\/?>/; //Capture a tag start
-let tagEndRegex = /<\/jviz:([a-z\-]+)\s?>/; //Capturing a tag end
+let tagStartRegex = /^<jviz:([a-z\-]+)\s?(.*?)\/?>$/; //Capture a tag start
+let tagEndRegex = /^<\/jviz:([a-z\-]+)\s?>$/; //Capturing a tag end
 let commentRegex = /<!--(.*)-->/; //Capture a comment
 let commentStartRegex = /<!--/; //Capture comment start
 let commentEndRegex = /-->/; //Capture comment end
@@ -49,7 +49,7 @@ let getParsedValue = function (value, format) {
 //match[1] --> "attr": tag name
 //match[2] --> "name=\"a\" value=\"b\"": attributes
 let parseXmlLine = function (line, index) {
-    let match = line.match(tagStartRegex);
+    let match = line.trim().match(tagStartRegex);
     if (match === null) {
         return null; //Not valid line
     }
