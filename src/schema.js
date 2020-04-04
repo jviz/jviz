@@ -33,7 +33,7 @@ let getParsedValue = function (value, format) {
     }
     //Check for JSON expression
     else if (value.charAt(0) === "{" || value.charAt(0) === "[" || format === "json") {
-        return JSON.parse(value); //Convert to json
+        return JSON.parse(value.replace(/'/g, '"')); //Convert to json
     }
     //Check for boolean expression
     else if (value === "true" || value === "false" || format === "bool") {
