@@ -25,11 +25,20 @@ export function discrete (args) {
     return scale;
 }
 
+//Parse a number value
+let parseNumber = function (value, defaultValue) {
+    if (value === null || typeof value === "undefined") {
+        return defaultValue; //Not valid value
+    }
+    value = Number(value); //Convert to number
+    return (isNaN(value) === true) ? defaultValue : value;
+}
+
 //Export interval partition scale generator
 export function interval (args) {
     //Verify the margin and separation arguments
-    let margin = clamp(args.margin, 0, 1);
-    let spacing = clamp(args.spacing, 0, 1);
+    let margin = clamp(parseNumber(args.margin, 0), 0, 1);
+    let spacing = clamp(parseNumber(args.spacing, 0), 0, 1);
     let intervals = args.domain.length; //Initialize the number of intervals
     //Calculate the steps
     let length = args.range[1] - args.range[0];
@@ -56,7 +65,7 @@ export function interval (args) {
 //Export point scale generator
 export function point (args) {
     //Verify the margin value
-    let margin = clamp(args.margin, 0, 1);
+    let margin = clamp(parseNumber(args.margin, 0), 0, 1);
     //Calculate the step size
     let length = args.range[1] - args.range[0];
     let step = length / (2 * margin + args.domain.length - 1);
