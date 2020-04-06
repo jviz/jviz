@@ -76,8 +76,8 @@ export function value (props, datum, defaultValue) {
         //Get the scaled value
         //value = scale(value);
         //Check for interval scale and position property provided
-        if (scale.type === "interval" && typeof props.interval === "number") {
-            value = scale(value) + scale.step * props.interval;
+        if (scale.type === "interval" && typeof props.interval !== "undefined") {
+            value = scale(value) + scale.step * Number(props.interval);
         }
         //Other scale type: apply the scale to the current value
         else {
