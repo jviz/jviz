@@ -1,4 +1,4 @@
-import {propTypes} from "../props.js";
+//import {propTypes} from "../props.js";
 import {color as colorScale} from "./color.js";
 import {discrete as discreteScale} from "./discrete.js";
 import {point as pointScale} from "./discrete.js";
@@ -25,15 +25,15 @@ export const scaleTypes = {
         "category": DISCRETE_SCALE,
         "scale": intervalScale,
         "props": {
-            "margin": propTypes.number(0),
-            "spacing": propTypes.number(0)
+            "margin": 0,
+            "spacing": 0,
         }
     },
     "point": {
         "category": DISCRETE_SCALE,
         "scale": pointScale,
         "props": {
-            "margin": propTypes.number(0)
+            "margin": 0
         }
     },
     "discrete": {
