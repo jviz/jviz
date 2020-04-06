@@ -129,7 +129,8 @@ export function updateScaleNode (context, node) {
     //Add extra props to scale args
     let scaleArgs = {};
     each(scale.props, function (key, value) {
-        scaleArgs[key] = (typeof node.props[key] === value.type) ? node.props[key] : value.defaultValue;
+        //scaleArgs[key] = (typeof node.props[key] === value.type) ? node.props[key] : value.defaultValue;
+        scaleArgs[key] = (typeof node.props[key] !== "undefined") ? node.props[key] : value;
     });
     //Update the scale args
     Object.assign(scaleArgs, {
