@@ -11,6 +11,15 @@ We use the following tags to categorize changes we made in each new release:
 - :house:      **Internal**: internal changes (organization or structure).
 
 
+## v1.1.2 (2020-04-16)
+
+#### :bug: Bug fix
+
+- Fixed bug parsing expression attributes in schema parser.
+- Fixed bug parsing json attributes values in schema parser.
+- Fixed minor bug parsing extra props in `band` and `interval` scales. Parse interval prop value to number when getting context value.
+
+
 ## v1.1.1 (2020-03-31)
 
 #### :hammer: Improvements
