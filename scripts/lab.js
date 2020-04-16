@@ -1,9 +1,18 @@
 let express = require("express");
+let morgan = require("morgan");
 let fs = require("fs");
 let path = require("path");
 
+//Global configuration
+let server = {
+    "port": 4000
+};
+
 process.nextTick(function () {
     let app = express();
+    //Enable logging
+    //http://expressjs.com/en/resources/middleware/morgan.html
+    app.use(morgan("dev"));
     //Mout examples folder
     app.use("/examples", express.static(path.join(process.cwd(), "examples")));
     app.use("/data", express.static(path.join(process.cwd(), "examples", "data")));
@@ -18,6 +27,8 @@ process.nextTick(function () {
         });
     });
     //Run webservice
-    app.listen(4000);
+    app.listen(server.port, function () {
+        console.log(`[DEBUG] jviz-lab service listening on port '${server.port}'`);
+    });
 });
 
