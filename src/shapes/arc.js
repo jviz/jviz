@@ -18,7 +18,7 @@ export const arcShape = {
     "type": "arc",
     "render": function (context, data, props, element) {
         //Initialize the arc options
-        let options = parseProps(context, datum, props, defaultProps);
+        let options = parseProps(context, data, props, defaultProps);
         //Check if user has provided only a radius property
         if (typeof options.radius === "number") {
             Object.assign(options, {
