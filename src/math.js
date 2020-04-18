@@ -1,5 +1,10 @@
 import {identity} from "./util.js";
 
+//Export math constants
+export const pi = Math.PI;
+export const tau = 2 * Math.PI;
+export const epsilon = Number.EPSILON;
+
 //Restrict the value to be in the [min, max] range
 export function clamp (value, min, max) {
     if (value < min) {
