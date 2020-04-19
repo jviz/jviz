@@ -5,10 +5,10 @@ export const tooltipHideEvent = "mouseleave";
 
 //Parse event
 export function parseEvent (context, event) {
-    let client = context.scene.client(); //Get scene client
+    //let client = context.scene.client(); //Get scene client
     let size = context.scene.size(); //Get scene size
-    let x = event.clientX - size.left - client.left;
-    let y = event.clientY - size.top - client.top;
+    let x = event.clientX - size.left - context.scene.node.clientLeft;
+    let y = event.clientY - size.top - context.scene.node.clientTop;
     let hw = context.draw.width.value / 2;
     let hh = context.draw.height.value / 2;
     //Return parsed event
