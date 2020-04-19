@@ -6,6 +6,7 @@ import {setEvent, isEventName} from "../render/events.js";
 import {getValueSources} from "../runtime/value.js";
 import {getExpressionSources} from "../runtime/expression.js";
 import {getShape} from "../shapes/index.js";
+import {setTooltipEvents} from "../render/tooltip.js";
 
 //build shape data
 let buildShapeData = function (context, props) {
@@ -213,6 +214,10 @@ export function updateShapeNode (context, node, forceRender) {
                     }
                 });
             });
+            //Register tooltip handlers
+            if (typeof props.tooltip === "object" && props.tooltip !== null) {
+                setTooltipEvents(context, element, data, props.tooltip);
+            }
         });
     });
 }
