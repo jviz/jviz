@@ -7,6 +7,7 @@ import {transform} from "./runtime/transform.js";
 import {value} from "./runtime/value.js";
 import {source} from "./runtime/source.js";
 import {createScene} from "./render/scene.js";
+import {createTooltip} from "./render/tooltip.js";
 
 //Context class
 export function Context (schema, options) {
@@ -23,6 +24,7 @@ export function Context (schema, options) {
         "data": {}, //Data nodes by Ids
         "scales": {}, //Scale nodes by ids
         "events": dispatch(), //Events dispatching
+        "tooltip": createTooltip(this.scene.append("g"), options), //Tooltip handler
         "ready": false,
         "running": false
     });
