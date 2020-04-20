@@ -7,6 +7,7 @@ import {arcShape} from "./arc.js";
 import {segmentShape} from "./segment.js";
 import {areaShape} from "./area.js";
 import {polylineShape} from "./polyline.js";
+import {pathShape} from "./path.js";
 
 //Shape types
 const shapeTypes = {
@@ -17,7 +18,8 @@ const shapeTypes = {
     "arc": arcShape,
     "segment": segmentShape,
     "area": areaShape,
-    "polyline": polylineShape
+    "polyline": polylineShape,
+    "path": pathShape
 };
 
 //Get a shape object
