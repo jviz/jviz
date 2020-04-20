@@ -14,7 +14,7 @@ export const scaleTypes = {
     "linear": {
         "category": CONTINUOUS_SCALE,
         "scale": linearScale,
-        "props": {}
+        "props": linearScale.defaultProps
     },
     "color": {
         "category": CONTINUOUS_SCALE,
