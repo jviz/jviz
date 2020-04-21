@@ -6,10 +6,10 @@ export const extendTransform = {
         let sourceData = context.data[props.from].value; //Source data
         let sourceMap = {}; // Create a mapping for all source keys
         sourceData.forEach(function (datum, index) {
-            sourceMap[datum[props.sourceField]] = index;
+            sourceMap[datum[props.key]] = index;
         });
         return data.map(function (datum) {
-            let key = datum[props.targetField];
+            let key = datum[props.key];
             if (typeof sourceMap[key] !== "undefined") {
                 let sourceDatum = sourceData[sourceMap[key]];
                 props.fields.forEach(function (value, index) {
@@ -22,8 +22,7 @@ export const extendTransform = {
     },
     "props": {
         "from": propTypes.string(),
-        "sourceField": propTypes.string(),
-        "targetField": propTypes.string(),
+        "key": propTypes.string(),
         "fields": propTypes.string(),
         "as": propTypes.string()
     }
