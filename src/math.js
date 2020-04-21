@@ -188,6 +188,10 @@ export function sort (list, keys, order) {
             if (typeof a[key] === "undefined" || typeof b[key] === "undefined") {
                 continue; //Undefined value
             }
+            //Check for the same value
+            if (a[key] === b[key]) {
+                continue; //Use next field
+            }
             let isNum = !isNaN(+a[key] - +b[key]);
             let aValue = (isNum === true) ? +a[key] : a[key].toLowerCase();
             let bValue = (isNum === true) ? +b[key] : b[key].toLowerCase();
