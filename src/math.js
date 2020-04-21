@@ -180,3 +180,25 @@ export function ticks (start, end, count) {
     return values;
 }
 
+//Sort an array of objects
+export function sort (list, keys, order) {
+    return list.sort(function (a, b) {
+        for(let i = 0; i < keys.length; i++) {
+            let key = keys[i]; //Get list field
+            if (typeof a[key] === "undefined" || typeof b[key] === "undefined") {
+                continue; //Undefined value
+            }
+            let isNum = !isNaN(+a[key] - +b[key]);
+            let aValue = (isNum === true) ? +a[key] : a[key].toLowerCase();
+            let bValue = (isNum === true) ? +b[key] : b[key].toLowerCase();
+            if (aValue < bValue) {
+                return (order[i] === "asc") ? -1 : 1;
+            }
+            else if (aValue > bValue) {
+                return (order[i] === "asc") ? 1 : -1;
+            }
+        }
+        return 0; //Default --> return 0
+    });
+}
+
