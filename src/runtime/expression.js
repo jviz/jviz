@@ -23,7 +23,7 @@ let defaultValues = {
     "PI": Math.PI,
     "E": Math.E,
     //Utility functions
-    "if": function (condition, trueValue, falseFalue) {
+    "if": function (condition, trueValue, falseValue) {
         return condition === true ? trueValue : falseValue;
     },
     //Math functions
