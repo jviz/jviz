@@ -15,7 +15,7 @@ export function discrete (args) {
             return null;
         }
         //Return the value in the range
-        return args.range[index];
+        return args.range[index % args.range.length];
     };
     //Add scale metadata
     scale.type = "discrete";
@@ -23,6 +23,13 @@ export function discrete (args) {
     scale.domain = args.domain;
     //Return the scale
     return scale;
+}
+
+//Ordinal scale
+export function ordinal (args) {
+    return Object.assign(discrete(args), {
+        "type": "ordinal"
+    });
 }
 
 //Parse a number value
