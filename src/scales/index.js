@@ -1,6 +1,6 @@
 //import {propTypes} from "../props.js";
 import {color as colorScale} from "./color.js";
-import {discrete as discreteScale} from "./discrete.js";
+import {ordinal as ordinalScale} from "./discrete.js";
 import {point as pointScale} from "./discrete.js";
 import {interval as intervalScale} from "./discrete.js";
 import {linear as linearScale} from "./linear.js";
@@ -36,9 +36,9 @@ export const scaleTypes = {
             "margin": 0
         }
     },
-    "discrete": {
+    "ordinal": {
         "category": DISCRETE_SCALE,
-        "scale": discreteScale,
+        "scale": ordinalScale,
         "props": {}
     }
 };
