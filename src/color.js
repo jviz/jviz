@@ -20,7 +20,7 @@ export function getColor (name) {
 
 //Color schemas
 export const colorSchema = {
-    "default": ["blue","red", "green", "yellow", "mint", "orange", "purple", "navy"].map(getColor)
+    "default": ["blue","red", "green", "yellow", "orange", "purple", "mint", "navy"].map(getColor)
 };
 
 //Get a color schema
