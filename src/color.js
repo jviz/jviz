@@ -6,11 +6,27 @@ export const colors = {
     "orange": "#f78055",
     "purple": "#9d81e4",
     "green": "#4acf7f",
+    "mint": "#4ccdac",
     "navy": "#546778",
     "grey": "#dde5ee",
     "white": "#ffffff",
     "black": "#000000"
 };
+
+//Get a single color
+export function getColor (name) {
+    return (typeof colors[name] !== "undefined") ? colors[name] : colors["black"];
+}
+
+//Color schemas
+export const colorSchema = {
+    "default": ["blue","red", "green", "yellow", "mint", "orange", "purple", "navy"].map(getColor)
+};
+
+//Get a color schema
+export function getColorSchema (name) {
+    return (typeof colorSchema[name] !== "undefined") ? colorSchema[name] : colorSchema["default"];
+}
 
 //Parse the specified color https://www.w3.org/TR/css-color-3/#colorunits 
 //Returns a new instance of Color
