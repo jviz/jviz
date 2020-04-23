@@ -75,6 +75,10 @@ let parseTerm = function (ctx) {
         else if (checkChar(ctx, "/") === true) {
             x = x / parseComparison(ctx);
         }
+        //Check for module
+        else if (checkChar(ctx, "%") === true) {
+            x = x % parseComparison(ctx);
+        }
         //Else: return the current term
         else {
             return x;
