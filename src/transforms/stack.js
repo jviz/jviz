@@ -37,6 +37,8 @@ let stacks = {
 let defaultProps = {
     "groupby": null,
     "align": "default", //default | center
+    "sortField": null,
+    "sortOrder": "asc", //sort order: asc | des
     "field": "",
     "as": ["yStart", "yEnd"]
 };
@@ -45,6 +47,7 @@ let defaultProps = {
 export const stackTransform = {
     "transform": function (context, data, props) {
         let groupby = (typeof props.groupby === "string") ? props.groupby : null; 
+        let align = (typeof props.align === "string") ? props.align : defaultProps.align; //Get align value
         let groups = []; //Stack groups
         let maxGroupValue = 0; //Store max value of all groups
         //Check if no groupby has been provided
@@ -81,7 +84,7 @@ export const stackTransform = {
         });
         //Build the stack for each group
         groups.forEach(function (group) {
-            stacks[props.align](group, maxGroupValue, props.field, defaultProps.as);
+            stacks[align](group, maxGroupValue, props.field, defaultProps.as);
         });
         //Return the data
         return data;
