@@ -39,6 +39,7 @@ export class EditorPreview extends React.Component {
             //Compile the provided schema and mount the viewer
             return jviz.parse(content).then(function (schema) {
                 console.log(schema); //Print schema
+                window.currentSchema = schema; //Save current schema
                 //Create the viewer
                 self.viewer = jviz(schema, {
                     "parent": self.ref.parent.current
