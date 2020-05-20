@@ -206,3 +206,17 @@ export function sort (list, keys, order) {
     });
 }
 
+//Find all divisors of a number
+export function divisors (n) {
+    let result = []; //List with all divisors
+    let m = Math.ceil(n / 2);
+    for (let i = 1; i <= m; i++) {
+        if (n % i === 0) {
+            result.push([i, n / i]);
+        }
+    }
+    //Return list of divisors
+    return result;
+}
+
+
