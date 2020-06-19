@@ -1,5 +1,5 @@
-import {parseProps, propTypes} from "../props.js";
-import {polyline} from "../render/primitives/polyline.js";
+import {parseProps, propTypes} from "../../props.js";
+import {polyline} from "../primitives/polyline.js";
 
 //Segment line default props
 let defaultProps = {
@@ -12,9 +12,9 @@ let defaultProps = {
 };
 
 //Export line segment shape
-export const segmentShape = {
+export const lineGeom = {
     "tag": "path",
-    "type": "segment",
+    "type": "line",
     "render": function (context, data, props, element) {
         element.attr("fill", "none"); //Hack to prevent filled polyline 
         let options = parseProps(context, data, props, defaultProps); 
