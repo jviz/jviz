@@ -1,5 +1,5 @@
-import {propTypes, parseProps} from "../props.js";
-import {circle} from "../render/primitives/circle.js";
+import {propTypes, parseProps} from "../../props.js";
+import {circle} from "../primitives/circle.js";
 
 //Circle shape default props
 let defaultProps = {
@@ -8,8 +8,8 @@ let defaultProps = {
     "radius": propTypes.number(5)
 };
 
-//Export circle shape
-export const circleShape = {
+//Export circle geom
+export const circleGeom = {
     "tag": "path",
     "type": "circle",
     "render": function (context, data, props, element) {

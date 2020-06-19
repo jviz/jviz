@@ -1,5 +1,5 @@
-import {parseProps, propTypes} from "../props.js";
-import {rectangle} from "../render/primitives/rectangle.js";
+import {parseProps, propTypes} from "../../props.js";
+import {rectangle} from "../primitives/rectangle.js";
 
 //Rectangle default props
 let defaultProps = {
@@ -17,8 +17,8 @@ let defaultProps = {
     "radius": propTypes.number()
 };
 
-//Rectangle shape
-export const rectangleShape = {
+//Rectangle geom
+export const rectangleGeom = {
     "tag": "path",
     "type": "rectangle",
     "render": function (context, data, props, element) {

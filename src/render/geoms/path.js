@@ -3,8 +3,8 @@ let defaultProps = {
     "path": ""
 };
 
-//Export path shape
-export const pathShape = {
+//Export path geom
+export const pathGeom = {
     "tag": "path",
     "type": "path",
     "render": function (context, datum, props, element) {

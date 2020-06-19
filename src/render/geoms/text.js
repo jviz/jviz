@@ -1,4 +1,4 @@
-import {parseProps, propTypes} from "../props.js";
+import {parseProps, propTypes} from "../../props.js";
 
 //Text default props
 let defaultProps = {
@@ -15,8 +15,8 @@ let defaultProps = {
     "baseline": propTypes.string("middle") //hanging|middle|baseline 
 };
 
-//Export text shape
-export const textShape = {
+//Export text geom
+export const textGeom = {
     "tag": "text",
     "type": "text",
     "render": function (context, data, props, element) {

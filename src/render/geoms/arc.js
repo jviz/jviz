@@ -1,5 +1,5 @@
-import {propTypes, parseProps} from "../props.js";
-import {arc} from "../render/primitives/arc.js";
+import {propTypes, parseProps} from "../../props.js";
+import {arc} from "../primitives/arc.js";
 
 //Arc default props
 let defaultProps = {
@@ -12,8 +12,8 @@ let defaultProps = {
     "y": propTypes.number()
 };
 
-//Export arc shape
-export const arcShape = {
+//Export arc geom
+export const arcGeom = {
     "tag": "path",
     "type": "arc",
     "render": function (context, data, props, element) {

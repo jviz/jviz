@@ -1,6 +1,6 @@
-import {propTypes} from "../props.js";
-import {path} from "../render/path.js";
-import {getCurve} from "../render/curves/index.js";
+import {propTypes} from "../../props.js";
+import {path} from "../path.js";
+import {getCurve} from "../curves/index.js";
 
 //Area default props
 let defaultProps = {
@@ -33,8 +33,8 @@ function area (args) {
     return areaPath.toString();
 }
 
-//Export area shape
-export const areaShape = {
+//Export area geom
+export const areaGeom = {
     "type": "area",
     "tag": "path",
     "render": function (context, data, props, element) {
