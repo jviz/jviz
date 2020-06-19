@@ -1,6 +1,6 @@
-import {isArray, isObject} from "../util.js";
-import {getTransformSources} from "../runtime/transform.js";
-import {createHashMap} from "../hashmap.js";
+import {isArray, isObject} from "./util.js";
+import {getTransformSources} from "./runtime/transform.js";
+import {createHashMap} from "./hashmap.js";
 
 //Create data node
 export function createDataNode (context, name, props) {
