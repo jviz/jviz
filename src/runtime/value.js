@@ -1,18 +1,14 @@
 import {isArray, nest as nestObject} from "../util.js";
-import {colors, getColorSchema} from "../color.js";
+import {colors} from "../color.js";
 import {getExpressionSources} from "./expression.js";
 
 //Get value from context
 export function value (props, datum, defaultValue) {
     let context = this;
-    //Check for undefined proeprty value
+    //Check for undefined property value
     if (typeof props === "undefined") {
         return defaultValue;
     }
-    //Check if the props is a function
-    //if (typeof props === "function") {
-    //    return props.call(null, context, datum);
-    //}
     //Check for non object or null props
     else if (typeof props !== "object" || props === null) {
         return props;
@@ -42,12 +38,12 @@ export function value (props, datum, defaultValue) {
     //let value = (typeof props.field === "string") ? viz.object.get(datum, props.field) : datum;
     //Check for color value
     if (typeof props.color === "string") {
-        value = (typeof colors[props.color] === "string") ? colors[props.color] : props.color;
+        value = (typeof context.theme.colors[props.color] === "string") ? context.theme.colors[props.color] : colors.black;
     }
     //Check for color schema
-    else if (typeof props.schema === "string") {
-        value = getColorSchema(props.schema); //Get color schema
-    }
+    //else if (typeof props.schema === "string") {
+    //    value = getColorSchema(props.schema); //Get color schema
+    //}
     //Check for expression value
     else if (typeof props.expr === "string") {
         value = context.expression(props.expr, {
@@ -60,7 +56,8 @@ export function value (props, datum, defaultValue) {
     }
     //Check for value from draw context
     else if (typeof props.draw === "string") {
-        value = context.draw.computed[props.draw]; //Get computed width or height value
+        //value = context.draw.computed[props.draw]; //Get computed width or height value
+        value = context.panels.value[props.draw]; //Get the panel width or height value
     }
     //Check for value from state
     else if (typeof props.state === "string") {
@@ -131,7 +128,8 @@ export function getValueSources (context, value) {
     }
     //Check for draw value
     if (typeof value.draw === "string") {
-        sources.push(context.draw[value.draw]);
+        //sources.push(context.draw[value.draw]);
+        sources.push(context.panels); //Add panels as dependency instead of draw
     }
     //Check for expression value
     if (typeof value.expr === "string") {
