@@ -1,7 +1,7 @@
 import {isNull, isValid, isUndef} from "../util.js";
 import {isArray, isObject, isString, isNumber, isBool} from "../util.js";
 //import {createHashMap} from "../hashmap.js";
-import {clamp, random, format} from "../math.js";
+import {clamp, random, format, log} from "../math.js";
 import {polarToCartesianX, polarToCartesianY} from "../math.js";
 import {evaluate} from "../evaluate.js";
 import {nest as nestObject, range as rangeOf} from "../util.js";
@@ -43,6 +43,10 @@ let defaultValues = {
     "clamp": clamp,
     "random": random,
     "format": format,
+    "log": log,
+    "ln": Math.log,
+    "log10": Math.log10,
+    "log2": Math.log2,
     //Array OR string methods
     "lengthOf": function (value) {
         return value.length;
