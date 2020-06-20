@@ -87,9 +87,10 @@ export function expression (expr, values) {
     //Evaluate the provided expression
     return evaluate(expr, Object.assign(defaultValues, values, {
         "draw": {
-            "width": context.draw.computed.width,
-            "height": context.draw.computed.height,
-            "padding": context.draw.padding.value
+            "width": context.panels.value.width,
+            "height": context.panels.value.height,
+            "margin": context.draw.margin.value,
+            "outerMargin": context.draw.outerMargin.value
         },
         "state": function (name) {
             return context.state[name].value;
@@ -100,9 +101,6 @@ export function expression (expr, values) {
         "scale": function (name, value) {
             return context.scales[name].value(value);
         }
-        //"layout": function (id, value) {
-        //    return context.layout(id, value);
-        //}
     }));
 }
 
@@ -126,8 +124,8 @@ export function getExpressionSources (context, expr) {
             sources.push(context[sourceType][sourceName]);
         }
     });
-    //Find draw.width|draw.height|draw.padding calls
-    matchRegex(expr, /draw\.(width|height|padding)/g, function (matches) {
+    //Find draw dependencies
+    matchRegex(expr, /draw\.(width|height|margin|outerMargin)/g, function (matches) {
         sources.push(context.draw[matches[1]]); //Add the draw source 
     });
     //Return sources
