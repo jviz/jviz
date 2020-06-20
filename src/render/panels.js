@@ -1,0 +1,166 @@
+import {createHashMap} from "../hashmap.js";
+import {clamp, divisors} from "../math.js";
+import {toArray, isObject, isValid} from "../util.js";
+
+//Default panels layout
+let defaultPanelsLayout = {"rows": 1, "cols": 1, "spacing": 0};
+
+//Calculate panels layout from value
+// For example, if a value of 20 is provided, we calculate all divisors and calculate a score
+// We will get the divisors pair with the lowest score. If there are more than one with the same score,
+// we will get the one with the lowest first divisor (rows).
+// 2, 10 ---> score = 12
+// 4, 5  ---> score = 9  <<<< this is the best layout
+// 5, 4  ---> score = 9
+// 10, 2 ---> score = 12
+// Result >>> rows=4, cols=5
+let buildPanelsLayout (value) {
+    //Check for negative, 0 or 1 values
+    if (value < 2) {
+        return {"rows": 1, "cols": 1}; //Return at least one panel
+    }
+    else if (value === 2 || value === 3) {
+        return {"rows": 1, "cols": value}; //Return only one row
+    }
+    let allDivisors = divisors(value); //Get all divisors of the provided value
+    //Check if the value is a primer number (only one divisor)
+    if (allDivisors.length === 1) {
+        allDivisors = divisors(value + 1); //Convert to even number
+    }
+    //Calculate a score of each divisor
+    let scores = allDivisors.map(function (d) {
+        return d[0] + d[1];
+    });
+    let besScore = Math.min.apply(null, scores); //Get the best score
+    let filteredDivisors = allDivisors.filter(function (d, index) {
+        return bestScore === scores[index]; //Get only the divisors of the best score
+    });
+    //Get the best divisor --> the one with the lowest first divisor
+    let bestDivisor = filteredDivisors[0]; //Get the first divisor
+    //The divisors list are sorted, so the first one has the lowest row value
+    //for (let i = 1; i < filteredDivisors.length; i++) {
+    //    if (bestDivisor[0] > filteredDivisors[i][0]) {
+    //        bestDivisor = filteredDivisors[i]; //Update the best divisor
+    //    }
+    //}
+    //Return the best panels layout
+    return {"rows": bestDivisor[0], "cols": bestDivisor[1]};
+};
+
+//Get panels layout
+let getPanelsLayout = function (context, props) {
+    let newLayout = Object.assign({}, defaultPanelsLayout); //Initialize layout
+    //Check for object ---> merge with default props
+    if (isObject(props) === true) {
+        //Check for row and column values
+        if (isValid(props.rows) && isValid(props.cols)) {
+            Object.assign(newLayout, {
+                "rows": context.value(props.rows, 1, 1),
+                "cols": context.value(props.cols, 1, 1)
+            });
+        }
+        //Check for size value --> calculate from 
+        else if (isValid(props.size)) {
+            Object.assign(newLayout, buildPanelsLayout(context.value(props.size, 1, 1)));
+        }
+        //Check for spacing value
+        if (isValid(props.spacing)) {
+            Object.assign(newLayout, {"spacing": context.value(props.spacing, 0, 0)});
+        }
+    }
+    //Check for number --> calculate the number of rows and columns
+    else if (typeof props === "number") {
+        Object.assign(newLayout, buildPanelsLayout(props)); //Build the layout
+    }
+    //Return the layout
+    return layout;
+};
+
+//Get panels elements
+export function getPanelsElements (context, props) {
+    if (typeof props === "undefined" || props === null) {
+        return [context.panels.elements[0]]; //Return a single panel element
+    }
+    else if (typeof props === "string" && props === "*") {
+        return context.panels.elements; //Return all panels
+    }
+    //let panels = context.panels;
+    //Generate a list with all wanted panels indexes
+    let indexes = {};
+    toArray(props).forEach(function (value) {
+        //Check for number --> as a single index
+        if (typeof value === "number") {
+            let index = clamp(value, 0, context.panels.elements.length - 1);
+            indexes[index] = 1; //Save this index
+        }
+        //Check for object --> TODO
+        else if (isObject(value) && props !== null) {
+            //TODO
+        }
+        //Check for string --> TODO
+        else if (typeof value === "string") {
+            //TODO
+        }
+        //Ignore other value types
+    });
+    //Return an array with all panels
+    return Object.keys(indexes).map(function (index) {
+        return context.panels.elements[index];
+    });
+}
+
+//Create a panels node
+export function createPanelsNode (context, props) {
+    let node = context.addNode({
+        "id": "panels",
+        "type": "panels",
+        "value": {"width": 0, "height": 0}, 
+        "targets": createHashMap(),
+        "elements": [],
+        "props": props //parsePanelsProps(props)
+    });
+    //Add this node as a dependency of draw nodes
+    context.draw.width.targets.add(node.id, node);
+    context.draw.height.targets.add(node.id, node);
+    context.draw.margin.targets.add(node.id, node);
+    context.draw.outerMargin.targets.add(node.id, node);
+    //Save the reference to the panels node
+    context.panels = node;
+}
+
+//Update a panels node
+export function updatePanelsNode (context, node) {
+    let layout = getPanelsLayout(context, node.props); //Build layout
+    layout.length = layout.rows * layout.cols; //Get layout total size
+    //Check if we need to rebuild all panels groups
+    if (node.value === null || (node.value.rows !== layout.rows || node.value.cols !== layout.cols)) {
+        context.target.selectAll("g[data-type='panel']").remove(); //Remove all panels
+        node.elements = []; //Reset nodes list
+        for (let i = 0; i < layout.length; i++) {
+            let row = Math.floor(i / layout.cols); //Get row index
+            let col = i % layout.cols; //Get column index
+            let element = context.target.append("g");
+            element.attr("data-type", "panel"); //Set the group type ---> panel
+            element.attr("data-row", row + ""); //Set the panel row
+            element.attr("data-col", col + ""); //Set the panel col
+            node.elements.append(element); //Save this element
+        }
+    }
+    //Get the new sizes
+    let margin = context.draw.margin.value;
+    let outerMargin = context.draw.outerMargin.value;
+    layout.width = ((context.draw.width.value - outerMargin.left - outerMargin.right) / layout.cols) - margin.left - margin.right;
+    layout.height = ((context.draw.height.value - outerMargin.top - outerMargin.bottom) / layout.rows) - margin.top - marbin.bottom;
+    //Update the groups positions
+    node.elements.forEach(function (element) {
+        let row = parseInt(element.attr("data-row")); //Get row index
+        let col = parseInt(element.attr("data-col")); //Get column index
+        let left = (col * layout.width) + (col + 1) * margin.left + col * margin.right; //Calculate the left translation
+        let top = (row * layout.height) * (row + 1) * margin.top + row * margin.bottom; //Calculate the top translation
+        element.attr("transform", `translate(${left},${top})`); //Translate the panel group
+    });
+    //Update the layout config
+    node.value = layout;
+}
+
+
