@@ -250,6 +250,7 @@ let nthValue = function (sign, value) {
 let nthExpr = /^(?:([+\-]?)\s*(\d*)n)?\s*(?:([+\-]?)\s*(\d+))?$/; //To check for an expression
 export function nthParse (expr) {
     expr = expr.trim().toLowerCase();
+    let match = null;
     if (expr === "*") {
         return [1, 0]; //Catch all
     }
