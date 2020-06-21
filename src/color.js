@@ -1,16 +1,15 @@
 //Global colors
 export const colors = {
-    "blue": "#4e91e4",
-    "red": "#ee675d",
-    "yellow": "#fbc850",
-    "orange": "#f78055",
-    "purple": "#9d81e4",
-    "green": "#4acf7f",
-    "mint": "#4ccdac",
-    "navy": "#546778",
-    "grey": "#dde5ee",
+    "blue": "#619dff",
+    "red": "#f8766e",
+    "orange": "#d79100",
+    "purple": "#9490ff",
+    "green": "#39b601",
+    "teal": "#00bfc4",
+    "gray": "#e5e5e5",
     "white": "#ffffff",
-    "black": "#000000"
+    "black": "#000000",
+    "transparent": "transparent"
 };
 
 //Get a single color
@@ -30,7 +29,7 @@ export function getColorSchema (name) {
 
 //Parse the specified color https://www.w3.org/TR/css-color-3/#colorunits 
 //Returns a new instance of Color
-export function parse (value) {
+export function parseColor (value) {
     //No valis color provided
     if (typeof value !== "string" || value === null) {
         return null;
