@@ -67,6 +67,7 @@ let getPanelsLayout = function (context, props) {
                 "rows": context.value(props.rows, 1, 1),
                 "cols": context.value(props.cols, 1, 1)
             });
+            newLayout.length = newLayout.rows * newLayout.cols; //Update layout length
         }
         //Check for size value --> calculate from 
         else if (isValid(props.size)) {
@@ -136,8 +137,11 @@ export function getPanelsElements (context, props) {
         //Check for string ---> parse as a nth expression
         else if (typeof value === "string") {
             let nthExpression = nthParse(value); //Parse as an nth expression
+            console.log(nthExpression);
             for (let i = 0; i < context.panels.value.length; i++) {
+                console.log("check " + (i+1));
                 if (nthCheck(i + 1, nthExpression) === true) {
+                    console.log(`${i+1} ---> true`);
                     indexes[i] = 1; //Save this index
                 }
             }
