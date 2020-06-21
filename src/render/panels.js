@@ -26,10 +26,10 @@ let defaultPanelsLayout = {"rows": 1, "cols": 1, "spacing": 0};
 let buildPanelsLayout = function (value) {
     //Check for negative, 0 or 1 values
     if (value < 2) {
-        return {"rows": 1, "cols": 1}; //Return at least one panel
+        return {"rows": 1, "cols": 1, "length": 1}; //Return at least one panel
     }
     else if (value === 2 || value === 3) {
-        return {"rows": 1, "cols": value}; //Return only one row
+        return {"rows": 1, "cols": value, "length": value}; //Return only one row
     }
     let allDivisors = divisors(value); //Get all divisors of the provided value
     //Check if the value is a primer number (only one divisor)
@@ -53,7 +53,7 @@ let buildPanelsLayout = function (value) {
     //    }
     //}
     //Return the best panels layout
-    return {"rows": bestDivisor[0], "cols": bestDivisor[1]};
+    return {"rows": bestDivisor[0], "cols": bestDivisor[1], "length": value};
 };
 
 //Get panels layout
@@ -173,7 +173,7 @@ export function createPanelsNode (context, props) {
 export function updatePanelsNode (context, node) {
     let props = (isObject(node.props)) ? node.props : {};
     let layout = getPanelsLayout(context, node.props); //Build layout
-    layout.length = layout.rows * layout.cols; //Get layout total size
+    //layout.length = layout.rows * layout.cols; //Get layout total size
     //Check if we need to rebuild all panels groups
     if (node.value.rows !== layout.rows || node.value.cols !== layout.cols) {
         context.target.selectAll("g[data-type='panel']").remove(); //Remove all panels
