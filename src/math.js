@@ -227,4 +227,60 @@ export function log (x, base) {
     return Math.log(x) / Math.log(base);
 }
 
+//Check if a number is integer
+export function isInteger (value) {
+    return typeof value === "number" && isFinite(number) && Math.floor(value) === value;
+}
+
+//Check if a number is natural
+export function isNatural (value) {
+    return value >= 0 && isInteger(value);
+}
+
+//Parse a nth number
+let nthValue = function (sign, value) {
+    if (typeof value === "undefined" || value === "") {
+        return 0; //No value to parse
+    }
+    //Default --> parse the value and the sign
+    return (sign === "-") ? ((-1) * parseInt(value)) : parseInt(value);
+};
+
+//Parse a nth expression (an + b)
+let nthExpr = /^(?:([+\-]?)\s*(\d*)n)?\s*(?:([+\-]?)\s*(\d+))?$/; //To check for an expression
+export function nthParse (expr) {
+    expr = expr.trim().toLowerCase();
+    if (expr === "*") {
+        return [1, 0]; //Catch all
+    }
+    else if (expr === "even") {
+        return [2, 0]; //Return for even nth checks
+    }
+    else if (expr === "odd") {
+        return [2, 1]; //Return for odd nth checks
+    }
+    else if ((match = expr.match(nthExpr)) !== null) {
+        return [nthValue(match[1], match[2]), nthValue(match[3], match[4])];
+    }
+    //Default --> not valid expression
+    throw new SyntaxError(`Invalid nth expression ('${expr}')`);
+}
+
+//Check a nth expression
+export function nthCheck (value, attr) {
+    let a = attr[0], b = attr[1];
+    //If a === 0 --> only check the b value
+    if (a === 0) {
+        return b === value;
+    }
+    //Default --> check if (value - b) / a is a positive integer
+    return isNatural((value - b) / a);
+}
+
+//Parse + check a nth expression
+export function nth (value, expr) {
+    return nthCheck(value, nthParse(expr));
+}
+
+
 
