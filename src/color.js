@@ -17,16 +17,6 @@ export function getColor (name) {
     return (typeof colors[name] !== "undefined") ? colors[name] : colors["black"];
 }
 
-//Color schemas
-export const colorSchema = {
-    "default": ["blue","red", "green", "yellow", "orange", "purple", "mint", "navy"].map(getColor)
-};
-
-//Get a color schema
-export function getColorSchema (name) {
-    return (typeof colorSchema[name] !== "undefined") ? colorSchema[name] : colorSchema["default"];
-}
-
 //Parse the specified color https://www.w3.org/TR/css-color-3/#colorunits 
 //Returns a new instance of Color
 export function parseColor (value) {
