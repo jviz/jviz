@@ -5,6 +5,7 @@ import {getNamespace} from "./util/namespaces.js";
 export function Selection (nodes, root) {
     this.nodes = nodes;
     this.root = root;
+    this.length = nodes.length;
 };
 
 //Selection prototype
@@ -18,9 +19,9 @@ Selection.prototype = {
     },
     //Set an attribute for each node
     "attr": function (name, value) {
-        //Check for undefined value to set --> nothing to do
+        //Check for undefined value to set --> get the attribute value of the first item
         if (typeof value === "undefined") {
-            return this;
+            return (this.length === 0) ? null : this.nodes[0].getAttribute(name);
         }
         //Set the value for each node in the selection
         return this.each(function (self, index) {
