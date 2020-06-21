@@ -4,7 +4,7 @@ import {createHashMap} from "../hashmap.js";
 import {getTheme} from "../theme.js";
 
 import {createDataNode, updateDataNode} from "../data.js";
-import {createScaleNode, updateScaleNode} from "../scale/index.js";
+import {createScaleNode, updateScaleNode} from "../scales/index.js";
 import {createGeomNode, updateGeomNode} from "../render/geoms/index.js";
 import {createAxisNode, updateAxisNode} from "../render/axes.js";
 import {createPanelsNode, updatePanelsNode} from "../render/panels.js";
