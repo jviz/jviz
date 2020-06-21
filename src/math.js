@@ -260,6 +260,9 @@ export function nthParse (expr) {
     else if (expr === "odd") {
         return [2, 1]; //Return for odd nth checks
     }
+    else if (expr === "n") {
+        return [1, 0]; //Return a catch-all
+    }
     else if ((match = expr.match(nthExpr)) !== null) {
         return [nthValue(match[1], match[2]), nthValue(match[3], match[4])];
     }
