@@ -12,7 +12,7 @@ let defaultProps = {
 };
 
 //Default panels layout
-let defaultPanelsLayout = {"rows": 1, "cols": 1, "spacing": 0};
+let defaultPanelsLayout = {"rows": 1, "cols": 1, "spacing": 0, "length": 1};
 
 //Calculate panels layout from value
 // For example, if a value of 20 is provided, we calculate all divisors and calculate a score
