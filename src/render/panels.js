@@ -82,7 +82,7 @@ let getPanelsLayout = function (context, props) {
         Object.assign(newLayout, buildPanelsLayout(props)); //Build the layout
     }
     //Return the layout
-    return layout;
+    return newLayout;
 };
 
 //Get panels elements
@@ -144,6 +144,7 @@ export function createPanelsNode (context, props) {
 
 //Update a panels node
 export function updatePanelsNode (context, node) {
+    let props = (isObject(node.props)) ? node.props : {};
     let layout = getPanelsLayout(context, node.props); //Build layout
     layout.length = layout.rows * layout.cols; //Get layout total size
     //Check if we need to rebuild all panels groups
@@ -161,20 +162,20 @@ export function updatePanelsNode (context, node) {
             let bg = element.append("rect");
             bg.attr("id", "panel-background").attr("x", "0").attr("y", "0").attr("fill", "none");
             //Save the panel group element
-            node.elements.append(element);
+            node.elements.push(element);
         }
     }
     //Get the new sizes
     let margin = context.draw.margin.value;
     let outerMargin = context.draw.outerMargin.value;
     layout.width = ((context.draw.width.value - outerMargin.left - outerMargin.right) / layout.cols) - margin.left - margin.right;
-    layout.height = ((context.draw.height.value - outerMargin.top - outerMargin.bottom) / layout.rows) - margin.top - marbin.bottom;
+    layout.height = ((context.draw.height.value - outerMargin.top - outerMargin.bottom) / layout.rows) - margin.top - margin.bottom;
     //Update the groups positions
     node.elements.forEach(function (element) {
         let row = parseInt(element.attr("data-row")); //Get row index
         let col = parseInt(element.attr("data-col")); //Get column index
         let left = (col * layout.width) + (col + 1) * margin.left + col * margin.right; //Calculate the left translation
-        let top = (row * layout.height) * (row + 1) * margin.top + row * margin.bottom; //Calculate the top translation
+        let top = (row * layout.height) + (row + 1) * margin.top + row * margin.bottom; //Calculate the top translation
         element.attr("transform", `translate(${left},${top})`); //Translate the panel group
         //Update the panel background
         let bg = element.selectAll("#panel-background");
