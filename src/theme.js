@@ -27,10 +27,11 @@ themes["default"] = {
     "axesLineColor": colors.transparent,
     "axesTickColor": rgba(colors.black, 0.6),
     "axesSlotColor": colors.gray,
-    "agesGridColor": colors.white,
+    "axesGridColor": colors.white,
     "panelBackground": colors.gray,
     "legendBackground": colors.transparent,
-    "font": "sans"
+    "fontFamily": "arial,sans",
+    "fontSize": "11px"
 };
 
 //Light theme
