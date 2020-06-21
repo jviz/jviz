@@ -11,9 +11,10 @@ export function Scene () {
 
 //Scene prototype
 Scene.prototype = {
-    //Set the scene background
-    "background": function (value) {
-        return this.node.style.backgroundColor = value;
+    //Set the scene style
+    "style": function (name, value) {
+        //TODO: check for a valid style value
+        return this.node.style.setProperty(name, value);
     },
     //Set the scene width
     "width": function (value) {
