@@ -74,11 +74,13 @@ let parseScaleRange = function (context, scale, value) {
     else if (isObject(value) === true) {
         //Check for width range value
         if (typeof value["draw"] === "string" && value["draw"] === "width") {
-            return [0, context.draw.computed.width];
+            //return [0, context.draw.computed.width];
+            return [0, context.panels.value.width];
         }
         //Check for height range value
         else if (typeof value["draw"] === "string" && value["draw"] === "height") {
-            return [context.draw.computed.height, 0];
+            //return [context.draw.computed.height, 0];
+            return [context.panels.value.height, 0];
         }
         //Other type --> parse from value or state
         else {
