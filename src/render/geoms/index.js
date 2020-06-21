@@ -30,7 +30,7 @@ const geomsTypes = {
     "rectangle": rectangleGeom,
     "circle": circleGeom,
     "arc": arcGeom,
-    "segment": segmentGeom,
+    "curve": curveGeom,
     "area": areaGeom,
     "path": pathGeom
 };
