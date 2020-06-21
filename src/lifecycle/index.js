@@ -1,20 +1,17 @@
 import {isArray, isObject, values as objectValues, each} from "../util.js";
 import {load} from "../load.js";
 import {createHashMap} from "../hashmap.js";
-import {parsePadding} from "../render/padding.js";
-import {createDataNode, updateDataNode} from "./data.js";
-import {createScaleNode, updateScaleNode} from "./scale.js";
-import {createShapeNode, updateShapeNode} from "./shape.js";
-import {createAxisNode, updateAxisNode} from "./axes.js";
+import {getTheme} from "../theme.js";
 
-//Parse size value
-let parseSizeValue = function (value) {
-    if (typeof value === "undefined" || value === null) {
-        return 0; //Default size value
-    }
-    //Return parsed value
-    return parseInt(value);
-};
+import {createDataNode, updateDataNode} from "../data.js";
+import {createScaleNode, updateScaleNode} from "../scale/index.js";
+import {createGeomNode, updateGeomNode} from "../render/geoms/index.js";
+import {createAxisNode, updateAxisNode} from "../render/axes.js";
+import {createPanelsNode, updatePanelsNode} from "../render/panels.js";
+
+import {parseSizeValue} from "./parsers.js";
+import {parseBackgroundValue} from "./parsers.js";
+import {parseMarginValue} from "./parsers.js";
 
 //Update the context
 export function updateContext (context, forceUpdate) {
@@ -29,10 +26,16 @@ export function updateContext (context, forceUpdate) {
         //Apply each change to the state object
         context.actions.forEach(function (action) {
             let node = action.target;
-            //Update the value
-            if (node.type === "padding") {
-                node.value = parsePadding(action.value); //Parse padding value
+            //Update the margins
+            if (node.type === "margin" || node.type === "outerMargin") {
+                node.value = parseMarginValue(action.value); //Parse margin value
                 recomputeDraw = true; //We should recompute the draw width and height
+            }
+            //Update the background
+            else if (node.type === "background") {
+                node.value = parseBackgroundValue(action.value, context.theme);
+                //TODO: update scene background
+                context.scene.background(node.value); //Update scene background
             }
             else {
                 node.value = action.value; //Update the node value
@@ -55,13 +58,14 @@ export function updateContext (context, forceUpdate) {
         }
         //Updated the computed plot width and height
         if (recomputeDraw === true) {
-            let padding = context.draw.padding.value;
-            context.draw.computed = {
-                "width": context.draw.width.value - padding.left - padding.right,
-                "height": context.draw.height.value - padding.top - padding.bottom
-            };
+            //let margin = context.draw.margin.value;
+            let outerMargin = context.draw.outerMargin.value;
+            //context.draw.computed = {
+            //    "width": context.draw.width.value - margin.left - margin.right,
+            //    "height": context.draw.height.value - margin.top - margin.bottom
+            //};
             //Apply the new padding values
-            context.target.attr("transform", `translate(${padding.left},${padding.top})`);
+            context.target.attr("transform", `translate(${outerMargin.left},${outerMargin.top})`);
             //Update the scene size
             context.scene.width(context.draw.width.value); //Update scene width
             context.scene.height(context.draw.height.value); //Update scene height
@@ -72,23 +76,23 @@ export function updateContext (context, forceUpdate) {
             if (updateList.has(node.id) === false && forceUpdate === false) {
                 return null;
             }
-            //Nodes that we will update: data|scale|axis|shape
+            //Nodes that we will update: data|panels|scale|axis|shape
             if (node.type === "data") {
                 updateDataNode(context, node);
+            }
+            else if (node.type === "panels") {
+                updatePanelsNode(context, node); //Update the panels node
             }
             else if (node.type === "scale") {
                 updateScaleNode(context, node);
             }
-            //else if (node.type === "layout") {
-            //    updateLayout(context, node);
-            //}
             else if (node.type === "axis") {
                 updateAxisNode(context, node);
             }
-            else if (node.type === "shape") {
-                //If the shape source data has changed we will force a re-rendering
+            else if (node.type === "geom") {
+                //If the geom source data has changed we will force a re-rendering
                 //If not, we will call only the update props of this shape
-                updateShapeNode(context, node, (node.source !== null && updateList.has(node.source.id)) || forceUpdate);
+                updateGeomNode(context, node, (node.source !== null && updateList.has(node.source.id)) || forceUpdate);
             }
             //Add the targets nodes of the current node ot the list of nodes to update
             //We will ensure that all targets of the updated nodes will be visited.
@@ -139,6 +143,7 @@ export function buildContext (context) {
 
 //Initialize the context
 export function initContext (context, schema) {
+    context.theme = getTheme(schema["theme"]); //Get context theme
     //Save padding/width and height values from props
     context.draw = {
         "width": context.addNode({
@@ -153,16 +158,30 @@ export function initContext (context, schema) {
             "targets": createHashMap(),
             "type": "height"
         }),
-        "padding": context.addNode({
-            "id": "draw:padding",
-            "value": parsePadding(schema["padding"]),
-            "targets": createHashMap(),
-            "type": "padding"
+        //Background color
+        "background": context.addNode({
+            "id": "draw:background",
+            "value": parseBackgroundValue(schema["background"], context.theme),
+            "targets": null,
+            "type": "background"
         }),
-        "computed": null //Computed width and height
+        //Internal margins
+        "margin": context.addNode({
+            "id": "draw:margin",
+            "value": parseMarginValue(schema["margin"]),
+            "targets": createHashMap(),
+            "type": "margin"
+        }),
+        //Outer margins
+        "outerMargin": context.addNode({
+            "id": "draw:outer-margin",
+            "value": parseMarginValue(schema["outerMargin"]),
+            "targets": createHashMap(),
+            "type": "outerMargin"
+        })
     };
     //Initialize input data
-    each(schema.data, function (index, props) {
+    each(schema["data"], function (index, props) {
         let name = (typeof props["name"] === "string") ? props["name"] : index;
         //Check for data to be imported from url --> save the url
         if (typeof props["url"] === "string") {
@@ -185,7 +204,7 @@ export function initContext (context, schema) {
         }
     });
     //Initialize state nodes
-    each(schema.state, function (index, props) {
+    each(schema["state"], function (index, props) {
         let name = (typeof props["name"] === "string") ? props["name"] : index;
         context.state[name] = context.addNode({
             "id": `state:${name}`,
@@ -196,24 +215,26 @@ export function initContext (context, schema) {
         //createStateNode(context, name, stateProps);
     });
     //Build data props
-    each(schema.data, function (index, props) {
+    each(schema["data"], function (index, props) {
         let name = (typeof props["name"] === "string") ? props["name"] : index;
         createDataNode(context, name, props);
     });
+    //Create panels node
+    createPanelsNode(context, schema["panels"]);
     //Build scale props
-    each(schema.scales, function (index, props) {
+    each(schema["scales"], function (index, props) {
         let name = (typeof props["name"] === "string") ? props["name"] : index;
         createScaleNode(context, name, props);
     });
     //Clean svg target group
     //context.target.empty();
-    //Render all shapes
-    each(schema.shapes, function (index, props) {
-        createShapeNode(context, context.target.append("g"), props, index);
+    //Render all geoms
+    each(schema["geoms"], function (index, props) {
+        createGeomNode(context, index, props);
     });
     //Draw all axes
-    each(schema.axes, function (index, props) {
-        createAxisNode(context, context.target.append("g"), props, index);
+    each(schema["axes"], function (index, props) {
+        createAxisNode(context, index, props);
     });
     //console.log(context);
 }
