@@ -226,15 +226,13 @@ export function initContext (context, schema) {
         let name = (typeof props["name"] === "string") ? props["name"] : index;
         createScaleNode(context, name, props);
     });
-    //Clean svg target group
-    //context.target.empty();
-    //Render all geoms
-    each(schema["geoms"], function (index, props) {
-        createGeomNode(context, index, props);
-    });
     //Draw all axes
     each(schema["axes"], function (index, props) {
         createAxisNode(context, index, props);
+    });
+    //Render all geoms
+    each(schema["geoms"], function (index, props) {
+        createGeomNode(context, index, props);
     });
     //console.log(context);
 }
