@@ -51,12 +51,8 @@ Selection.prototype = {
             if (value === null) {
                 this.style.removeProperty(name);
             }
-            //Check if value is a function 
-            else if (typeof value === "function") {
-                this.style.setProperty(name, value.call(this, self.getData(index)));
-            }
             //String value --> set this style value
-            else {
+            else if (typeof value === "string") {
                 this.style.setProperty(name, value);
             }
         });
