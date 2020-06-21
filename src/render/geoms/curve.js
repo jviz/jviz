@@ -30,7 +30,7 @@ export const curveGeom = {
     "type": "curve",
     "render": function (context, data, props, element) {
         element.attr("fill", "none"); //Hack to prevent filled polyline 
-        return element.attr("d", line({
+        return element.attr("d", curve({
             "x": function (datum) {
                 return context.value(props.x, datum, defaultProps.x.defaultValue);
             },
