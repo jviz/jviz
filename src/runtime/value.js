@@ -1,5 +1,6 @@
 import {isArray, nest as nestObject} from "../util.js";
 import {colors} from "../color.js";
+import {getPalette} from "../palette.js";
 import {getExpressionSources} from "./expression.js";
 
 //Get value from context
@@ -40,10 +41,10 @@ export function value (props, datum, defaultValue) {
     if (typeof props.color === "string") {
         value = (typeof context.theme.colors[props.color] === "string") ? context.theme.colors[props.color] : colors.black;
     }
-    //Check for color schema
-    //else if (typeof props.schema === "string") {
-    //    value = getColorSchema(props.schema); //Get color schema
-    //}
+    //Check for color palette
+    else if (typeof props.palette === "string") {
+        value = getPalette(context.value(props.palette, null, "default")); //Get color palette
+    }
     //Check for expression value
     else if (typeof props.expr === "string") {
         value = context.expression(props.expr, {
