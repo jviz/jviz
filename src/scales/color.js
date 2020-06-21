@@ -1,9 +1,10 @@
 import * as colors from "../color.js";
+import {clamp} from "../math.js";
 
 //Parse a color range
 let parseColorRange = function (array) {
     return array.map(function (item) {
-        return colors.parse(item);
+        return colors.parseColor(item);
     });
 };
 
@@ -11,30 +12,30 @@ let parseColorRange = function (array) {
 export function color (args) {
     //Parse the range color
     let range = parseColorRange(args["range"]);
+    let n = range.length - 1; //Calculate the number of intervals
     let domain = args["domain"];
     //Return the scale function
     let scale = function (value) {
-        let v = Math.min(domain[1], Math.max(domain[0], value));
+        let v = clamp(value, domain[0], domain[1]); //Parse value
+        //Check for extreme values
+        if (v === domain[0]) {
+            return range[0]; //Return the first range color
+        }
+        else if (v === domain[1]) {
+            return range[range.length - 1]; //Return the last range color
+        }
+        //Calculate the factor
         let factor = (v - domain[0]) / (domain[1] - domain[0]);
+        let i = Math.floor(n * factor); //Get the interval
         //Interpolate the two colors
-        let newColor = colors.interpolate(range[0], range[1], factor);
+        let newColor = colors.interpolate(range[i], range[i+1], (factor * n) - i);
         //Return the HEX result color
         return colors.toHexString(newColor);
     };
-    ////Set the scale domain
-    //scale.domain = function (array) {
-    //    if (verifyArray(array, 2) === true) {
-    //        domain = array;
-    //    }
-    //};
-    ////Set the scale range
-    //scale.range = function (array) {
-    //    if (verifyArray(array, 2) === true) {
-    //        range = parseColorRange(array);
-    //    }
-    //};
     //Add scale metadata
     scale.type = "color";
+    scale.range = range;
+    scale.domain = domain;
     //Return the scale
     return scale;
 }
