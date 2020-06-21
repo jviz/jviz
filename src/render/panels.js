@@ -1,6 +1,15 @@
 import {createHashMap} from "../hashmap.js";
-import {clamp, divisors} from "../math.js";
+import {colors} from "../colors.js";
+import {clamp, divisors, nthParse, nthCheck} from "../math.js";
 import {toArray, isObject, isValid} from "../util.js";
+
+//Default panels props
+let defaultProps = {
+    "background": "transparent",
+    "border": false,
+    "borderColor": colors.black,
+    "borderWidth": "1px"
+};
 
 //Default panels layout
 let defaultPanelsLayout = {"rows": 1, "cols": 1, "spacing": 0};
@@ -78,7 +87,7 @@ let getPanelsLayout = function (context, props) {
 
 //Get panels elements
 export function getPanelsElements (context, props) {
-    if (typeof props === "undefined" || props === null) {
+    if (typeof props === "undefined" || props === null || props == "") {
         return [context.panels.elements[0]]; //Return a single panel element
     }
     else if (typeof props === "string" && props === "*") {
@@ -97,9 +106,14 @@ export function getPanelsElements (context, props) {
         else if (isObject(value) && props !== null) {
             //TODO
         }
-        //Check for string --> TODO
+        //Check for string ---> parse as a nth expression
         else if (typeof value === "string") {
-            //TODO
+            let nthExpression = nthParse(value); //Parse as an nth expression
+            for (let i = 0; i < context.panels.value.length; i++) {
+                if (nthCheck(i, nthExpression) === true) {
+                    indexes[i] = 1; //Save this index
+                }
+            }
         }
         //Ignore other value types
     });
@@ -114,7 +128,7 @@ export function createPanelsNode (context, props) {
     let node = context.addNode({
         "id": "panels",
         "type": "panels",
-        "value": {"width": 0, "height": 0}, 
+        "value": {"width": 0, "height": 0, "length": 0, "rows": 0, "cols": 0}, 
         "targets": createHashMap(),
         "elements": [],
         "props": props //parsePanelsProps(props)
@@ -133,7 +147,7 @@ export function updatePanelsNode (context, node) {
     let layout = getPanelsLayout(context, node.props); //Build layout
     layout.length = layout.rows * layout.cols; //Get layout total size
     //Check if we need to rebuild all panels groups
-    if (node.value === null || (node.value.rows !== layout.rows || node.value.cols !== layout.cols)) {
+    if (node.value.rows !== layout.rows || node.value.cols !== layout.cols) {
         context.target.selectAll("g[data-type='panel']").remove(); //Remove all panels
         node.elements = []; //Reset nodes list
         for (let i = 0; i < layout.length; i++) {
@@ -143,7 +157,11 @@ export function updatePanelsNode (context, node) {
             element.attr("data-type", "panel"); //Set the group type ---> panel
             element.attr("data-row", row + ""); //Set the panel row
             element.attr("data-col", col + ""); //Set the panel col
-            node.elements.append(element); //Save this element
+            //Create a rectangle for displaying panel background
+            let bg = element.append("rect");
+            bg.attr("id", "panel-background").attr("x", "0").attr("y", "0").attr("fill", "none");
+            //Save the panel group element
+            node.elements.append(element);
         }
     }
     //Get the new sizes
@@ -158,6 +176,10 @@ export function updatePanelsNode (context, node) {
         let left = (col * layout.width) + (col + 1) * margin.left + col * margin.right; //Calculate the left translation
         let top = (row * layout.height) * (row + 1) * margin.top + row * margin.bottom; //Calculate the top translation
         element.attr("transform", `translate(${left},${top})`); //Translate the panel group
+        //Update the panel background
+        let bg = element.selectAll("#panel-background");
+        bg.attr("width", layout.width).attr("height", layout.height); //Set background size
+        bg.attr("fill", context.value(props.background, null, context.theme.panelBackground));
     });
     //Update the layout config
     node.value = layout;
