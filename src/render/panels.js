@@ -115,7 +115,7 @@ export function getPanelsElements (context, props) {
             }
             //Check for only row value provided
             else if (typeof value.row === "number") {
-                let row = value.row - 1;
+                let row = (value.row < 0) ? layout.rows + value.row : value.row - 1;
                 for (let i = 0; i < layout.cols; i++) {
                     let index = i + row * layout.cols;
                     if (0 <= index && index < layout.length) {
@@ -125,7 +125,7 @@ export function getPanelsElements (context, props) {
             }
             //Check for only column value provided
             else {
-                let col = value.col - 1; //Get column
+                let col = (value.col < 0) ? layout.cols + value.col : value.col - 1; //Get column
                 for (let i = 0; i < layout.rows; i++) {
                     let index = col + i * layout.cols;
                     if (0 <= index && index < layout.length) {
