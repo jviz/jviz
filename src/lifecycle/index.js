@@ -8,10 +8,20 @@ import {createScaleNode, updateScaleNode} from "../scales/index.js";
 import {createGeomNode, updateGeomNode} from "../render/geoms/index.js";
 import {createAxisNode, updateAxisNode} from "../render/axes.js";
 import {createPanelsNode, updatePanelsNode} from "../render/panels.js";
+import {createLegendNode, updateLegendNode} from "../render/legends.js";
 
 import {parseSizeValue} from "./parsers.js";
 import {parseBackgroundValue} from "./parsers.js";
 import {parseMarginValue} from "./parsers.js";
+
+//Update updaters
+let nodeUpdate = {
+    "data": updateDataNode,
+    "scale": updateScaleNode,
+    "axis": updateAxisNode,
+    "panels": updatePanelsNode,
+    "legend": updateLegendNode
+};
 
 //Update the context
 export function updateContext (context, forceUpdate) {
@@ -76,19 +86,11 @@ export function updateContext (context, forceUpdate) {
             if (updateList.has(node.id) === false && forceUpdate === false) {
                 return null;
             }
-            //Nodes that we will update: data|panels|scale|axis|shape
-            if (node.type === "data") {
-                updateDataNode(context, node);
+            //Nodes that we will update: data|panels|scale|axis|legend
+            if (typeof nodeUpdate[node.type] === "function") {
+                nodeUpdate[node.type](context, node);
             }
-            else if (node.type === "panels") {
-                updatePanelsNode(context, node); //Update the panels node
-            }
-            else if (node.type === "scale") {
-                updateScaleNode(context, node);
-            }
-            else if (node.type === "axis") {
-                updateAxisNode(context, node);
-            }
+            //Update geom node
             else if (node.type === "geom") {
                 //If the geom source data has changed we will force a re-rendering
                 //If not, we will call only the update props of this shape
@@ -233,6 +235,10 @@ export function initContext (context, schema) {
     //Render all geoms
     each(schema["geoms"], function (index, props) {
         createGeomNode(context, index, props);
+    });
+    //Render all legends
+    each(schema["legends"], function (index, props) {
+        createLegendNode(context, index, props);
     });
     //console.log(context);
 }
