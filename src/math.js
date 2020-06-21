@@ -239,8 +239,11 @@ export function isNatural (value) {
 
 //Parse a nth number
 let nthValue = function (sign, value) {
-    if (typeof value === "undefined" || value === "") {
+    if (typeof value === "undefined") {
         return 0; //No value to parse
+    }
+    else if (value === "") {
+        value = 1; //It matches, but there is no value --> use 1
     }
     //Default --> parse the value and the sign
     return (sign === "-") ? ((-1) * parseInt(value)) : parseInt(value);
