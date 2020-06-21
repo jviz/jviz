@@ -45,7 +45,7 @@ export function updateContext (context, forceUpdate) {
             else if (node.type === "background") {
                 node.value = parseBackgroundValue(action.value, context.theme);
                 //TODO: update scene background
-                context.scene.background(node.value); //Update scene background
+                context.scene.style("background-color", node.value); //Update scene background
             }
             else {
                 node.value = action.value; //Update the node value
@@ -241,5 +241,8 @@ export function initContext (context, schema) {
         createLegendNode(context, index, props);
     });
     //console.log(context);
+    //Set scene style
+    context.scene.style("font-family", context.theme["fontFamily"]);
+    context.scene.style("font-size", context.theme["fontSize"]);
 }
 
