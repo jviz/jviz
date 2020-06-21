@@ -8,6 +8,8 @@ import {setStyle, isStyleName} from "../style.js";
 import {setTooltipEvents} from "../tooltip.js";
 import {setEvent, isEventName} from "../events.js";
 
+import {getPanelsElements} from "../panels.js";
+
 import {textGeom} from "./text.js";
 import {lineGeom} from "./line.js";
 import {rectangleGeom} from "./rectangle.js";
@@ -101,7 +103,14 @@ let getGeomRenderProps = function (props, event) {
 //Get geom groups
 let getGeomGroups = function (props) {
     if (props.type === "group") {
-        return (typeof props.geoms !== "undefined") ? objectValues(props.geoms) : [];
+        if (isArray(props.geoms) === true) {
+            return props.geoms; //Return the array of geoms
+        }
+        else if (isObject(props.geos) === true) {
+            return objectValues(props.geoms); //Return only values
+        }
+        //Default --> not valid geoms
+        return [];
     }
     //Else: return this geom props as an array
     return [props];
@@ -118,18 +127,18 @@ let applyGeomStyle = function (context, datum, props, target) {
 };
 
 //Create a new geom node
-export function createGeomNode (context, parent, props, key) {
+export function createGeomNode (context, key, props) {
     //Initialize the geom node
     let node = context.addNode({
         "id": `geom:${key}`,
         "type": "geom",
         "props": props,
         "targets": null,
-        "parent": parent,
         "source": null,
         "value": [],
     });
     //Get the source data
+    context.panels.targets.add(node.id, node); //Bind to panels
     if (typeof props.source === "object" && props.source !== null) {
         if (typeof props.source.data === "string") {
             let source = context.data[props.source.data];
@@ -157,10 +166,24 @@ export function createGeomNode (context, parent, props, key) {
 
 //Update the provided node
 export function updateGeomNode (context, node, forceRender) {
+    getPanelsElements(context, node.props.panel).forEach(function (element) {
+        //Check if there is a group for this geom group
+        let target = element.selectAll(`g[data-geom='${node.id}']`);
+        if (target.length === 0) {
+            target = element.append("g").attr("data-geom", node.id); //Create a new geom group
+        }
+        //Render the geom
+        return renderGeom(context, node, target, forceUpdate);
+    });
+}
+
+//Render a geom
+let renderGeom = function (context, node, parent, forceUpdate) {
     //Check for force rendering the geom
     if (forceRender === true) {
         //Clean the parent node
-        node.parent.empty();
+        //node.parent.empty();
+        parent.empty();
         //Get data to apply
         Object.assign(node, {
             "value": buildShapeData(context, node.props)
@@ -184,7 +207,7 @@ export function updateGeomNode (context, node, forceRender) {
             //Access to all items
             return getGeomData(node.value, props).forEach(function (data, index) {
                 //Select the element attached to this data node
-                let element = getGeomElement(geom, node.parent, index, groupIndex);
+                let element = getGeomElement(geom, parent, index, groupIndex);
                 //Check for render props
                 if (reloadGeom === true) {
                     geom.render(context, data, updateProps, element); //Redraw this element
@@ -195,7 +218,7 @@ export function updateGeomNode (context, node, forceRender) {
         }
         //Build geoms for each data group
         getGeomData(node.value, props).forEach(function (data, index) { 
-            let element = createGeomElement(geom, node.parent, index, groupIndex);
+            let element = createGeomElement(geom, parent, index, groupIndex);
             geom.render(context, data, updateProps, element);  // --> render init + update props
             //Apply style props
             applyGeomStyle(context, data, updateProps, element);
