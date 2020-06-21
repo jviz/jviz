@@ -229,7 +229,7 @@ export function log (x, base) {
 
 //Check if a number is integer
 export function isInteger (value) {
-    return typeof value === "number" && isFinite(number) && Math.floor(value) === value;
+    return typeof value === "number" && isFinite(value) && Math.floor(value) === value;
 }
 
 //Check if a number is natural
