@@ -34,7 +34,7 @@ let defaultProps = {
     "tickColor": "black",
     "tickSize": "11px",
     "tickOpacity": 0.8,
-    "tickPadding": 5,
+    "tickOffset": 5,
     "tickRotation": 0,
     "tickFormat": null,
     "tickBaseline": "middle",   //hanging|middle|baseline
@@ -174,7 +174,7 @@ export function updateAxisNode (context, node) {
         //if (props.ticks === true) { // && (typeof props.tickCount === "number" || viz.isArray(props.tickValues))) {
         if (context.value(props.ticks, null, defaultProps.ticks) === true) {
             let angle = context.value(props.tickRotation, null, defaultProps.tickRotation); //Get rotation angle
-            let tickPadding = context.value(props.tickPadding, 0, defaultProps.tickPadding); //Get ticks padding
+            let tickOffset = context.value(props.tickOffset, 0, defaultProps.tickOffset); //Get ticks offset
             let tickSlot = context.value(props.slot, null, defaultProps.slot); //Display tick slot
             //Display each label value
             ticksValues.forEach(function (value, index) {
@@ -197,11 +197,11 @@ export function updateAxisNode (context, node) {
                 //let labelAnchor = (props.orientation === "left") ? "end" : "start";
                 //Calculate the label positions
                 if (orientation === "left" || orientation === "right") {
-                    tickX = axisPosition.x1 + (((orientation === "left") ? -1 : +1) * tickPadding);
+                    tickX = axisPosition.x1 + (((orientation === "left") ? -1 : +1) * tickOffset);
                     tickY = valuePosition + position; //props.y + props.height - position;
                     //Check for displaying the tick slot
                     if (tickSlot === true && hasAxisLine === true) {
-                        let px2 = axisPosition.x1 + (((orientation === "left") ? -1 : +1) * tickPadding / 3);
+                        let px2 = axisPosition.x1 + (((orientation === "left") ? -1 : +1) * tickOffset / 3);
                         slotLine = target.append("path");
                         slotLine.attr("d", polyline({
                             "points": [
@@ -222,11 +222,11 @@ export function updateAxisNode (context, node) {
                 }
                 else {
                     tickX = valuePosition + position;
-                    tickY = axisPosition.y1 + (((orientation === "top") ? -1 : +1) * tickPadding);
+                    tickY = axisPosition.y1 + (((orientation === "top") ? -1 : +1) * tickOffset);
                     //Check for displaying the tick slot
                     //if (props.tickSlot === true && props.line === true) {
                     if (tickSlot === true && hasAxisLine === true) {
-                        let py2 = axisPosition.y1 + (((orientation === "top") ? -1 : +1) * tickPadding / 3);
+                        let py2 = axisPosition.y1 + (((orientation === "top") ? -1 : +1) * tickOffset / 3);
                         slotLine = target.append("path");
                         slotLine.attr("d", polyline({
                             "points": [
