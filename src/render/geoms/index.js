@@ -173,12 +173,12 @@ export function updateGeomNode (context, node, forceRender) {
             target = element.append("g").attr("data-geom", node.id); //Create a new geom group
         }
         //Render the geom
-        return renderGeom(context, node, target, forceUpdate);
+        return renderGeom(context, node, target, forceRender);
     });
 }
 
 //Render a geom
-let renderGeom = function (context, node, parent, forceUpdate) {
+let renderGeom = function (context, node, parent, forceRender) {
     //Check for force rendering the geom
     if (forceRender === true) {
         //Clean the parent node
@@ -186,7 +186,7 @@ let renderGeom = function (context, node, parent, forceUpdate) {
         parent.empty();
         //Get data to apply
         Object.assign(node, {
-            "value": buildShapeData(context, node.props)
+            "value": buildGeomData(context, node.props)
         });
     }
     //Get geom groups
