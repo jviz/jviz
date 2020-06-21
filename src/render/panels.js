@@ -40,7 +40,7 @@ let buildPanelsLayout = function (value) {
     let scores = allDivisors.map(function (d) {
         return d[0] + d[1];
     });
-    let besScore = Math.min.apply(null, scores); //Get the best score
+    let bestScore = Math.min.apply(null, scores); //Get the best score
     let filteredDivisors = allDivisors.filter(function (d, index) {
         return bestScore === scores[index]; //Get only the divisors of the best score
     });
@@ -87,6 +87,7 @@ let getPanelsLayout = function (context, props) {
 
 //Get panels elements
 export function getPanelsElements (context, props) {
+    let layout = context.panels.value;
     if (typeof props === "undefined" || props === null || props == "") {
         return [context.panels.elements[0]]; //Return a single panel element
     }
@@ -99,18 +100,44 @@ export function getPanelsElements (context, props) {
     toArray(props).forEach(function (value) {
         //Check for number --> as a single index
         if (typeof value === "number") {
-            let index = clamp(value, 0, context.panels.elements.length - 1);
+            let index = clamp(value - 1, 0, context.panels.elements.length - 1);
             indexes[index] = 1; //Save this index
         }
         //Check for object --> TODO
-        else if (isObject(value) && props !== null) {
-            //TODO
+        else if (isObject(value) && (typeof value.row === "number" || typeof value.col === "number")) {
+            //Check for row and column provided
+            if (typeof value.row === "number" && typeof value.col === "number") {
+                let index = (value.col - 1) + (value.row - 1) * layout.cols;
+                if (0 <= index && index < layout.length) {
+                    indexes[index] = 1; //Save this single item
+                }
+            }
+            //Check for only row value provided
+            else if (typeof value.row === "number") {
+                let row = value.row - 1;
+                for (let i = 0; i < layout.cols; i++) {
+                    let index = i + row * layout.cols;
+                    if (0 <= index && index < layout.length) {
+                        indexes[index] = 1; //Save this item
+                    }
+                }
+            }
+            //Check for only column value provided
+            else {
+                let col = value.col - 1; //Get column
+                for (let i = 0; i < layout.rows; i++) {
+                    let index = col + i * layout.cols;
+                    if (0 <= index && index < layout.length) {
+                        indexes[index] = 1; //Save this item
+                    }
+                }
+            }
         }
         //Check for string ---> parse as a nth expression
         else if (typeof value === "string") {
             let nthExpression = nthParse(value); //Parse as an nth expression
             for (let i = 0; i < context.panels.value.length; i++) {
-                if (nthCheck(i, nthExpression) === true) {
+                if (nthCheck(i + 1, nthExpression) === true) {
                     indexes[i] = 1; //Save this index
                 }
             }
