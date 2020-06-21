@@ -1,5 +1,5 @@
 import {createHashMap} from "../hashmap.js";
-import {colors} from "../colors.js";
+import {colors} from "../color.js";
 import {clamp, divisors, nthParse, nthCheck} from "../math.js";
 import {toArray, isObject, isValid} from "../util.js";
 
@@ -23,7 +23,7 @@ let defaultPanelsLayout = {"rows": 1, "cols": 1, "spacing": 0};
 // 5, 4  ---> score = 9
 // 10, 2 ---> score = 12
 // Result >>> rows=4, cols=5
-let buildPanelsLayout (value) {
+let buildPanelsLayout = function (value) {
     //Check for negative, 0 or 1 values
     if (value < 2) {
         return {"rows": 1, "cols": 1}; //Return at least one panel
