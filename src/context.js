@@ -1,13 +1,17 @@
+import {getTheme} from "./theme.js";
 import {dispatch} from "./dispatch.js";
 import {call} from "./util.js";
-import {initContext, buildContext, updateContext} from "./lifecycle/index.js";
 import {createHashMap} from "./hashmap.js";
+
+import {createScene} from "./render/scene.js";
+import {createTooltip} from "./render/tooltip.js";
+
 import {expression} from "./runtime/expression.js";
 import {transform} from "./runtime/transform.js";
 import {value} from "./runtime/value.js";
 import {source} from "./runtime/source.js";
-import {createScene} from "./render/scene.js";
-import {createTooltip} from "./render/tooltip.js";
+
+import {initContext, buildContext, updateContext} from "./lifecycle/index.js";
 
 //Context class
 export function Context (schema, options) {
@@ -23,6 +27,8 @@ export function Context (schema, options) {
         "state": {}, //State nodes by Ids
         "data": {}, //Data nodes by Ids
         "scales": {}, //Scale nodes by ids
+        "panels": null, //Panels configuration
+        "theme": null, //Theme definition
         "events": dispatch(), //Events dispatching
         "tooltip": createTooltip(this.scene.append("g"), options), //Tooltip handler
         "ready": false,
