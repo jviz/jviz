@@ -313,3 +313,8 @@ export function each (list, callback) {
     } 
 }
 
+//Convert a value to array
+export function toArray (value) {
+    return (isArray(value)) ? value : [value];
+}
+
