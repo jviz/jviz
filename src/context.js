@@ -3,9 +3,6 @@ import {dispatch} from "./dispatch.js";
 import {call} from "./util.js";
 import {createHashMap} from "./hashmap.js";
 
-import {createScene} from "./render/scene.js";
-import {createTooltip} from "./render/tooltip.js";
-
 import {expression} from "./runtime/expression.js";
 import {transform} from "./runtime/transform.js";
 import {value} from "./runtime/value.js";
@@ -16,12 +13,12 @@ import {initContext, buildContext, updateContext} from "./lifecycle/index.js";
 //Context class
 export function Context (schema, options) {
     //let self = this;
-    this.scene = createScene(); //Create a new scene
+    //this.scene = createScene(); //Create a new scene
     //Assign context 
     Object.assign(this, {
         "nodes": createHashMap(), //Context data nodes
         "actions": createHashMap(), //To store pending actions to the context
-        "target": this.scene.append("g"), //Context target group
+        "target": null, //this.scene.append("g"), //Context target group
         "draw": {}, //Draw configuration (width, height and padding)
         "input": {}, //Store the input data
         "state": {}, //State nodes by Ids
@@ -29,8 +26,9 @@ export function Context (schema, options) {
         "scales": {}, //Scale nodes by ids
         "panels": null, //Panels configuration
         "theme": null, //Theme definition
+        "scene": null, //Scene
         "events": dispatch(), //Events dispatching
-        "tooltip": createTooltip(this.scene.append("g"), options), //Tooltip handler
+        "tooltip": null, //Tooltip handler
         "ready": false,
         "running": false
     });
