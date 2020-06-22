@@ -14,14 +14,14 @@ export function selectNodes (selector, root) {
     //Initialize the output nodes selection
     let selection = {
         "nodes": [],
-        "root": (typeof root !== "undefined" && root !== null) ? root : document
+        "root": root //(typeof root !== "undefined" && root !== null) ? root : document
     };
     //Check if the selector is a instance of html elements or node list
     if (isValidElement(selector) === true || selector instanceof NodeList) {
         selection.nodes = selector.length > 1 ? [].slice.call(selector) : [selector];
     }
     //If selector is an string
-    else if (typeof selector === "string") {
+    else if (typeof selector === "string" && typeof root !== "undefined" && root !== null) {
         selection.nodes = [].slice.call(selection.root.querySelectorAll(selector));
     }
     //Return the selected nodes and the root node element
