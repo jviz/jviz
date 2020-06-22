@@ -1,7 +1,7 @@
 import {isObject} from "../util.js";
 import {createNode, selectNodes, removeNode} from "./util/nodes.js";
 import {select, Selection} from "./selection.js";
-import {setStyle} from "./style.scss";
+import {setStyle} from "./style.js";
 
 //Scene style parameters
 let sceneStyles = ["background", "fontFamily", "fontSize"];
