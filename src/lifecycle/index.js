@@ -43,7 +43,7 @@ export function updateContext (context, forceUpdate) {
             let node = action.target;
             //Update the margins
             if (node.type === "margin" || node.type === "outerMargin") {
-                node.value = parseMarginValue(action.value); //Parse margin value
+                node.value = parseMarginValue(action.value, 0); //Parse margin value
                 recomputeDraw = true; //We should recompute the draw width and height
             }
             //Check for scene node type --> update the style
@@ -154,14 +154,14 @@ export function initContext (context, schema) {
         //Internal margins
         "margin": context.addNode({
             "id": "draw:margin",
-            "value": parseMarginValue(schema["margin"]),
+            "value": parseMarginValue(schema["margin"], 0),
             "targets": createHashMap(),
             "type": "margin"
         }),
         //Outer margins
         "outerMargin": context.addNode({
             "id": "draw:outer-margin",
-            "value": parseMarginValue(schema["outerMargin"]),
+            "value": parseMarginValue(schema["outerMargin"], 0),
             "targets": createHashMap(),
             "type": "outerMargin"
         })
