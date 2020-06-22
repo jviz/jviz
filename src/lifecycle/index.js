@@ -11,6 +11,7 @@ import {createAxisNode, updateAxisNode} from "../render/axes.js";
 import {createPanelsNode, updatePanelsNode} from "../render/panels.js";
 import {createLegendNode, updateLegendNode} from "../render/legends.js";
 import {createSceneNode, updateSceneNode} from "../render/scene.js";
+import {createTitleNode, updateTitleNode} from "../render/title.js";
 
 import {parseSizeValue} from "./parsers.js";
 import {parseBackgroundValue} from "./parsers.js";
@@ -23,7 +24,8 @@ let nodeUpdate = {
     "axis": updateAxisNode,
     "panels": updatePanelsNode,
     "legend": updateLegendNode,
-    "scene": updateSceneNode
+    "scene": updateSceneNode,
+    "title": updateTitleNode
 };
 
 //Update the context
@@ -35,19 +37,14 @@ export function updateContext (context, forceUpdate) {
             return resolve();
         }
         let updateList = createHashMap(); //We will store all changed nodes on this list
-        //let recomputeDraw = forceUpdate === true; //Recompute the drawing values
+        let recomputeDraw = forceUpdate === true; //Recompute the drawing values
         //Apply each change to the state object
         context.actions.forEach(function (action) {
             let node = action.target;
             //Update the margins
             if (node.type === "margin" || node.type === "outerMargin") {
-                let values = parseMarginValue(action.value); //Parse margin value
-                //recomputeDraw = true; //We should recompute the draw width and height
-                //Check for outermargin node --> translate the main group
-                if (node.type === "outerMargin") {
-                    context.target.attr("transform", `translate(${values.left},${values.top})`);
-                }
-                node.value = values; //Save margin values
+                node.value = parseMarginValue(action.value); //Parse margin value
+                recomputeDraw = true; //We should recompute the draw width and height
             }
             //Check for scene node type --> update the style
             else if (node.type === "scene") {
@@ -65,6 +62,11 @@ export function updateContext (context, forceUpdate) {
                 });
             }
         });
+        //Check for recompute draw
+        if (recomputeDraw === true) {
+            let margins = context.draw.outerMargin.value; //Get margins
+            context.target.attr("transform", `translate(${margins.left},${margins.top})`);
+        }
         //Check for no nodes to update
         if (updateList.length() === 0 && forceUpdate === false) {
             //TODO: display in logs
@@ -226,6 +228,8 @@ export function initContext (context, schema) {
     each(schema["legends"], function (index, props) {
         createLegendNode(context, index, props);
     });
+    //Add title node
+    createTitleNode(context, null, schema["title"]);
     //console.log(context);
 }
 
