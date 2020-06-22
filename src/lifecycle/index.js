@@ -2,6 +2,7 @@ import {isArray, isObject, values as objectValues, each} from "../util.js";
 import {load} from "../load.js";
 import {createHashMap} from "../hashmap.js";
 import {getTheme} from "../theme.js";
+import {createTooltip} from "../render/tooltip.js";
 
 import {createDataNode, updateDataNode} from "../data.js";
 import {createScaleNode, updateScaleNode} from "../scales/index.js";
@@ -9,6 +10,7 @@ import {createGeomNode, updateGeomNode} from "../render/geoms/index.js";
 import {createAxisNode, updateAxisNode} from "../render/axes.js";
 import {createPanelsNode, updatePanelsNode} from "../render/panels.js";
 import {createLegendNode, updateLegendNode} from "../render/legends.js";
+import {createSceneNode, updateSceneNode} from "../render/scene.js";
 
 import {parseSizeValue} from "./parsers.js";
 import {parseBackgroundValue} from "./parsers.js";
@@ -20,7 +22,8 @@ let nodeUpdate = {
     "scale": updateScaleNode,
     "axis": updateAxisNode,
     "panels": updatePanelsNode,
-    "legend": updateLegendNode
+    "legend": updateLegendNode,
+    "scene": updateSceneNode
 };
 
 //Update the context
@@ -32,30 +35,31 @@ export function updateContext (context, forceUpdate) {
             return resolve();
         }
         let updateList = createHashMap(); //We will store all changed nodes on this list
-        let recomputeDraw = forceUpdate === true; //Recompute the drawing values
+        //let recomputeDraw = forceUpdate === true; //Recompute the drawing values
         //Apply each change to the state object
         context.actions.forEach(function (action) {
             let node = action.target;
             //Update the margins
             if (node.type === "margin" || node.type === "outerMargin") {
-                node.value = parseMarginValue(action.value); //Parse margin value
-                recomputeDraw = true; //We should recompute the draw width and height
+                let values = parseMarginValue(action.value); //Parse margin value
+                //recomputeDraw = true; //We should recompute the draw width and height
+                //Check for outermargin node --> translate the main group
+                if (node.type === "outerMargin") {
+                    context.target.attr("transform", `translate(${values.left},${values.top})`);
+                }
+                node.value = values; //Save margin values
             }
-            //Update the background
-            else if (node.type === "background") {
-                node.value = parseBackgroundValue(action.value, context.theme);
-                //TODO: update scene background
-                context.scene.style("background-color", node.value); //Update scene background
+            //Check for scene node type --> update the style
+            else if (node.type === "scene") {
+                //TODO
             }
+            //Other node type
             else {
                 node.value = action.value; //Update the node value
-                if (node.type === "height" || node.type === "width") {
-                    recomputeDraw = true;
-                }
             }
             //updateList.add(node); //Changed node --> add to changes list
             //Add all targets nodes of this changed item
-            if (node.targets !== null) {
+            if (isObject(node.targets)) {
                 node.targets.forEach(function (targetNode) {
                     updateList.add(targetNode.id, targetNode);
                 });
@@ -65,20 +69,6 @@ export function updateContext (context, forceUpdate) {
         if (updateList.length() === 0 && forceUpdate === false) {
             //TODO: display in logs
             return resolve();
-        }
-        //Updated the computed plot width and height
-        if (recomputeDraw === true) {
-            //let margin = context.draw.margin.value;
-            let outerMargin = context.draw.outerMargin.value;
-            //context.draw.computed = {
-            //    "width": context.draw.width.value - margin.left - margin.right,
-            //    "height": context.draw.height.value - margin.top - margin.bottom
-            //};
-            //Apply the new padding values
-            context.target.attr("transform", `translate(${outerMargin.left},${outerMargin.top})`);
-            //Update the scene size
-            context.scene.width(context.draw.width.value); //Update scene width
-            context.scene.height(context.draw.height.value); //Update scene height
         }
         //Loop for all nodes
         context.nodes.forEach(function (node) {
@@ -136,7 +126,6 @@ export function buildContext (context) {
                 //console.error(error);
                 return reject(error);
             });
-
         };
         //Start laoding data
         loadDataAsync(0);
@@ -160,13 +149,6 @@ export function initContext (context, schema) {
             "targets": createHashMap(),
             "type": "height"
         }),
-        //Background color
-        "background": context.addNode({
-            "id": "draw:background",
-            "value": parseBackgroundValue(schema["background"], context.theme),
-            "targets": null,
-            "type": "background"
-        }),
         //Internal margins
         "margin": context.addNode({
             "id": "draw:margin",
@@ -182,6 +164,10 @@ export function initContext (context, schema) {
             "type": "outerMargin"
         })
     };
+    //Create the scene node
+    createSceneNode(context, null, schema["style"]);
+    context.target = context.scene.element.append("g"); //Add context target group
+    createTooltip(context.scene.element.append("g"), {}); //Create the tooltip parent
     //Initialize input data
     each(schema["data"], function (index, props) {
         let name = (typeof props["name"] === "string") ? props["name"] : index;
@@ -241,8 +227,5 @@ export function initContext (context, schema) {
         createLegendNode(context, index, props);
     });
     //console.log(context);
-    //Set scene style
-    context.scene.style("font-family", context.theme["fontFamily"]);
-    context.scene.style("font-size", context.theme["fontSize"]);
 }
 
