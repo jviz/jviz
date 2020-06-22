@@ -23,15 +23,23 @@ themes["default"] = {
         "black": colors.black,
         "white": colors.white
     },
+    //Global style
     "background": colors.transparent,
+    "fontFamily": "arial,sans",
+    "fontSize": "11px",
+    //Axis style
     "axesLineColor": colors.transparent,
     "axesTickColor": rgba(colors.black, 0.6),
     "axesSlotColor": colors.gray,
     "axesGridColor": colors.white,
+    //Panel style
     "panelBackground": colors.gray,
+    //Legend style
     "legendBackground": colors.transparent,
-    "fontFamily": "arial,sans",
-    "fontSize": "11px"
+    //Title style
+    "titleColor": colors.black,
+    "titleFontSize": "16px",
+    "titleFontWeight": "bold"
 };
 
 //Light theme
