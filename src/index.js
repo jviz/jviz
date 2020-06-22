@@ -2,6 +2,7 @@ import {colors} from "./color.js";
 import {parseSchemaAsync, parseSchemaSync} from "./schema.js";
 import {evaluate} from "./evaluate.js";
 import {select, selectAll} from "./render/selection.js";
+import {mountScene, unmountScene} from "./render/scene.js";
 import {createContext} from "./context.js";
 import * as math from "./math.js";
 import * as util from "./util.js";
@@ -38,7 +39,7 @@ let jviz = function (schema, options) {
     this.context = createContext(schema, options);
     //Check for parent component provided
     if (typeof options.parent !== "undefined" && options.parent !== null) {
-        this.context.scene.mount(options.parent); //Mount scene
+        mountScene(this.context, options.parent); //Mount scene
     }
 };
 
@@ -78,7 +79,7 @@ jviz.prototype = {
     },
     //Destroy the viewer --> unmount the scene and remove listeners
     "destroy": function () {
-        this.context.scene.unmount(); //Unmount scene
+        unmountScene(this.context); //Unmount scene
         //TODO: remove context listeners
     }
 };
