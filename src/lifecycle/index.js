@@ -88,7 +88,7 @@ export function updateContext (context, forceUpdate) {
             }
             //Add the targets nodes of the current node ot the list of nodes to update
             //We will ensure that all targets of the updated nodes will be visited.
-            if (node.targets !== null && forceUpdate === false) {
+            if (forceUpdate === false && isObject(node.targets)) {
                 return node.targets.forEach(function (targetNode) {
                     updateList.add(targetNode.id, targetNode);
                 });
