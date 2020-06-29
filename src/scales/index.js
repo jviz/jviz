@@ -7,7 +7,7 @@ import {color as colorScale} from "./color.js";
 import {categorical as categoricalScale} from "./discrete.js";
 import {point as pointScale} from "./discrete.js";
 import {interval as intervalScale} from "./discrete.js";
-import {linear as linearScale} from "./linear.js";
+import {linear as linearScale} from "./continuous.js";
 
 //Export constants
 export const CONTINUOUS_SCALE = 0;
