@@ -102,8 +102,13 @@ export function expression (expr, values) {
         "data": function (name) {
             return context.data[name].value; //Return the data value
         },
-        "scale": function (name, value) {
-            return context.scales[name].value(value);
+        "scale": function (name, a, b) {
+            //TODO: use b value (if provided) only for interval scales
+            return context.scales[name].value(a);
+        },
+        "invert": function (name, a) {
+            //NOTE THAT THIS ONLY WORKS FOR CONTINUOUS SCALES
+            return context.scales[name].value.invert(a); //Apply scale invert
         }
     }));
 }
@@ -112,15 +117,15 @@ export function expression (expr, values) {
 export function getExpressionSources (context, expr) {
     let sources = []; //createNodeList();
     //Find state|data|scale calls in the expression
-    matchRegex(expr, /(state|data|scale)\('([^']*)'/g, function (matches) {
+    matchRegex(expr, /(state|data|scale|invert)\('([^']*)'/g, function (matches) {
         //Example: expr = "state('aaaa') + 1"
         //match[0] --> full match group: state('aaaa'
         //match[1] --> source type: state
         //match[2] --> source name: aaaa
         let sourceType = matches[1];
         let sourceName = matches[2];
-        //Check if the source type is a scale --> rename to scales instead
-        if (sourceType === "scale") {
+        //Check if the source type is a scale or invert --> rename to scales instead
+        if (sourceType === "scale" || sourceType === "invert") {
             sourceType = "scales";
         }
         //Check if this node is defined --> return the source node
