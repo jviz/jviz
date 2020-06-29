@@ -1,14 +1,20 @@
 import React from "react";
 import kofi from "kofi";
-import {If, Choose, ChooseIf} from "@siimple/neutrine";
-import {Renderer} from "@siimple/neutrine";
-import {SplitPanel, SplitPanelItem} from "@siimple/neutrine";
+import {If, Renderer} from "@siimple/neutrine";
 import {Spinner} from "@siimple/neutrine";
+import {Toolbar, ToolbarWrapper} from "@siimple/neutrine";
+import {Field, FieldLabel, FieldHelper} from "@siimple/neutrine";
+import {Input, Textarea} from "@siimple/neutrine";
+import {Btn} from "@siimple/neutrine";
+import {Rule} from "@siimple/neutrine";
 
+import {Export} from "../../components/Export/index.js";
 import {Splash} from "../../components/Splash/index.js";
-import {EditorHeader} from "../../components/EditorHeader/index.js";
-import {EditorCode} from "../../components/EditorCode/index.js";
-import {EditorPreview} from "../../components/EditorPreview/index.js";
+import {SandboxHeader} from "../../components/SandboxHeader/index.js";
+import {SandboxEditor} from "../../components/SandboxEditor/index.js";
+import {getLocalSandbox, updateLocalSandbox, deleteLocalSandbox} from "../../utils/sandbox.js";
+import {parseSandbox} from "../../utils/sandbox.js";
+import {redirect, redirectToSandbox} from "../../utils/redirect.js";
 import style from "./style.scss";
 
 //Export sandbox editor component
@@ -17,113 +23,249 @@ export class EditorPage extends React.Component {
         super(props);
         //Initial state
         this.state = {
-            "ready": false,
-            "content": ""
+            "loading": true, 
+            "menuVisible": false,
+            "exportVisible": false,
+            "local": false,
+            "sandbox": {}
         };
         //Referenced elements
         this.ref = {
-            "code": React.createRef(),
-            "preview": React.createRef()
+            "editor": React.createRef(),
+            "sandboxName": React.createRef(),
+            "sandboxDescription": React.createRef()
         };
         //Bind sandbox management methods
-        this.handleRun = this.handleRun.bind(this);
-        this.handleLoad = this.handleLoad.bind(this);
+        this.loadSandbox = this.loadSandbox.bind(this);
+        this.saveSandbox = this.saveSandbox.bind(this);
+        this.updateSandbox = this.updateSandbox.bind(this);
+        this.handleSave = this.handleSave.bind(this);
+        this.handleExit = this.handleExit.bind(this);
+        this.handleDelete = this.handleDelete.bind(this);
         this.handleExport = this.handleExport.bind(this);
+        this.handleExportClose = this.handleExportClose.bind(this);
+        this.handleMenuToggle = this.handleMenuToggle.bind(this);
+        this.handleUpdateMetadataClick = this.handleUpdateMetadataClick.bind(this);
     }
     //Component did mount
     componentDidMount() {
+        return this.loadSandbox();
+    }
+    //Save a sandbox
+    saveSandbox(sandbox, forceSave) {
+        if (this.state.local === false && forceSave !== true) {
+            return Promise.resolve(sandbox); //Do not save the sandbox
+        }
+        //Update the sandbox
+        return updateLocalSandbox(sandbox);
+    }
+    //Update sandbox with new data
+    updateSandbox(newData) {
         let self = this;
-        return kofi.delay(1000).then(function () {
-            return self.handleLoad();
+        let sandbox = Object.assign(this.ref.editor.current.getSandbox(), newData);
+        //Save new sandbox data
+        return this.setState({"sandbox": sandbox}, function () {
+            return self.saveSandbox(sandbox, false).then(function () {
+                //Update the sandbox in the editor
+                self.ref.editor.current.setSandbox(sandbox);
+                //Display confirmation toast
+                window.toast.success({"message": "Sandbox saved"});
+            });
         });
     }
-    //Handle sandbox load
-    handleLoad() {
+    //Load a sandbox
+    loadSandbox() {
         let self = this;
+        let isLocalSandbox = false; //To save if this sandbox is stored in local
         let params = this.props.request.query;
-        //Check for url provided
-        if (typeof params.url === "string") {
-            return kofi.request({
-                "url": params.url,
-                "method": "get"
-            }).then(function (response) {
+        //Update the state before start loading the sandbox
+        return this.setState({"loading": true}, function () {
+            return kofi.delay(1000).then(function () {
+                //Get sandbox by ID
+                isLocalSandbox = true; //Local sandbox
+                return getLocalSandbox(params.sandbox);
+            }).then(function (newSandbox) {
+                console.log(newSandbox);
                 return self.setState({
-                    "ready": true,
-                    "content": response.body
+                    "loading": false, 
+                    "local": isLocalSandbox,
+                    "sandbox": newSandbox
                 });
-            }).catch(function (response) {
-                console.error(response.error);
+            }).catch(function (error) {
+                //TODO: threat error
+                return null;
+            });
+        });
+    }
+    //Handle editor exit
+    handleExit() {
+        let sandbox = this.ref.editor.current.getSandbox();
+        return this.saveSandbox(sandbox, false).then(function () {
+            return redirect("/");
+        });
+    }
+    //Handle delete sandbox
+    handleDelete() {
+        let self = this;
+        let sandbox = this.state.sandbox; //Get sandbox
+        //Check for no local sandbox --> do not remove it
+        if (this.state.local === false) {
+            return; //You can not delete a non-local sandbox
+        }
+        //Display a confirmation dialog
+        return window.confirm.show({
+            "title": "Delete sandbox",
+            "content": "This will remove this sandbox from your computer. Continue?",
+            "onConfirm": function () {
+                return deleteLocalSandbox(sandbox.id).then(function () {
+                    window.toast.success({"message": "Sandbox removed"}); //Display confirmation
+                    return redirect("/"); //Redirect to home
+                });
+            },
+            "confirmText": "Yes, delete",
+            "cancelText": "Cancel"
+        });
+    }
+    //Handle save
+    handleSave() {
+        let self = this;
+        let sandbox = this.ref.editor.current.getSandbox();
+        //Check for local sandbox ---> save it without asking
+        if (this.state.local === true) {
+            return this.saveSandbox(sandbox, false).then(function (newSandbox) {
+                window.toast.success({"message": "Sandbox saved"});
+                return self.setState({"sandbox": newSandbox});
             });
         }
-        //Create a new sandbox
-        return self.setState({
-            "ready": true,
-            "content": ""
-        });
+        //No local sandbox --> ask for saving as a new local sandbox
     }
     //Handle export
     handleExport() {
-        //TODO
-    }
-    //Handle run
-    handleRun() {
-        let self = this;
-        let newState = {
-            "content": this.getContent()
-        };
-        //Update the state with the current editor content and run in preview
-        return this.setState(newState, function () {
-            self.ref.preview.current.run(newState.content);
+        return this.setState({
+            "sandbox": this.ref.editor.current.getSandbox(),
+            "exportVisible": true
         });
     }
-    //Get current content
-    getContent() {
-        return this.ref.code.current.getContent();
+    //Handle export close
+    handleExportClose() {
+        return this.setState({
+            "exportVisible": false
+        });
+    }
+    //Handle menu toggle
+    handleMenuToggle() {
+        return this.setState({
+            "menuVisible": !this.state.menuVisible
+        });
+    }
+    //Handle sandbox metadata update
+    handleUpdateMetadataClick() {
+        return this.updateSandbox({
+            "name": this.ref.sandboxName.current.value.trim(),
+            "description": this.ref.sandboxDescription.current.value.trim()
+        });
+    }
+    //Render loading screen
+    renderLoadingScreen() {
+        return (
+            <Splash icon={null}>
+                <div align="center" className="siimple--mb-2">
+                    <Spinner color="dark" />
+                </div>
+                <div className="siimple--mt-0">
+                    <strong>Building your workspace...</strong>
+                </div>
+            </Splash>
+        );
+    }
+    //Render sandbox menu
+    renderMenu() {
+        let self = this;
+        let sandbox = this.state.sandbox;
+        return (
+            <React.Fragment>
+                {/* Sandbox metadata */}
+                <div className="siimple--mb-4">
+                    {/* Sandbox name */}
+                    <Field style={{"fontSize":"14px"}} className="siimple--mb-2">
+                        <FieldLabel>Sandbox name</FieldLabel>
+                        <Input type="text" ref={this.ref.sandboxName} fluid defaultValue={sandbox.name} />
+                        <FieldHelper>Name or your sandbox</FieldHelper>
+                    </Field>
+                    {/* Sandbox description */}
+                    <Field style={{"fontSize":"14px"}} className="siimple--mb-2">
+                        <FieldLabel>Sandbox description</FieldLabel>
+                        <Textarea ref={this.ref.sandboxDescription} fluid defaultValue={sandbox.description} />
+                        <FieldHelper>Description or your sandbox</FieldHelper>
+                    </Field>
+                    {/* Update sandbox data */}
+                    <Field className="siimple--mb-0">
+                        <Btn color="primary" small fluid onClick={this.handleUpdateMetadataClick}>
+                            <strong>Update metadata</strong>
+                        </Btn>
+                    </Field>
+                </div>
+                <Rule />
+                {/* Delete this sandbox */}
+                <div className="siimple--mt-4">
+                    <Btn color="error" fluid small onClick={this.handleDelete} disabled={!this.state.local}>
+                        <strong>Delete this sandbox</strong>
+                    </Btn>
+                    <FieldHelper>
+                        This will remove this sandbox from your computer. This action <strong>can not be undone</strong>.
+                    </FieldHelper>
+                </div>
+            </React.Fragment>
+        );
     }
     //Render the editor
     render() {
         let self = this;
-        //Check if editor is ready
-        if (this.state.ready === false) {
-            return (
-                <Splash icon="chart-bar">
-                    <div className="siimple--mt-3">
-                        <Spinner color="dark" />
-                    </div>
-                </Splash>
-            );
+        //Check for loading --> display the loading animation
+        if (this.state.loading === true) {
+            return this.renderLoadingScreen();
         }
-        let mode = this.state.mode;
         //Render the editor panels
         return (
-            <div className={style.editor}>
-                {/* Editor header */}
-                <Renderer render={function () {
-                    return React.createElement(EditorHeader, {
-                        "onRunClick": self.handleRun
-                    });
-                }} />
-                <div className={style.editorContent}>
-                    {/* Editor content */}
-                    <SplitPanel split="vertical" resizeClassName={style.editorResize}>
-                        <SplitPanelItem primary={true} defaultSize={500} minSize={200}>
-                            <Renderer render={function () {
-                                return React.createElement(EditorCode, {
-                                    "ref": self.ref.code,
-                                    "content": self.state.content
-                                });
-                            }} />
-                        </SplitPanelItem>
-                        <SplitPanelItem>
-                            <Renderer render={function () {
-                                return React.createElement(EditorPreview, {
-                                    "ref": self.ref.preview
-                                });
-                            }} />
-                        </SplitPanelItem>
-                    </SplitPanel>
+            <ToolbarWrapper collapsed={!this.state.menuVisible}>
+                {/* Editor menu */}
+                <Toolbar className="siimple--bg-gray0">
+                    <If condition={this.state.menuVisible} render={function () {
+                        return self.renderMenu();
+                    }} />
+                </Toolbar>
+                <div className={style.root}>
+                    {/* Sandbox header */}
+                    <div className={style.header}>
+                        <Renderer render={function () {
+                            return React.createElement(SandboxHeader, {
+                                "sandbox": self.state.sandbox,
+                                "menuActive": self.state.menuVisible,
+                                "onHomeClick": self.handleExit,
+                                "onMenuClick": self.handleMenuToggle,
+                                "onSaveClick": self.handleSave,
+                                "onExportClick": self.handleExport
+                            });
+                        }} />
+                    </div>
+                    {/* Sandbox editor */}
+                    <div className={style.editor}>
+                        <Renderer render={function () {
+                            return React.createElement(SandboxEditor, {
+                                "ref": self.ref.editor,
+                                "sandbox": self.state.sandbox
+                            });
+                        }} />
+                    </div>
+                    {/* Export sandbox modal */}
+                    <If condition={this.state.exportVisible} render={function () {
+                        return React.createElement(Export, {
+                            "sandbox": self.state.sandbox,
+                            "onClose": self.handleExportClose
+                        });
+                    }} />
                 </div>
-            </div>
+            </ToolbarWrapper>
         );
     }
 }
