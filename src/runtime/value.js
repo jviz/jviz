@@ -1,4 +1,4 @@
-import {isArray, nest as nestObject} from "../util.js";
+import {isArray, isObject, nest as nestObject} from "../util.js";
 import {colors} from "../color.js";
 import {getPalette} from "../palette.js";
 import {getExpressionSources} from "./expression.js";
@@ -42,8 +42,8 @@ export function value (props, datum, defaultValue) {
         value = (typeof context.theme.colors[props.color] === "string") ? context.theme.colors[props.color] : colors.black;
     }
     //Check for color palette
-    else if (typeof props.palette === "string") {
-        value = getPalette(context.value(props.palette, null, "default")); //Get color palette
+    else if (typeof props.palette === "string" || isObject(props.palette)) {
+        value = getPalette(context.value(props.palette, "default", "default")); //Get color palette
     }
     //Check for expression value
     else if (typeof props.expr === "string") {
