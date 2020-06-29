@@ -1,25 +1,26 @@
 @use "@siimple/lib" as siimple;
 
+//Variables
+$editor-padding: 10px;
+
 //Main editor class
-.editor {
-    display: block;
+.root {
+    display: flex;
+    flex-direction: column;
     width: 100%;
     height: 100%;
-    //Content style
-    &Content {
-        height: calc(100% - 48px);
-        width: 100%; //calc(100% - 80px);
-        //padding-left: 80px;
-        position: relative;
-    }
-    //Panel separator
-    &Resize {
-        background-color: siimple.utils-darken(siimple.color("light"), 5%);
-        transition: background-color 0.3s;
-        //Hover style
-        &:hover {
-            background-color: siimple.utils-darken(siimple.color("light"), 10%);
-        }
-    }
+    background-color: siimple.gray("0");
+    //padding: $editor-padding;
 }
+.header {
+    display: block;
+    padding: $editor-padding;
+    padding-bottom: 0px !important;
+}
+.editor {
+    display: block;
+    flex-grow: 1;
+    padding: $editor-padding;
+}
+
 
