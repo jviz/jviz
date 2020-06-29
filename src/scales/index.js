@@ -154,6 +154,12 @@ let getScaleSources = function (context, value) {
     else if (typeof value.data === "string") {
         sources.push(context.data[value.data]);
     }
+    //Check for palette source
+    else if (isObject(value.palette)) {
+        getScaleSources(context, value.palette).forEach(function (item) {
+            sources.push(item);
+        });
+    }
     //Return sources object
     return sources;
 };
