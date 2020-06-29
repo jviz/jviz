@@ -25,10 +25,10 @@ export function discrete (args) {
     return scale;
 }
 
-//Ordinal scale
-export function ordinal (args) {
+//Categorical scale
+export function categorical (args) {
     return Object.assign(discrete(args), {
-        "type": "ordinal"
+        "type": "categorical"
     });
 }
 

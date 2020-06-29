@@ -4,7 +4,7 @@ import {isArray, isObject, unique, range as rangeOf, each} from "../util.js";
 
 //import {propTypes} from "../props.js";
 import {color as colorScale} from "./color.js";
-import {ordinal as ordinalScale} from "./discrete.js";
+import {categorical as categoricalScale} from "./discrete.js";
 import {point as pointScale} from "./discrete.js";
 import {interval as intervalScale} from "./discrete.js";
 import {linear as linearScale} from "./linear.js";
@@ -18,7 +18,9 @@ export const scaleTypes = {
     "linear": {
         "category": CONTINUOUS_SCALE,
         "scale": linearScale,
-        "props": linearScale.defaultProps
+        "props": {
+            "zero": false
+        }
     },
     "color": {
         "category": CONTINUOUS_SCALE,
@@ -40,9 +42,9 @@ export const scaleTypes = {
             "margin": 0
         }
     },
-    "ordinal": {
+    "categorical": {
         "category": DISCRETE_SCALE,
-        "scale": ordinalScale,
+        "scale": categoricalScale,
         "props": {}
     }
 };
