@@ -84,7 +84,7 @@ let parseScaleRange = function (context, scale, value) {
         }
         //Other type --> parse from value or state
         else {
-            return context.value(value, null);
+            return context.value(value, null, []);
         }
     }
     //Other range value --> throw error
