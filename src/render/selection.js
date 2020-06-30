@@ -58,11 +58,11 @@ Selection.prototype = {
     //Get the size of the first element
     "size": function () {
         if (this.nodes.length > 0) {
-            let bb = this.nodes[0].getBoundingClientRect();
-            return {
-                "width": bb.width,
-                "height": bb.height
-            };
+            return this.nodes[0].getBoundingClientRect();
+            //return {
+            //    "width": bb.width,
+            //    "height": bb.height
+            //};
         }
         //No nodes on the selection
         return null;
