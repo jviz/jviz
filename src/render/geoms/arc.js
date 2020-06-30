@@ -7,6 +7,7 @@ let defaultProps = {
     "endAngle": propTypes.number(),
     "innerRadius": propTypes.number(),
     "outerRadius": propTypes.number(),
+    "angle": propTypes.number(),
     "radius": propTypes.number(),
     "x": propTypes.number(),
     "y": propTypes.number()
@@ -24,6 +25,13 @@ export const arcGeom = {
             Object.assign(options, {
                 "innerRadius": 0, 
                 "outerRadius": options.radius
+            });
+        }
+        //Check for custom angle
+        if (typeof options.angle === "number") {
+            Object.assign(options, {
+                "startAngle": 0,
+                "endAngle": options.angle
             });
         }
         //Add the arc center
