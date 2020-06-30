@@ -51,10 +51,8 @@ Selection.prototype = {
             if (value === null) {
                 this.style.removeProperty(name);
             }
-            //String value --> set this style value
-            else if (typeof value === "string") {
-                this.style.setProperty(name, value);
-            }
+            //Other value --> set this style value
+            this.style.setProperty(name, "" + value);
         });
     },
     //Get the size of the first element
