@@ -169,7 +169,7 @@ export function initContext (context, schema) {
     //Create the scene node
     createSceneNode(context, null, schema["style"]);
     context.target = context.scene.element.append("g"); //Add context target group
-    createTooltip(context.scene.element.append("g"), {}); //Create the tooltip parent
+    createTooltip(context, null, {}); //Create the tooltip parent
     //Initialize input data
     each(schema["data"], function (index, props) {
         let name = (typeof props["name"] === "string") ? props["name"] : index;
