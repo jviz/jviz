@@ -82,8 +82,9 @@ TooltipHandler.prototype = {
 };
 
 //Create a tooltip
-export function createTooltip (target, options) {
-    return new TooltipHandler(target);
+export function createTooltip (context, index, options) {
+    let target = context.scene.element.append("g"); //Tooltip target node
+    context.tooltip = new TooltipHandler(target);
 }
 
 //Register tooltip events to an element
