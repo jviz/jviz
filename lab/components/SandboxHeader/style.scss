@@ -1,0 +1,53 @@
+@use "@siimple/lib" as siimple;
+
+$header-height: 40px;
+
+//Editor header styles
+.root {
+    //display: flex;
+    height: $header-height;
+    //line-height: 40px;
+}
+.title,
+.sandboxName {
+    display: block;
+    height: $header-height;
+    line-height: $header-height;
+    font-size: 18px;
+}
+.title {
+    cursor: pointer;
+}
+.sandboxName {
+    //max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.actionButton,
+.menuButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px; //$header-height;
+    height: $header-height;
+    cursor: pointer;
+    opacity: 0.5;
+    color: siimple.color("dark");
+    &:hover {
+        opacity: 1.0;
+        transition: opacity 0.3s;
+    }
+}
+.actionButton:not(:last-child) {
+    margin-right: 5px;
+}
+.menuButton {
+    margin-right: 10px;
+    //Active menu button
+    &Active {
+        opacity: 1.0 !important;
+        color: siimple.color("primary") !important;
+    }
+}
+
