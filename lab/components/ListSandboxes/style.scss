@@ -1,0 +1,9 @@
+@use "@siimple/lib" as siimple;
+
+//Sandboxes list item
+.item {
+    cursor: pointer;
+    max-width: 30%;
+    min-width: 25%;
+}
+
