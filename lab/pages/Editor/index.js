@@ -7,13 +7,15 @@ import {Field, FieldLabel, FieldHelper} from "@siimple/neutrine";
 import {Input, Textarea} from "@siimple/neutrine";
 import {Btn} from "@siimple/neutrine";
 import {Rule} from "@siimple/neutrine";
+import {Tip} from "@siimple/neutrine";
 
 import {Export} from "../../components/Export/index.js";
 import {Splash} from "../../components/Splash/index.js";
 import {SandboxHeader} from "../../components/SandboxHeader/index.js";
 import {SandboxEditor} from "../../components/SandboxEditor/index.js";
 import {getLocalSandbox, updateLocalSandbox, deleteLocalSandbox} from "../../utils/sandbox.js";
-import {parseSandbox} from "../../utils/sandbox.js";
+import {getRemoteSandbox} from "../../utils/sandbox.js";
+import {createSandbox, parseSandbox} from "../../utils/sandbox.js";
 import {redirect, redirectToSandbox} from "../../utils/redirect.js";
 import style from "./style.scss";
 
@@ -81,17 +83,30 @@ export class EditorPage extends React.Component {
         //Update the state before start loading the sandbox
         return this.setState({"loading": true}, function () {
             return kofi.delay(1000).then(function () {
-                //Get sandbox by ID
-                isLocalSandbox = true; //Local sandbox
-                return getLocalSandbox(params.sandbox);
+                //Check for url sandbox
+                if (typeof params.url === "string") {
+                    return getRemoteSandbox(decodeURIComponent(params.url));
+                }
+                //Check for sandbox id
+                else if (typeof params.sandbox === "string") {
+                    isLocalSandbox = true; //Local sandbox
+                    return getLocalSandbox(decodeURIComponent(params.sandbox));
+                }
+                //Other --> unknown sandbox source
+                return Promise.reject(new Error("Unknown sandbox source"));
             }).then(function (newSandbox) {
-                console.log(newSandbox);
+                console.log(newSandbox); //Only for debugging
+                if (newSandbox === null || typeof newSandbox === "undefined") {
+                    return Promise.reject(new Error("Sandbox not found"));
+                }
+                //Save the sandbox
                 return self.setState({
                     "loading": false, 
                     "local": isLocalSandbox,
-                    "sandbox": newSandbox
+                    "sandbox": createSandbox(newSandbox)
                 });
             }).catch(function (error) {
+                console.error(error);
                 //TODO: threat error
                 return null;
             });
@@ -138,6 +153,27 @@ export class EditorPage extends React.Component {
             });
         }
         //No local sandbox --> ask for saving as a new local sandbox
+        return window.confirm.show({
+            "title": "Clone and save sandbox",
+            "content": "You can not save a remote sandbox. Do you want to create a local clone of this sandbox?",
+            "onConfirm": function () {
+                let newSandbox = Object.assign(createSandbox(sandbox), {
+                    "readonly": false, //Disable readonly
+                    "created_at": Date.now() //Update the sandbox creation date
+                });
+                return self.saveSandbox(sandbox, true).then(function () {
+                    window.toast.success({"message": "Sandbox cloned"}); //Show confirmation toast
+                    let newState = {
+                        "sandbox": newSandbox,
+                        "local": true
+                    };
+                    return self.setState(newState, function () {
+                        return redirectToSandbox("sandbox", newSandbox.id);
+                    });
+                });
+            },
+            "confirmText": "Yes, create a clone"
+        });
     }
     //Handle export
     handleExport() {
@@ -182,6 +218,7 @@ export class EditorPage extends React.Component {
     renderMenu() {
         let self = this;
         let sandbox = this.state.sandbox;
+        let local = this.state.local; //Get local sandbox
         return (
             <React.Fragment>
                 {/* Sandbox metadata */}
@@ -189,18 +226,18 @@ export class EditorPage extends React.Component {
                     {/* Sandbox name */}
                     <Field style={{"fontSize":"14px"}} className="siimple--mb-2">
                         <FieldLabel>Sandbox name</FieldLabel>
-                        <Input type="text" ref={this.ref.sandboxName} fluid defaultValue={sandbox.name} />
+                        <Input type="text" ref={this.ref.sandboxName} fluid defaultValue={sandbox.name} disabled={!local} />
                         <FieldHelper>Name or your sandbox</FieldHelper>
                     </Field>
                     {/* Sandbox description */}
                     <Field style={{"fontSize":"14px"}} className="siimple--mb-2">
                         <FieldLabel>Sandbox description</FieldLabel>
-                        <Textarea ref={this.ref.sandboxDescription} fluid defaultValue={sandbox.description} />
+                        <Textarea ref={this.ref.sandboxDescription} fluid defaultValue={sandbox.description} disabled={!local} />
                         <FieldHelper>Description or your sandbox</FieldHelper>
                     </Field>
                     {/* Update sandbox data */}
                     <Field className="siimple--mb-0">
-                        <Btn color="primary" small fluid onClick={this.handleUpdateMetadataClick}>
+                        <Btn color="primary" small fluid onClick={this.handleUpdateMetadataClick} disabled={!local}>
                             <strong>Update metadata</strong>
                         </Btn>
                     </Field>
@@ -208,7 +245,7 @@ export class EditorPage extends React.Component {
                 <Rule />
                 {/* Delete this sandbox */}
                 <div className="siimple--mt-4">
-                    <Btn color="error" fluid small onClick={this.handleDelete} disabled={!this.state.local}>
+                    <Btn color="error" fluid small onClick={this.handleDelete} disabled={!local}>
                         <strong>Delete this sandbox</strong>
                     </Btn>
                     <FieldHelper>
