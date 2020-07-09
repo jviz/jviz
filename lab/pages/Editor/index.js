@@ -196,6 +196,10 @@ export class EditorPage extends React.Component {
     }
     //Handle sandbox metadata update
     handleUpdateMetadataClick() {
+        if (this.state.local === false) {
+            return null; //Not local sandbox --> disable metadata update
+        }
+        //Update the sandbox
         return this.updateSandbox({
             "name": this.ref.sandboxName.current.value.trim(),
             "description": this.ref.sandboxDescription.current.value.trim()
