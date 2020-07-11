@@ -95,6 +95,25 @@ export function nest (obj, path) {
     return currentValue;
 }
 
+//Deep clone
+export function deepClone (target) {
+    //Check for array target --> clone the array
+    if (isArray(target)) {
+        return target.map(deepClone);
+    }
+    //Check for valid object
+    else if (isObject(target) && target !== null) {
+        let output = {};
+        Object.keys(target).forEach(function (key) {
+            output[key] = deepClone(target[key]);
+        });
+        //Return cloned object
+        return output;
+    }
+    //Other value --> return
+    return target;
+}
+
 
 //Array methods
 
