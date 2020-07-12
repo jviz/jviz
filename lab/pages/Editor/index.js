@@ -48,6 +48,7 @@ export class EditorPage extends React.Component {
         this.handleExportClose = this.handleExportClose.bind(this);
         this.handleMenuToggle = this.handleMenuToggle.bind(this);
         this.handleUpdateMetadataClick = this.handleUpdateMetadataClick.bind(this);
+        this.handleSandboxUpdate = this.handleSandboxUpdate.bind(this);
     }
     //Component did mount
     componentDidMount() {
@@ -205,6 +206,12 @@ export class EditorPage extends React.Component {
             "description": this.ref.sandboxDescription.current.value.trim()
         });
     }
+    //Handle sandbox update
+    handleSandboxUpdate(newSandbox, callback) {
+        return this.setState({"sandbox": newSandbox}, function () {
+            return callback();
+        });
+    }
     //Render loading screen
     renderLoadingScreen() {
         return (
@@ -266,6 +273,7 @@ export class EditorPage extends React.Component {
         if (this.state.loading === true) {
             return this.renderLoadingScreen();
         }
+        console.log("---> update editor");
         //Render the editor panels
         return (
             <ToolbarWrapper collapsed={!this.state.menuVisible}>
@@ -294,7 +302,8 @@ export class EditorPage extends React.Component {
                         <Renderer render={function () {
                             return React.createElement(SandboxEditor, {
                                 "ref": self.ref.editor,
-                                "sandbox": self.state.sandbox
+                                "sandbox": self.state.sandbox,
+                                "onSandboxUpdate": self.handleSandboxUpdate
                             });
                         }} />
                     </div>
