@@ -6,21 +6,19 @@ import {SplitPanel, SplitPanelItem} from "@siimple/neutrine";
 import {ExplorePanel} from "./ExplorePanel/index.js";
 import {MainPanel} from "./MainPanel/index.js";
 import {CodeTab} from "./MainPanel/CodeTab.js";
-import {createSandbox} from "../../utils/sandbox.js";
+//import {createSandbox} from "../../utils/sandbox.js";
 
 //Build state from props
 let buildStateFromProps = function (props) {
     let newState = {
         "tab": "readme",
-        "running": false,
-        "sandbox": createSandbox({
-            "name": "Untitled"
-        })
+        //"sandbox": createSandbox({"name": "Untitled"}),
+        "running": false
     };
     //Check for initial sandbox data
-    if (typeof props.sandbox === "object" && props.sandbox !== null) {
-        newState.sandbox = Object.assign(newState.sandbox, props.sandbox);
-    }
+    //if (typeof props.sandbox === "object" && props.sandbox !== null) {
+    //    newState.sandbox = Object.assign(newState.sandbox, props.sandbox);
+    //}
     //Return new state
     return newState;
 };
@@ -44,7 +42,6 @@ export class SandboxEditor extends React.Component {
         this.updateTabContent = this.updateTabContent.bind(this);
         //Bind sandbox methods
         this.getSandbox = this.getSandbox.bind(this);
-        this.setSandbox = this.setSandbox.bind(this);
         this.runSandbox = this.runSandbox.bind(this);
     }
     //Component dod mount --> set tab content
@@ -53,18 +50,20 @@ export class SandboxEditor extends React.Component {
     }
     //Component did update --> update tab content
     componentDidUpdate() {
-        return this.updateTabContent();
+        //return this.updateTabContent();
     }
     //Handle tab change
     handleTabChange(key) {
-        //let self = this;
+        let self = this;
         if (key === this.state.tab) {
             return null; //Nothing to do
         }
         //Update the state with the current sandbox data and the new tab
-        return this.setState({
-            "sandbox": this.getSandbox(),
-            "tab": key
+        let sandbox = this.getSandbox();
+        return this.props.onSandboxUpdate(sandbox, function () {
+            return self.setState({"tab": key}, function () {
+                return self.updateTabContent();
+            });
         });
     }
     //Handle run click
@@ -73,7 +72,7 @@ export class SandboxEditor extends React.Component {
     }
     //Update tab content
     updateTabContent() {
-        let sandbox = this.state.sandbox; //Get sandbox
+        let sandbox = this.props.sandbox; //Get sandbox
         //Check for schema tab --> set schema value
         if (this.state.tab === "schema") {
             this.ref.schema.current.setCode(sandbox.schema);
@@ -87,12 +86,8 @@ export class SandboxEditor extends React.Component {
     runSandbox(cb) {
         let self = this;
         let sandbox = this.getSandbox(); //Get current sandbox state
-        let newState = {
-            "running": true,
-            "sandbox": sandbox
-        };
         //Update the state before running the sandbox
-        return this.setState(newState, function () {
+        return this.setState({"running": true}, function () {
             return self.ref.explore.current.run(sandbox).then(function() {
                 //Plot rendererd
             }).catch(function (error) {
@@ -108,7 +103,7 @@ export class SandboxEditor extends React.Component {
     }
     //Get the current state of the sandbox
     getSandbox() {
-        let sandbox = Object.assign({}, this.state.sandbox); //Get current sandbox
+        let sandbox = Object.assign({}, this.props.sandbox); //Get current sandbox
         //Check for schema tab --> save content into the schema field
         if (this.state.tab === "schema") {
             Object.assign(sandbox, {
@@ -123,16 +118,6 @@ export class SandboxEditor extends React.Component {
         }
         //Return the snapshot of the sandbox
         return sandbox;
-    }
-    //Set the current sandbox
-    setSandbox(newSandbox) {
-        let self = this;
-        return this.setState({"sandbox": newSandbox}, function () {
-            //Check for schema tab ---> update schema code
-            if (self.state.tab === "schema") {
-                self.ref.schema.current.setCode(newSandbox.schema);
-            }
-        });
     }
     //Render the editor page
     render() {
