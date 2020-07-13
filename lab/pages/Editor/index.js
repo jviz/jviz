@@ -69,10 +69,7 @@ export class EditorPage extends React.Component {
         //Save new sandbox data
         return this.setState({"sandbox": sandbox}, function () {
             return self.saveSandbox(sandbox, false).then(function () {
-                //Update the sandbox in the editor
-                self.ref.editor.current.setSandbox(sandbox);
-                //Display confirmation toast
-                window.toast.success({"message": "Sandbox saved"});
+                return window.toast.success({"message": "Sandbox saved"});
             });
         });
     }
