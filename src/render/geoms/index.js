@@ -18,6 +18,7 @@ import {arcGeom} from "./arc.js";
 import {curveGeom} from "./curve.js";
 import {areaGeom} from "./area.js";
 import {pathGeom} from "./path.js";
+import {glyphGeom} from "./glyph.js";
 //import {polylineGeom} from "./polyline.js";
 //import {polygonGeom} from "./polygon.js";
 
@@ -32,7 +33,8 @@ const geomsTypes = {
     "arc": arcGeom,
     "curve": curveGeom,
     "area": areaGeom,
-    "path": pathGeom
+    "path": pathGeom,
+    "glyph": glyphGeom
 };
 
 //Get a geom object
