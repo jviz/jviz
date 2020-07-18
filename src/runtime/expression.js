@@ -8,6 +8,7 @@ import {nest as nestObject, range as rangeOf} from "../util.js";
 import {sum, average} from "../util.js";
 import {truncate, capitalize, repeat, pad} from "../util.js";
 import {camelCase, snakeCase, kebabCase} from "../util.js";
+import {timestamp} from "../util.js";
 
 //Recursive execute a function for each match of the provided regex
 let matchRegex = function (str, regexp, callback) {
@@ -82,7 +83,9 @@ let defaultValues = {
     "isObject": isObject,
     "isArray": isArray,
     "isUndef": isUndef,
-    "isValid": isValid
+    "isValid": isValid,
+    //Date methods
+    "timestamp": timestamp
 };
 
 //Evaluate the provided expression
