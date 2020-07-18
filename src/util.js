@@ -337,3 +337,40 @@ export function toArray (value) {
     return (isArray(value)) ? value : [value];
 }
 
+//Available values
+let timestampValues = ["YYYY", "MM", "DD", "hh", "mm", "ss", "Www", "Mmm"];
+
+//Parse the provided pattern and return the wanted timestamp
+export function timestamp (pattern, currentDate) {
+    if (typeof pattern !== "string") {
+        pattern = "YYYY-MM-DD hh:mm:ss";
+    }
+    let date = (typeof currentDate === "undefined") ? new Date() : currentDate; //Get the current date
+    //Check for number or string date --> convert to date
+    if (typeof currentDate === "number" || typeof currentDate === "string") {
+        date = new Date(currentDate);
+    }
+    let result = {};
+    let currentRegex = /(\d\d\d\d)-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d).\d\d\dZ/g;
+    let current = currentRegex.exec(date.toJSON());
+    let dayAndMonth = /^(\w\w\w)\s(\w\w\w)/.exec(date); //Get day and month values
+    if (current === null || current.length < 7 || dayAndMonth === null) {
+        return pattern;
+    }
+    for (let i = 0; i < timestampValues.length - 2; i++) {
+        //The first element is the full matched string
+        result[timestampValues[i]] = current[i + 1];
+    }
+    //Add day and month values
+    result[timestampValues[6]] = dayAndMonth[1]; //Add string day
+    result[timestampValues[7]] = dayAndMonth[2]; //Add string month
+    let regex = new RegExp("(" + timestampValues.join("|") + ")", "g");
+    return pattern.replace(regex, function (match) {
+        let value = result[match];
+        while (value.length < match.length) {
+            value = "0" + value;
+        }
+        return value;
+    });
+}
+
