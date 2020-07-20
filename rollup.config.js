@@ -7,31 +7,36 @@ let cleanup = require("rollup-plugin-cleanup");
 let terser = require("rollup-plugin-terser").terser;
 
 //Exported formats
-let outputFormats = ["cjs", "umd", "esm"];
+let outputFormats = ["cjs", "cjs.min", "umd", "umd.min", "esm", "esm.min"];
 
 //Function to build the configuration object based on the env variables
-let buildConfig = function (ext) {
+let buildConfig = function () {
     //Build the destination file ext
     //let output = (minified === true) ? "viz.min.js" : "viz.js";
     //Initialize the configuration object
     return {
         //"input": path.join("./packages", "jviz-core", "index.js"),
         "input": "src/index.js",
-        "output": outputFormats.map(function (format) {
-            return {
+        "output": outputFormats.map(function (key) {
+            let output = {
                 //"file": path.join("./packages", "jviz-core", "dist", `jviz.${format}.${ext}`),
-                "file": path.join("dist", `jviz.${format}.${ext}`),
-                "format": format,
-                "name": "jviz",
-                "extend": true
+                "file": path.join("dist", `jviz.${key}.js`),
+                "format": key.replace(".min", "")
             };
+            //Check for und export --> add library name and extend
+            if (key.startsWith("umd")) {
+                Object.assign(output, {"name": "jviz", "extend": true});
+            }
+            //Check for min distribution --> add terser plugin
+            if (key.endsWith(".min")) {
+                output["plugins"] = [terser()];
+            }
+            //Return the output file format
+            return output;
         }),
         "external": [],
         "plugins": [
-            cleanup(),
-            terser({
-                "include": [/^.+\.min\.js$/]
-            })
+            cleanup()
         ]
     };
     //Check if the output should be minified
@@ -47,8 +52,5 @@ let buildConfig = function (ext) {
 //    "default": buildConfig(process.env, false),
 //    "minified": buildConfig(process.env, true)
 //});
-module.exports = [
-    buildConfig("js"), 
-    buildConfig("min.js")
-];
+module.exports = buildConfig();
 
