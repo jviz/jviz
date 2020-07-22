@@ -58,7 +58,9 @@ let generateValues = function (scale, count) {
         let start = Math.min.apply(null, scale.domain); //Get start value
         let end = Math.max.apply(null, scale.domain); //Get end value
         //Return ticks values
-        return generateTicks(start, end, count);
+        return generateTicks(start, end, count).filter(function (value) {
+            return start <= value && value <= end;
+        });
     }
     //Check for discrete scale
     else if (isDiscreteScale(scale) === true) {
@@ -134,7 +136,12 @@ export function updateAxisNode (context, node) {
     let ticksValues = []; //Values to display
     if (hasAxisTicks === true) {
         if (isArray(props.tickValues) === true) {
-            ticksValues = context.value(props.tickValues, [], []); //Get values from context
+            ticksValues = props.ticksValues.map(function (value) {
+                return context.value(value, 0, 0);
+            });
+        }
+        else if (isObject(props.tickValues)) {
+            tickValues = context.value(props.tickValues, [], []); //Get values from context
         }
         else {
             //Generate values from counts
