@@ -10,10 +10,14 @@ let parseColorRange = function (array) {
 
 //Export color scale
 export function color (args) {
-    //Parse the range color
+    let zero = args.zero === true || args.zero === "true"; //Scale should include zero
+    let domain = args.domain; //Get domain reference
+    if (zero === true) {
+        domain[0] = Math.min(0, domain[0]); //ensure that domain start has a zero
+        domain[1] = Math.max(0, domain[1]); //ensure that domain end has a zero
+    }
     let range = parseColorRange(args["range"]);
     let n = range.length - 1; //Calculate the number of intervals
-    let domain = args["domain"];
     //Return the scale function
     let scale = function (value) {
         let v = clamp(value, domain[0], domain[1]); //Parse value

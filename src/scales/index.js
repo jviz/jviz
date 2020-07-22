@@ -25,7 +25,9 @@ export const scaleTypes = {
     "color": {
         "category": CONTINUOUS_SCALE,
         "scale": colorScale,
-        "props": {}
+        "props": {
+            "zero": false
+        }
     },
     "interval": {
         "category": DISCRETE_SCALE,
