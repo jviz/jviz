@@ -23,10 +23,10 @@ export function color (args) {
         let v = clamp(value, domain[0], domain[1]); //Parse value
         //Check for extreme values
         if (v === domain[0]) {
-            return range[0]; //Return the first range color
+            return colors.toHexString(range[0]); //Return the first range color
         }
         else if (v === domain[1]) {
-            return range[range.length - 1]; //Return the last range color
+            return colors.toHexString(range[range.length - 1]); //Return the last range color
         }
         //Calculate the factor
         let factor = (v - domain[0]) / (domain[1] - domain[0]);
