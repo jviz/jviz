@@ -9,8 +9,8 @@ import {ticks as generateTicks} from "../math.js";
 
 import {getPanelsElements} from "./panels.js";
 
-//Available orientation values
-let orientationValues = ["top", "bottom", "left", "right"];
+//Available position values
+let positionValues = ["top", "bottom", "left", "right"];
 
 //Axis default props
 let defaultProps = {
@@ -82,8 +82,8 @@ let generateValues = function (scale, count) {
 //    return value;
 //};
 
-//Get orientation
-let getOrientation = function (value) {
+//Get position
+let getPosition = function (value) {
     return value.toLowerCase();
 };
 
@@ -126,11 +126,11 @@ export function updateAxisNode (context, node) {
     //let axisStart = scale.range[0];
     //let axisEnd = scale.range[1];
     //Axis position
-    let position = context.value(props.position, 0, 0); //defaultProps.position);
+    //let position = context.value(props.position, 0, 0); //defaultProps.position);
     //Get the axis type
-    let orientation = getOrientation(props.orientation);
+    let position = getPosition(props.position);
     let hasAxisLine = context.value(props.line, null, defaultProps.line); //Display axis line
-    let isXAxis = orientation === "top" || orientation === "bottom";
+    let isXAxis = position === "top" || position === "bottom";
     let hasAxisTicks = context.value(props.ticks, null, defaultProps.ticks); //Display ticks
     let hasAxisGrid = context.value(props.grid, null, defaultProps.grid); //Display axis grid
     let ticksValues = []; //Values to display
@@ -162,18 +162,18 @@ export function updateAxisNode (context, node) {
         //Check for top|bottom axis
         if (isXAxis === true) {
             axisPosition = {
-                "x1": position + Math.min(scale.range[0], scale.range[1]),
-                "x2": position + Math.max(scale.range[0], scale.range[1]),
-                "y1": (orientation === "top") ? 0 : draw.height,
-                "y2": (orientation === "top") ? 0 : draw.height
+                "x1": 0 + Math.min(scale.range[0], scale.range[1]),
+                "x2": 0 + Math.max(scale.range[0], scale.range[1]),
+                "y1": (position === "top") ? 0 : draw.height,
+                "y2": (position === "top") ? 0 : draw.height
             };
         }
         else {
             axisPosition = {
-                "x1": (orientation === "left") ? 0 : draw.width,
-                "x2": (orientation === "left") ? 0 : draw.width,
-                "y1": position + Math.min(scale.range[0], scale.range[1]),
-                "y2": position + Math.max(scale.range[0], scale.range[1])
+                "x1": (position === "left") ? 0 : draw.width,
+                "x2": (position === "left") ? 0 : draw.width,
+                "y1": 0 + Math.min(scale.range[0], scale.range[1]),
+                "y2": 0 + Math.max(scale.range[0], scale.range[1])
             };
         }
         //console.log(axisPosition);
@@ -201,14 +201,14 @@ export function updateAxisNode (context, node) {
                 let tickX = 0, tickY = 0; //, tickAnchor = "middle", tickBaseline = "middle";
                 let slotLine = null;
                 let gridLine = null;
-                //let labelAnchor = (props.orientation === "left") ? "end" : "start";
+                //let labelAnchor = (props.position === "left") ? "end" : "start";
                 //Calculate the label positions
-                if (orientation === "left" || orientation === "right") {
-                    tickX = axisPosition.x1 + (((orientation === "left") ? -1 : +1) * tickOffset);
-                    tickY = valuePosition + position; //props.y + props.height - position;
+                if (position === "left" || position === "right") {
+                    tickX = axisPosition.x1 + (((position === "left") ? -1 : +1) * tickOffset);
+                    tickY = valuePosition + 0; //props.y + props.height - position;
                     //Check for displaying the tick slot
                     if (tickSlot === true && hasAxisLine === true) {
-                        let px2 = axisPosition.x1 + (((orientation === "left") ? -1 : +1) * tickOffset / 3);
+                        let px2 = axisPosition.x1 + (((position === "left") ? -1 : +1) * tickOffset / 3);
                         slotLine = target.append("path");
                         slotLine.attr("d", polyline({
                             "points": [
@@ -228,12 +228,12 @@ export function updateAxisNode (context, node) {
                     }
                 }
                 else {
-                    tickX = valuePosition + position;
-                    tickY = axisPosition.y1 + (((orientation === "top") ? -1 : +1) * tickOffset);
+                    tickX = valuePosition + 0;
+                    tickY = axisPosition.y1 + (((position === "top") ? -1 : +1) * tickOffset);
                     //Check for displaying the tick slot
                     //if (props.tickSlot === true && props.line === true) {
                     if (tickSlot === true && hasAxisLine === true) {
-                        let py2 = axisPosition.y1 + (((orientation === "top") ? -1 : +1) * tickOffset / 3);
+                        let py2 = axisPosition.y1 + (((position === "top") ? -1 : +1) * tickOffset / 3);
                         slotLine = target.append("path");
                         slotLine.attr("d", polyline({
                             "points": [
