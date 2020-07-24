@@ -147,40 +147,52 @@ export function random (min, max) {
     return min + Math.random()*(max - min);
 }
 
-//Generate values in the provided range
-export function ticks (start, end, count) {
-    //Output values list
-    let values = [];
+//Nice number for Heckbert algorithm
+export function niceNumber (x, round) {
+    let exp = Math.floor(Math.log10(x));
+    let f = x / Math.pow(10, exp);
+    let nf = 0;
+    if (round === true) {
+        nf = (f < 1.5) ? 1 : ((f < 3) ? 2 : ((f < 7) ? 5 : 10));
+    }
+    else  {
+        nf = (f <= 1) ? 1 : ((f <= 2) ? 2 : ((f <= 5) ? 5 : 10));
+    }
+    //Return the nice number
+    return nf * Math.pow(10, exp);
+}
+
+//Generate values in the provided range using the Heckbert algorithm
+export function ticks (start, end, n, tight) {
     //Check for the same range values
     if (start === end) {
         return [start];
     }
-    //Determine Range length
-    let length = end - start; // + 1;
-    //console.log(range);
-    // Adjust ticks if needed
-    count = count + 1;
-    if (count < 3) {
-        count = 3; //At least add the start and end values
+    //Check if end < start --> call this method with the reversed arguments
+    if (end < start) {
+        return ticks(end, start, n, tight);
     }
-    //Get the raw tick size
-    let unroundedTickSize = length / count;
-    //Round the tick size into nice amounts
-    let mag = Math.ceil(Math.log10(unroundedTickSize)-1);
-    let magPow = Math.pow(10, mag);
-    let roundedTickRange = Math.ceil(unroundedTickSize / magPow) * magPow;
-    //Adjust the lower and upper bound accordingly
-    let minRounded = roundedTickRange * Math.floor(start / roundedTickRange);
-    let maxRounded = roundedTickRange * Math.ceil(end / roundedTickRange);
-    //Generate the values
-    for(let x = minRounded; x <= maxRounded; x = x + roundedTickRange) {
-        //Add this value only if is in the range interval
-        if (start <= x && x <= end) {
-            values.push(parseFloat(x.toFixed(8))); //Convert 1.2000000000000002 --> 1.2
-        }
+    let range = niceNumber(end - start, false);
+    let step = niceNumber(range / (n - 1), true); //Ticks separation
+    let ticksStart = Math.floor(start / step) * step; //Ticks start
+    let ticksEnd = Math.ceil(end / step) * step; //Ticks end
+    let nfrac = Math.max(-Math.floor(Math.log10(step)), 0); //number of fractional digits to show;
+    let ticksValues = []; //Output ticks values
+    for (let value = ticksStart; value <= ticksEnd; value = value + step) {
+        ticksValues.push(value);
     }
-    //Return the interpolated values
-    return values;
+    //Check for tight option --> remove ticks outside of the [start, end] interval
+    //and add start and end values
+    if (typeof tight === "boolean" && tight === true) {
+        ticksValues.filter(function (value) {
+            return start < value && value < end;
+        });
+        //Insert start and end values
+        ticksValues.unshift(start); //Insert start as the first item
+        ticksValues.push(end); //Insert end as the last item
+    }
+    //Return ticks values
+    return ticksValues;
 }
 
 //Sort an array of objects
