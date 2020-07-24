@@ -1,15 +1,15 @@
 import {isArray, isObject, values as objectValues, each} from "../util.js";
-import {load} from "../load.js";
 import {createHashMap} from "../hashmap.js";
 import {getTheme} from "../theme.js";
 import {createTooltip} from "../render/tooltip.js";
+import {loadDataSource, parseDataSource} from "../data.js";
 
 import {createDataNode, updateDataNode} from "../data.js";
 import {createScaleNode, updateScaleNode} from "../scales/index.js";
 import {createGeomNode, updateGeomNode} from "../render/geoms/index.js";
 import {createAxisNode, updateAxisNode} from "../render/axes.js";
 import {createPanelsNode, updatePanelsNode} from "../render/panels.js";
-import {createLegendNode, updateLegendNode} from "../render/legends.js";
+import {createLegendNode, updateLegendNode, updateLegendPosition} from "../render/legends.js";
 import {createSceneNode, updateSceneNode} from "../render/scene.js";
 import {createTitleNode, updateTitleNode} from "../render/title.js";
 
@@ -96,6 +96,7 @@ export function updateContext (context, forceUpdate) {
                 });
             }
         });
+        updateLegendPosition(context); //Fix legend nodes
         context.actions.clear(); //Reset the actions list
         return resolve();
     });
@@ -119,11 +120,10 @@ export function buildContext (context) {
             //Get input name
             let name = sources[index];
             //Import data
-            return load(context.input[name].props.url).then(function (data) {
-                //Save this data to the sources cache
-                context.input[name].value = JSON.parse(data); //TODO: convert the data type
-                //Continue
-                return loadDataAsync(index + 1);
+            //return load(context.input[name].props.url).then(function (data) {
+            return loadDataSource(context.input[name].props).then(function (data) {
+                context.input[name].value = data; //Save this data to the sources cache
+                return loadDataAsync(index + 1); //Continue
             }).catch(function (error) {
                 //console.error(error);
                 return reject(error);
@@ -169,11 +169,12 @@ export function initContext (context, schema) {
     //Create the scene node
     createSceneNode(context, null, schema["style"]);
     context.target = context.scene.element.append("g"); //Add context target group
+    context.defs = context.scene.element.append("defs"); //Add defs container
     createTooltip(context, null, {}); //Create the tooltip parent
     //Initialize input data
     each(schema["data"], function (index, props) {
         let name = (typeof props["name"] === "string") ? props["name"] : index;
-        //Check for data to be imported from url --> save the url
+        //Check for data to be imported from url --> save the props object with the url
         if (typeof props["url"] === "string") {
             context.input[name] = context.addNode({
                 "id": `input:${name}`,
@@ -187,7 +188,8 @@ export function initContext (context, schema) {
         else if (isArray(props["value"]) && typeof props["source"] !== "string") {
             context.input[name] = context.addNode({
                 "id": `input:${name}`,
-                "value": props["value"], //Save the data values
+                "value": parseDataSource(props), //Parse and save the data values
+                "props": null,
                 //"type": "input",
                 "targets": createHashMap()
             });
