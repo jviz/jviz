@@ -11,7 +11,7 @@ export const sortTransform = {
             throw new Error("Order has not the same length of fields in sort transform");
         }
         //Sort data
-        return sort(data, fields, order);
+        return sort(data.slice(0), fields, order);
     },
     "props": {
         "fields": [],
