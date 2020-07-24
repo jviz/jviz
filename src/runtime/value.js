@@ -76,14 +76,11 @@ export function value (props, datum, defaultValue) {
         let scale = context.scales[props.scale].value;
         //let value = (typeof props.field === "string") ? viz.object.get(datum, props.field) : datum;
         //Get the scaled value
-        //value = scale(value);
+        value = scale(value);
         //Check for interval scale and position property provided
         if (scale.type === "interval" && typeof props.interval !== "undefined") {
-            value = scale(value) + scale.step * Number(props.interval);
-        }
-        //Other scale type: apply the scale to the current value
-        else {
-            value = scale(value);
+            let intervalValue = Number(context.value(props.interval, datum, 0)); //Get interval value
+            value = value + scale.step * ((isNaN(intervalValue)) ? 0 : intervalValue);
         }
         //Return the scaled value
         //return value;
