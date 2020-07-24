@@ -39,6 +39,7 @@ let defaultProps = {
     "tickFormat": null,
     "tickBaseline": "middle",   //hanging|middle|baseline
     "tickAnchor": "middle",     //start|middle|end
+    "tickInterval": 0.5,        //Tick interval for interval scales
     "slot": true,    //Display a line indication the tick position
     "slotColor": "black",
     "slotOpacity": 1,
@@ -183,6 +184,7 @@ export function updateAxisNode (context, node) {
             let angle = context.value(props.tickRotation, null, defaultProps.tickRotation); //Get rotation angle
             let tickOffset = context.value(props.tickOffset, 0, defaultProps.tickOffset); //Get ticks offset
             let tickSlot = context.value(props.slot, null, defaultProps.slot); //Display tick slot
+            let tickInterval = (scale.type === "interval") ? context.value(props.tickInterval, null, defaultProps.tickInterval) : 0;
             //Display each label value
             ticksValues.forEach(function (value, index) {
                 //Calculate the label positions
@@ -194,7 +196,7 @@ export function updateAxisNode (context, node) {
                 }
                 //Check for interval scale
                 if (scale.type === "interval") {//if (typeof props.scale.step === "number") {
-                    valuePosition = valuePosition + scale.step / 2;
+                    valuePosition = valuePosition + scale.step * tickInterval;
                 }
                 //let labelX = (isXAxis) ? position : props.x - props.labelMargin;
                 //let labelY = (props.type === "y") ? position : props.y + props.labelMargin;
