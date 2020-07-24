@@ -4,10 +4,11 @@ import {isArray, isObject, isString, isNumber, isBool} from "../util.js";
 import {clamp, random, format, log} from "../math.js";
 import {polarToCartesianX, polarToCartesianY} from "../math.js";
 import {evaluate} from "../evaluate.js";
-import {nest as nestObject, range as rangeOf} from "../util.js";
-import {sum, average} from "../util.js";
+import {nest as nestObject, range} from "../util.js";
+import {sum, average, span} from "../util.js";
 import {truncate, capitalize, repeat, pad} from "../util.js";
 import {camelCase, snakeCase, kebabCase} from "../util.js";
+import {startsWith, endsWith} from "../util.js";
 import {timestamp} from "../util.js";
 
 //Recursive execute a function for each match of the provided regex
@@ -33,7 +34,6 @@ let defaultValues = {
     "round": Math.round,
     "floor": Math.floor,
     "ceil": Math.ceil,
-    //"random": Math.random,
     "exp": Math.exp,
     "min": Math.min,
     "max": Math.max,
@@ -48,8 +48,12 @@ let defaultValues = {
     "ln": Math.log,
     "log10": Math.log10,
     "log2": Math.log2,
+    "isNaN": isNaN,
     //Array OR string methods
-    "lengthOf": function (value) {
+    "indexOf": function (array, value) {
+        return array.indexOf(value);
+    },
+    "length": function (value) {
         return value.length;
     },
     "valueOf": function (items, index) {
@@ -58,13 +62,45 @@ let defaultValues = {
     "reverse": function (value) {
         return isString(value) ? valuesplit("").reverse().join("") : value.slice().reverse();
     },
+    "slice": function (value, start, end) {
+        return value.slice(start, end);
+    },
     //Array methods
-    "rangeOf": rangeOf,
+    "range": range,
     "sum": sum,
-    "indexOf": function (array, value) {
-        return array.indexOf(value);
+    "push": function (array) {
+        let arrayClone = array.slice(0);
+        arrayClone.push.apply(arrayClone, [].slice.call(arguments).slice(1)); //Insert all values at the end
+        return arrayClone;
+    },
+    "unshift": function (array) {
+        let arrayClone = array.slice(0);
+        arrayClone.unshift.apply(arrayClone, [].slice.call(arrguments).slice(1)); //Insert all values at the start
+        return arrayClone;
+    },
+    "pop": function (array) {
+        let arrayClone = array.slice(0);
+        arrayClone.pop(); //Remove the last element
+        return arrayClone;
+    },
+    "shift": function (array) {
+        let arrayClone = array.slice(0);
+        arrayClone.shift(); //Remove the first element
+        return arrayClone;
+    },
+    "remove": function (array) {
+        let arrayClone = array.slice(0);
+        for (let i = 1; i < arguments.length; i++) {
+            //let value = arguments[i];
+            let index = arrayClone.indexOf(arguments[i]);
+            if (index !== -1) {
+                arrayClone.splice(index, 1); //Remove this item from the array
+            }
+        }
+        return arrayClone; //Return the new array
     },
     "average": average,
+    "span": span,
     //Object methods
     "nest": nestObject,
     //String methods
@@ -75,6 +111,28 @@ let defaultValues = {
     "camelCase": camelCase,
     "kebabCase": kebabCase,
     "snakeCase": snakeCase,
+    "parseInt": parseInt,
+    "parseFloat": parseFloat,
+    "replace": function (str, search, value) {
+        return str.replace(search, value);
+    },
+    "lower": function (str) {
+        return str.toLowerCase();
+    },
+    "upper": function (str) {
+        return str.toUpperCase();
+    },
+    "split": function (str, value) {
+        return str.split(value);
+    },
+    "substring": function (str, start, end) {
+        return str.substring(start, end);
+    },
+    "trim": function (str) {
+        return str.trim();
+    },
+    "startsWith": startsWith,
+    "endsWith": endsWith,
     //General
     "isString": isString,
     "isNumber": isNumber,
