@@ -1,4 +1,4 @@
-import {isArray} from "../util.js";
+import {isArray, isObject} from "../util.js";
 import {range} from "../util.js";
 import {clamp} from "../math.js";
 import {kde, bandwidth as getBandwidth} from "../statistics.js";
