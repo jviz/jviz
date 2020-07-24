@@ -3,6 +3,13 @@ import {max, min, sum, average} from "../util.js";
 import {quantile} from "../math.js";
 import {propTypes} from "../props.js";
 
+//Median function
+let median = function (values, field) {
+    return quantile(0.50, values, function (value) {
+        return value[field];
+    });
+};
+
 //Available operations
 let availableOperations = {
     //Get the field value of the first item
@@ -31,6 +38,10 @@ let availableOperations = {
             return value[field];
         });
     },
+    //Calculate the 0.50 quantile (alias of median)
+    "q2": function (values, field) {
+        return median(values, field);
+    },
     //Calculate the 0,75 quantile
     "q3": function (values, field) {
         return quantile(0.75, values, function (value) {
@@ -39,9 +50,7 @@ let availableOperations = {
     },
     //Calculate the median
     "median": function (values, field) {
-        return quantile(0.50, values, function (value) {
-            return value[field];
-        });
+        return median(values, field);
     },
     //Calculate the mean value
     "mean": function (values, field) {
