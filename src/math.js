@@ -179,7 +179,7 @@ export function ticks (start, end, n, tight) {
     let nfrac = Math.max(-Math.floor(Math.log10(step)), 0); //number of fractional digits to show;
     let ticksValues = []; //Output ticks values
     for (let value = ticksStart; value <= ticksEnd; value = value + step) {
-        ticksValues.push(value);
+        ticksValues.push(parseFloat(value.toFixed(8)));
     }
     //Check for tight option --> remove ticks outside of the [start, end] interval
     //and add start and end values
