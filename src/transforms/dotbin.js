@@ -15,8 +15,8 @@ export const dotbinTransform = {
     "transform": function (context, data, props) {
         let field = props.field; //Get wanted field
         let as = (typeof props.as === "string" && props.as.length > 0) ? props.as : defaultProps.as;
-        let groupby = (typeof props.groupby === "string") ? props.groupby.trim() : null;
-        let groups = generatePartition(data, props.groupby);
+        //let groupby = (typeof props.groupby === "string") ? props.groupby.trim() : null;
+        let {groups, groupby} = generatePartition(data, {"groupby": props.groupby});
         let outputValues = []; //Output values
         groups.forEach(function (group, index) {
             let values = group.map(function (datum) {
