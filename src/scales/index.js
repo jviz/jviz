@@ -107,7 +107,7 @@ let parseScaleDomain = function (context, scale, value) {
     if (isObject(value) === true) {
         //Check for state data
         if (typeof value["state"] === "string") {
-            return context.state[value["state"]];
+            return context.state[value["state"]].value;
         }
         //Check for manual domain
         else if (typeof value["value"] !== "undefined") {
