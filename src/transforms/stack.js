@@ -8,7 +8,7 @@ let defaultStackGenerator = function (group, maxGroupValue, field, as) {
         "negative": 0  //Last negative value
     };
     return group.forEach(function (datum) {
-        let value = datum[field];
+        let value = (field !== null) ? datum[field] : defaultProps.value;
         let sign = (value < 0) ? "negative" : "positive";
         datum[as[0]] = last[sign]; //Set stack start
         datum[as[1]] = last[sign] + value; //Set stack end
@@ -20,7 +20,7 @@ let defaultStackGenerator = function (group, maxGroupValue, field, as) {
 let centerStackGenerator = function (group, maxGroupValue, field, as) {
     let last = (maxGroupValue - group.sum) / 2;
     return group.forEach(function (datum) {
-        let value = Math.abs(datum[field]);
+        let value = (field !== null) ? datum[field] : defaultProps.value;
         datum[as[0]] = last; //Set stack start
         datum[as[1]] = last + value; //Set stack end
         last = last + value
@@ -39,15 +39,20 @@ let defaultProps = {
     "align": "default", //default | center
     "sortField": null,
     "sortOrder": "asc", //sort order: asc | des
-    "field": "",
-    "as": ["yStart", "yEnd"]
+    "field": null,
+    "as": ["yStart", "yEnd"],
+    "value": 1
 };
 
 //Export stack transform
 export const stackTransform = {
     "transform": function (context, data, props) {
         let groupby = (typeof props.groupby === "string") ? props.groupby : null; 
-        let align = (typeof props.align === "string") ? props.align : defaultProps.align; //Get align value
+        let align = context.value(props.align, null, defaultProps.align); //Get align value
+        if (typeof align !== "string" || (typeof align === "string" && typeof stacks[align] === "undefined")) {
+            align = defaultProps.align; //Unknown align value ---> set default
+        }
+        let field = (typeof props.field === "string") ? props.field : null; //Get stack field
         let groups = []; //Stack groups
         let maxGroupValue = 0; //Store max value of all groups
         //Check if no groupby has been provided
@@ -57,7 +62,8 @@ export const stackTransform = {
             //Calculate the sum value of the group
             groups[0].sum = 0;
             groups[0].forEach(function (datum) {
-                groups[0].sum = groups[0].sum + Math.abs(datum[props.field]);
+                let value = (field !== null) ? Math.abs(datum[props.field]) : defaultProps.value;
+                groups[0].sum = groups[0].sum + value;
             });
             //maxGroupValue = groups[0].sum; //Update max value
         }
@@ -66,6 +72,7 @@ export const stackTransform = {
             let maps = {}; //Groups mappings
             data.forEach(function (datum, index) {
                 let key = datum[groupby];
+                let value = (field !== null) ? Math.abs(datum[props.field]) : defaultProps.value;
                 //Check if this group is not defined
                 if (typeof maps[key] === "undefined") {
                     groups.push([]);
@@ -74,7 +81,7 @@ export const stackTransform = {
                 }
                 //Insert this datum
                 groups[maps[key]].push(datum);
-                groups[maps[key]].sum = groups[maps[key]].sum + Math.abs(datum[props.field]);
+                groups[maps[key]].sum = groups[maps[key]].sum + value; //Math.abs(datum[props.field]);
             });
         }
         //console.log(groups);
@@ -84,11 +91,12 @@ export const stackTransform = {
         });
         //Build the stack for each group
         groups.forEach(function (group) {
-            stacks[align](group, maxGroupValue, props.field, defaultProps.as);
+            stacks[align](group, maxGroupValue, field, defaultProps.as);
         });
         //Return the data
         return data;
     },
-    "props": defaultProps
+    "props": defaultProps,
+    "sourceProps": ["align"]
 };
 
