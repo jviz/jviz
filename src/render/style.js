@@ -11,6 +11,7 @@ export const styleProps = {
     "strokeDashOffset": "stroke-dashoffset",
     "strokeLineCap": "stroke-linecap",  //Values: butt|square|round
     "strokeLineJoin": "stroke-linejoin",  //Values: arcs|bevel|miter|miter-clip|round
+    "strokeOpacity": "stroke-opacity",
     //Text
     //"color": "color", // ---> use fill instead
     "fontSize": "font-size",
