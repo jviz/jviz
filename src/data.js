@@ -1,6 +1,49 @@
 import {isArray, isObject} from "./util.js";
 import {getTransformSources} from "./runtime/transform.js";
 import {createHashMap} from "./hashmap.js";
+import {load} from "./load.js";
+import {csvParse} from "./dsv.js";
+
+//Data format parsers
+let dataParser = {
+    "json": function (data, options) {
+        //TODO: check for array of values --> convert to array of objects
+        return JSON.parse(data); //Parse as json
+    },
+    "csv": function (data, options) {
+        return csvParse(data, options);
+    }
+};
+
+//Parse data
+let parseData = function (data, format) {
+    if (typeof format === "undefined" || format === null) {
+        return data; //Return data withput format
+    }
+    //Get format values
+    //let parsedData = []; //Parsed data
+    if (typeof format === "string" && typeof dataParser[format] !== "undefined") {
+        return dataParser[format](data, null); //Return parsed data
+    }
+    //Check for object and format.type value provided
+    else if (isObject(format) && (typeof format.type === "string" && typeof dataParser[format.type] !== "undefined")) {
+        return dataParser[format.type](data, format); //Parse and return data
+    }
+    //Other type --> throw error (TODO)
+    return [];
+};
+
+//Parse data
+export function parseDataSource (props) {
+    return parseData(props.value, props.format);
+};
+
+//Load and parse a data node
+export function loadDataSource (props) {
+    return load(props.url).then(function (data) {
+        return parseData(data, props.format);
+    });
+}
 
 //Create data node
 export function createDataNode (context, name, props) {
