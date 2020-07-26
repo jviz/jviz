@@ -19,11 +19,13 @@ export function Context (schema, options) {
         "nodes": createHashMap(), //Context data nodes
         "actions": createHashMap(), //To store pending actions to the context
         "target": null, //this.scene.append("g"), //Context target group
+        "defs": null, //Context definitions
         "draw": {}, //Draw configuration (width, height and padding)
         "input": {}, //Store the input data
         "state": {}, //State nodes by Ids
         "data": {}, //Data nodes by Ids
         "scales": {}, //Scale nodes by ids
+        "legends": {}, //Legend nodes by ids
         "panels": null, //Panels configuration
         "theme": null, //Theme definition
         "scene": null, //Scene
