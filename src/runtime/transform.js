@@ -39,6 +39,15 @@ export function getTransformSources (context, transforms) {
         else if (transform.type === "range") {
             sources.push(context.state[transform.state]); // <-- Add state as a source
         }
+        //Check if transform has source props
+        let sourceProps = getTransform(transform.type).sourceProps;
+        if (typeof sourceProps !== "undefined") {
+            sourceProps.forEach(function (propName) {
+                return getValueSources(context, transform[propName]).forEach(function (source) {
+                    sources.push(source);
+                });
+            });
+        }
     });
     //Return the sources
     return sources;
