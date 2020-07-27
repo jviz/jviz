@@ -237,6 +237,11 @@ export function unique (values, valueOf) {
     return Object.keys(uniqueValues);
 }
 
+//Span method: get the difference between the last and the first item of the array
+export function span (values, valueOf) {
+    return (values.length > 1) ? values[values.length - 1] - values[0] : 0;
+}
+
 
 //String utils
 
@@ -305,6 +310,18 @@ export function kebabCase (str) {
 //Returns the snake case form of `str`.
 export function snakeCase (str) {
     return str.replace(/([a-z])([A-Z])/g, '$1_$2').replace(/\s+/g, '_').toLowerCase();
+}
+
+//Check if a string starts with the specified substring
+//Ponyfill of str.startsWith: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith
+export function startsWith (str, search) {
+    return search.length <= str.length && str.substring(0, search.length) === search;
+}
+
+//Check if a string ends with the speficied substring
+//Ponyfill of str.endsWith: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/endsWith
+export function endsWith (str, search) {
+    return search.length <= str.length && str.substring(str.length - search.length, str.length) === search;
 }
 
 
