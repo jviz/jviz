@@ -1,7 +1,8 @@
 import {getTheme} from "./theme.js";
 import {dispatch} from "./dispatch.js";
-import {call} from "./util.js";
+import {call, error as errorHandler} from "./util.js";
 import {createHashMap} from "./hashmap.js";
+import {createLogger} from "./logger.js";
 
 import {expression} from "./runtime/expression.js";
 import {transform} from "./runtime/transform.js";
@@ -9,6 +10,18 @@ import {value} from "./runtime/value.js";
 import {source} from "./runtime/source.js";
 
 import {initContext, buildContext, updateContext} from "./lifecycle/index.js";
+
+//Initialize logger
+let initializeLogger = function (options) {
+    if (typeof options.logger === "function") {
+        return options.logger; //Custom logger
+    }
+    else if (typeof options.logLevel === "number") {
+        return createLogger(options.logLevel); //Use the jviz default logger
+    }
+    //Other value --> use the default jviz logger
+    return createLogger();
+};
 
 //Context class
 export function Context (schema, options) {
@@ -30,6 +43,7 @@ export function Context (schema, options) {
         "theme": null, //Theme definition
         "scene": null, //Scene
         "events": dispatch(), //Events dispatching
+        "log": initializeLogger(options), //Logger
         "tooltip": null, //Tooltip handler
         "ready": false,
         "running": false
@@ -103,7 +117,9 @@ Context.prototype = {
     //Clear all pending actions
     "clearActions": function () {
         return this.actions.clear(); //Clear actions list
-    }
+    },
+    //Error handler
+    "error": errorHandler
 };
 
 //Create a new context
