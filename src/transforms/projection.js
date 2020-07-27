@@ -11,9 +11,9 @@ export const projectionTransform = {
     "transform": function (context, data, props) {
         let fields = isArray(props.fields) ? props.fields : [props.fields];
         let as = isArray(props.as) ? props.as : [props.as];
+        //Check if 'as' and 'fields' have the same length
         if (as.length !== fields.length) {
-            //TODO: throw error
-            return [];
+            return context.error("Error in projection transform: 'fields' and 'as' props must have the same length");
         }
         //Parse dataset rows
         return data.map(function (datum) {
