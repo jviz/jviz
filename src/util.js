@@ -391,3 +391,8 @@ export function timestamp (pattern, currentDate) {
     });
 }
 
+//Error utility: throws a new error with the provided error message
+export function error (errorMessage) {
+    throw new Error(errorMessage);
+}
+
