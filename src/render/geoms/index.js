@@ -108,7 +108,7 @@ let getGeomGroups = function (props) {
         if (isArray(props.geoms) === true) {
             return props.geoms; //Return the array of geoms
         }
-        else if (isObject(props.geos) === true) {
+        else if (isObject(props.geoms) === true) {
             return objectValues(props.geoms); //Return only values
         }
         //Default --> not valid geoms
