@@ -4,7 +4,7 @@ import {isArray, isObject, isString, isNumber, isBool} from "../util.js";
 import {clamp, random, format, log} from "../math.js";
 import {polarToCartesianX, polarToCartesianY} from "../math.js";
 import {evaluate} from "../evaluate.js";
-import {nest as nestObject, range} from "../util.js";
+import {nest as nestObject, range, inrange} from "../util.js";
 import {sum, average, span} from "../util.js";
 import {truncate, capitalize, repeat, pad} from "../util.js";
 import {camelCase, snakeCase, kebabCase} from "../util.js";
@@ -67,6 +67,7 @@ let defaultValues = {
     },
     //Array methods
     "range": range,
+    "inrange": inrange,
     "sum": sum,
     "push": function (array) {
         let arrayClone = array.slice(0);
@@ -150,6 +151,7 @@ let defaultValues = {
 export function expression (expr, values) {
     let context = this;
     let currentPanel = isObject(context.current.panel) ? context.current.panel : {};
+    let currentState = context.current.state; //Get current state values
     //Evaluate the provided expression
     return evaluate(expr, Object.assign(defaultValues, values, {
         "draw": {
@@ -159,9 +161,10 @@ export function expression (expr, values) {
             "outerMargin": context.draw.outerMargin.value
         },
         "panel": currentPanel,
-        "state": function (name) {
-            return context.state[name].value;
-        },
+        //"state": function (name) {
+        //    return context.state[name].value;
+        //},
+        "state": currentState,
         "data": function (name) {
             return context.data[name].value; //Return the data value
         },
@@ -179,8 +182,9 @@ export function expression (expr, values) {
 //Get expression sources
 export function getExpressionSources (context, expr) {
     let sources = []; //createNodeList();
-    //Find state|data|scale calls in the expression
-    matchRegex(expr, /(state|data|scale|invert)\('([^']*)'/g, function (matches) {
+    //Find data|scale|invert calls in the expression
+    //matchRegex(expr, /(state|data|scale|invert)\('([^']*)'/g, function (matches) {
+    matchRegex(expr, /(data|scale|invert)\('([^']*)'/g, function (matches) {
         //Example: expr = "state('aaaa') + 1"
         //match[0] --> full match group: state('aaaa'
         //match[1] --> source type: state
@@ -195,6 +199,11 @@ export function getExpressionSources (context, expr) {
         if (typeof context[sourceType][sourceName] !== "undefined") {
             sources.push(context[sourceType][sourceName]);
         }
+    });
+    //Fint state dependencies (test: https://regex101.com/r/P2yj4C/1)
+    matchRegex(expr, /state(?:(?:\.(\w*))|(?:\[\'([\w\-]*)\'\]))/g, function (matches) {
+        let name = (typeof matches[1] === "string") ? matches[1] : matches[2];
+        return sources.push(context.state[name]); //Insert this state node
     });
     //Find draw dependencies
     matchRegex(expr, /draw\.(width|height|margin|outerMargin)/g, function (matches) {
