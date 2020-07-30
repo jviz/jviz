@@ -7,7 +7,7 @@ import {getValueSources} from "../runtime/value.js";
 import {createHashMap} from "../hashmap.js";
 import {ticks as generateTicks} from "../math.js";
 
-import {getPanelsElements} from "./panels.js";
+import {getPanelsLayout} from "./panels.js";
 
 //Available position values
 let positionValues = ["top", "bottom", "left", "right"];
@@ -120,7 +120,7 @@ export function createAxisNode (context, index, props) {
 export function updateAxisNode (context, node) {
     //let target = node.parent; //parent.append("g");
     let props = node.props; //Object.assign({}, defaultProps, node.props);
-    let draw = context.panels.value; //context.draw.computed;
+    let draw = context.current.draw; //Get current drawing values
     let scale = context.scales[props.scale].value;
     //Axis positions and size
     let axisSize = Math.abs(scale.range[1] - scale.range[0]); //Axis size
@@ -150,7 +150,10 @@ export function updateAxisNode (context, node) {
         }
     }
     //Get panels where this axis will be rendered
-    getPanelsElements(context, props.panel).forEach(function (element, index) {
+    getPanelsLayout(context, props.panel).forEach(function (panelItem) {
+        let panel = panelItem.panel; //Get panel layout
+        let element = panelItem.element; //Get panel element
+        context.current.panel = panelItem.panel; //Save current panel
         //Check if there is a group for this axis
         let target = element.selectAll(`g[data-axis='${node.id}']`);
         if (target.length === 0) {
@@ -165,14 +168,14 @@ export function updateAxisNode (context, node) {
             axisPosition = {
                 "x1": 0 + Math.min(scale.range[0], scale.range[1]),
                 "x2": 0 + Math.max(scale.range[0], scale.range[1]),
-                "y1": (position === "top") ? 0 : draw.height,
-                "y2": (position === "top") ? 0 : draw.height
+                "y1": (position === "top") ? 0 : panel.height, //draw.height,
+                "y2": (position === "top") ? 0 : panel.height, //draw.height
             };
         }
         else {
             axisPosition = {
-                "x1": (position === "left") ? 0 : draw.width,
-                "x2": (position === "left") ? 0 : draw.width,
+                "x1": (position === "left") ? 0 : panel.width, //draw.width,
+                "x2": (position === "left") ? 0 : panel.width, //draw.width,
                 "y1": 0 + Math.min(scale.range[0], scale.range[1]),
                 "y2": 0 + Math.max(scale.range[0], scale.range[1])
             };
@@ -224,7 +227,8 @@ export function updateAxisNode (context, node) {
                     if (hasAxisGrid === true) {
                         gridLine = target.append("path");
                         gridLine.attr("d", polyline({
-                            "points": [[0, tickY], [draw.width, tickY]],
+                            //"points": [[0, tickY], [draw.width, tickY]],
+                            "points": [[0, tickY], [panel.width, tickY]],
                             "closed": false
                         }));
                     }
@@ -249,7 +253,8 @@ export function updateAxisNode (context, node) {
                     if (hasAxisGrid === true) {
                         gridLine = target.append("path");
                         gridLine.attr("d", polyline({
-                            "points": [[tickX, 0], [tickX, draw.height]],
+                            //"points": [[tickX, 0], [tickX, draw.height]],
+                            "points": [[tickX, 0], [tickX, panel.height]],
                             "closed": false
                         }));
                     }
@@ -302,5 +307,6 @@ export function updateAxisNode (context, node) {
     });
     //Done drawing the axis
     //return target;
+    context.current.panel = null; //Reset current panel
 }
 
