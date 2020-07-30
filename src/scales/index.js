@@ -208,6 +208,11 @@ export function updateScaleNode (context, node) {
     let scaleDomain = parseScaleDomain(context, scale, node.props.domain);
     //console.log(scaleRange);
     //console.log(scaleDomain);
+    if (scaleDomain === null) {
+        //TODO: display warning
+        context.current.panel = null; //Clear current panel
+        return Object.assign(node, {"value": null}); //Scale is not available
+    }
     //Add extra props to scale args
     let scaleArgs = {};
     each(scale.props, function (key, value) {
