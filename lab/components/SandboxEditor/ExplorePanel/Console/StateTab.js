@@ -49,6 +49,7 @@ let stateBindRender = {
                             },
                             "min": options.min,
                             "max": options.max,
+                            "step": options.step,
                             "defaultValue": options.defaultValue,
                             "onChange": onChange,
                             "fluid": true
