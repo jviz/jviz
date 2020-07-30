@@ -1,4 +1,5 @@
 import {isArray, isObject, nest as nestObject} from "../util.js";
+import {startsWith} from "../util.js";
 import {colors} from "../color.js";
 import {getPalette} from "../palette.js";
 import {getExpressionSources} from "./expression.js";
@@ -57,8 +58,15 @@ export function value (props, datum, defaultValue) {
     }
     //Check for value from draw context
     else if (typeof props.draw === "string") {
-        //value = context.draw.computed[props.draw]; //Get computed width or height value
-        value = context.panels.value[props.draw]; //Get the panel width or height value
+        value = context.current.draw[props.draw]; //Get computed width or height value
+    }
+    //Check for value from panel context
+    else if (typeof props.panel === "string") {
+        if (isObject(context.current.panel) === false) {
+            return context.error("There is no current panel");
+        }
+        //Return the panel value
+        value = context.current.panel[props.panel]; //Get panel property
     }
     //Check for value from state
     else if (typeof props.state === "string") {
@@ -126,7 +134,17 @@ export function getValueSources (context, value) {
     }
     //Check for draw value
     if (typeof value.draw === "string") {
-        //sources.push(context.draw[value.draw]);
+        let drawValue = value.draw;
+        if (startsWith(drawValue, "margin")) {
+            drawValue = "margin"; //Remove margin position
+        }
+        else if (startsWith(drawValue, "outerMargin")) {
+            drawValue = "outerMargin"; //Remove outer margin position
+        }
+        //Add draw source
+        sources.push(context.draw[drawValue]);
+    }
+    if (typeof value.panel === "string") {
         sources.push(context.panels); //Add panels as dependency instead of draw
     }
     //Check for expression value
