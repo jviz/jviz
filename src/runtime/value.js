@@ -82,6 +82,9 @@ export function value (props, datum, defaultValue) {
     //Check for scale to apply to the current value
     if (typeof props.scale === "string" && value !== null) {
         let scale = context.scales[props.scale].value;
+        if (typeof scale !== "function") {
+            return null; //Error applying the scale
+        }
         //let value = (typeof props.field === "string") ? viz.object.get(datum, props.field) : datum;
         //Get the scaled value
         value = scale(value);
