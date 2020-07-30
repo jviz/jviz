@@ -31,7 +31,7 @@ export const arcGeom = {
         };
         //Check for no x or y value provided
         if (!isNumber(args.centerX) || !isNumber(args.centerY)) {
-            return element; //Not valid values
+            return context.log.warn("Not valid 'x' or 'y' value provided to arc geom");
         }
         //Check for custom radius
         if (typeof props.radius !== "undefined" && props.radius !== null) {
@@ -44,7 +44,7 @@ export const arcGeom = {
         }
         //Check if there is not valid inner or uter radius values
         if (!isNumber(args.innerRadius) || !isNumber(args.outerRadius)) {
-            return element; //Not valid radius value provided
+            return context.log.warn("Not valid radius value provided to arc geom");
         }
         //Check for single angle value provided
         if (typeof props.angle !== "undefined") {
@@ -57,7 +57,7 @@ export const arcGeom = {
         }
         //Check if no angle has been provided
         if (!isNumber(args.startAngle) || !isNumber(args.endAngle)) {
-            return element; //Not valid angle value provided
+            return context.log.warn("Not valid angle value provided to arc geom");
         }
         //Build the arc
         element.attr("d", arc(args));
