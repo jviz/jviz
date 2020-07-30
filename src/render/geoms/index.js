@@ -3,12 +3,13 @@ import {each, values as objectValues} from "../../util.js";
 import {propTypes, parseProps} from "../../props.js";
 import {getValueSources} from "../../runtime/value.js";
 import {getExpressionSources} from "../../runtime/expression.js";
+import {createHashMap} from "../../hashmap.js";
 
 import {setStyle, isStyleName} from "../style.js";
 import {setTooltipEvents} from "../tooltip.js";
-import {setEvent, isEventName} from "../events.js";
+//import {setEvent, isEventName} from "../events.js";
 
-import {getPanelsElements} from "../panels.js";
+import {getPanelsLayout} from "../panels.js";
 
 import {textGeom} from "./text.js";
 import {lineGeom} from "./line.js";
@@ -135,7 +136,7 @@ export function createGeomNode (context, key, props) {
         "id": `geom:${key}`,
         "type": "geom",
         "props": props,
-        "targets": null,
+        "targets": createHashMap(),
         "source": null,
         "value": [],
     });
@@ -153,6 +154,15 @@ export function createGeomNode (context, key, props) {
     } 
     //Get values sources
     getGeomGroups(node.props).forEach(function (groupProps) {
+        //Check if this geom has a name field
+        if (typeof groupProps["name"] === "string") {
+            let name = groupProps["name"].trim();
+            if (typeof context.geoms[name] !== "undefined") {
+                context.log.warn(`There are more than one geoms with the '${name}' name assigned`);
+            }
+            context.geoms[name] = node; //Save the reference to this node
+        }
+        //Get sources
         return each(groupProps.render, function (key, renderProps) {
             return each(renderProps, function (propKey, propValue) {
                 return getValueSources(context, propValue).forEach(function (source) {
@@ -168,8 +178,11 @@ export function createGeomNode (context, key, props) {
 
 //Update the provided node
 export function updateGeomNode (context, node, forceRender) {
-    getPanelsElements(context, node.props.panel).forEach(function (element) {
+    context.current.panel = null;
+    getPanelsLayout(context, node.props.panel).forEach(function (panelItem) {
+        context.current.panel = panelItem.panel; //Save current panel
         //Check if there is a group for this geom group
+        let element = panelItem.element; //Get element
         let target = element.selectAll(`g[data-geom='${node.id}']`);
         if (target.length === 0) {
             target = element.append("g").attr("data-geom", node.id); //Create a new geom group
@@ -177,6 +190,8 @@ export function updateGeomNode (context, node, forceRender) {
         //Render the geom
         return renderGeom(context, node, target, forceRender);
     });
+    //Remove current panel
+    context.current.panel = null;
 }
 
 //Render a geom
@@ -247,27 +262,27 @@ let renderGeom = function (context, node, parent, forceRender) {
                 }
             }
             //Register additional event listening
-            each(props.on, function (eventIndex, eventProps) {
-                return setEvent(element, eventProps.type, function (event) {
-                    //Check for signal update event
-                    if (isString(eventProps.state) && isString(eventProps.value)) {
-                        //Register an action to update this state
-                        let stateNode = context.state[eventProps.state];
-                        if (typeof stateNode !== "undefined") {
-                            context.addAction(stateNode, context.expression(eventProps.value, {
-                                "datum": data,
-                                "event": event //TODO: process event values
-                            }));
-                            //Trigger the update action
-                            context.render();
-                        }
-                    }
-                    //Check for fire this event to the api
-                    if (isString(eventProps.fire)) {
-                        return context.events.dispatchEvent(eventProps.fire, event, data);
-                    }
-                });
-            });
+            //each(props.on, function (eventIndex, eventProps) {
+            //    return setEvent(element, eventProps.type, function (event) {
+            //        //Check for signal update event
+            //        if (isString(eventProps.state) && isString(eventProps.value)) {
+            //            //Register an action to update this state
+            //            let stateNode = context.state[eventProps.state];
+            //            if (typeof stateNode !== "undefined") {
+            //                context.addAction(stateNode, context.expression(eventProps.value, {
+            //                    "datum": data,
+            //                    "event": event //TODO: process event values
+            //                }));
+            //                //Trigger the update action
+            //                context.render();
+            //            }
+            //        }
+            //        //Check for fire this event to the api
+            //        if (isString(eventProps.fire)) {
+            //            return context.events.dispatchEvent(eventProps.fire, event, data);
+            //        }
+            //    });
+            //});
             //Register tooltip handlers
             if (typeof props.tooltip === "object" && props.tooltip !== null) {
                 setTooltipEvents(context, element, data, props.tooltip);
