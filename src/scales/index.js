@@ -2,6 +2,8 @@ import {createHashMap} from "../hashmap.js";
 import {getValueSources} from "../runtime/value.js";
 import {isArray, isObject, unique, range as rangeOf, each} from "../util.js";
 
+import {getPanelsLayout} from "../render/panels.js";
+
 //import {propTypes} from "../props.js";
 import {color as colorScale} from "./color.js";
 import {categorical as categoricalScale} from "./discrete.js";
@@ -79,12 +81,20 @@ let parseScaleRange = function (context, scale, value) {
         //Check for width range value
         if (typeof value["draw"] === "string" && value["draw"] === "width") {
             //return [0, context.draw.computed.width];
-            return [0, context.panels.value.width];
+            return [0, context.current.draw.width];
         }
         //Check for height range value
         else if (typeof value["draw"] === "string" && value["draw"] === "height") {
             //return [context.draw.computed.height, 0];
-            return [context.panels.value.height, 0];
+            return [context.current.draw.height, 0];
+        }
+        //Check for panel width value
+        else if (typeof value["panel"] === "string" && value["panel"] === "width") {
+            return [0, context.current.panel.width];
+        }
+        //Check for panel height value
+        else if (typeof value["panel"] === "string" && value["panel"] === "height") {
+            return [context.current.panel.height, 0];
         }
         //Other type --> parse from value or state
         else {
@@ -191,6 +201,8 @@ export function createScaleNode (context, name, props) {
 //Update the scale
 export function updateScaleNode (context, node) {
     let scale = getScale(node.props.type);
+    let panelItem = getPanelsLayout(context, node.props.panel)[0]; //Get panel item
+    context.current.panel = panelItem.panel; //Save current panel
     //Build the scale domain and range
     let scaleRange = parseScaleRange(context, scale, node.props.range);
     let scaleDomain = parseScaleDomain(context, scale, node.props.domain);
@@ -211,5 +223,6 @@ export function updateScaleNode (context, node) {
     Object.assign(node, {
         "value": scale.scale(scaleArgs)
     });
+    context.current.panel = null; //Clear current panel
 }
 
