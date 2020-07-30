@@ -149,14 +149,16 @@ let defaultValues = {
 //Evaluate the provided expression
 export function expression (expr, values) {
     let context = this;
+    let currentPanel = isObject(context.current.panel) ? context.current.panel : {};
     //Evaluate the provided expression
     return evaluate(expr, Object.assign(defaultValues, values, {
         "draw": {
-            "width": context.panels.value.width,
-            "height": context.panels.value.height,
+            "width": context.current.draw.width,
+            "height": context.current.draw.height,
             "margin": context.draw.margin.value,
             "outerMargin": context.draw.outerMargin.value
         },
+        "panel": currentPanel,
         "state": function (name) {
             return context.state[name].value;
         },
@@ -198,6 +200,7 @@ export function getExpressionSources (context, expr) {
     matchRegex(expr, /draw\.(width|height|margin|outerMargin)/g, function (matches) {
         sources.push(context.draw[matches[1]]); //Add the draw source 
     });
+    //Find panel dependencies (TODO)
     //Return sources
     return sources;
 }
