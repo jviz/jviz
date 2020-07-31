@@ -1,28 +1,14 @@
 import {path} from "../path.js";
 import {getCurve} from "../curves/index.js";
-import {propTypes} from "../../props.js";
+//import {propTypes} from "../../props.js";
+import {isNumber} from "../../util.js";
 
 //Curve default props
 let defaultProps = {
-    "x": propTypes.number(0),
-    "y": propTypes.number(0),
-    "curve": propTypes.string("linear") // linear|catmull-roll|step|step-after|step-before
+    "x": null,
+    "y": null,
+    "curve": "linear" // linear|catmull-roll|step|step-after|step-before
 };
-
-//Generate a curve
-function curve (args) {
-    let data = args.data;
-    let curvePath = path();
-    //Get the wanted curve name 
-    //--> if no curve is provided, linear will be used
-    let curveDraw = getCurve(args.curve)(curvePath); //initialize the curve
-    //Start drawing the curve
-    for (let i = 0; i < data.length; i++) {
-        curveDraw.point(args.x(data[i], i), args.y(data[i], i));
-    }
-    curveDraw.end(); //Finish the curve
-    return curvePath.toString();
-}
 
 //Export curve geom
 export const curveGeom = {
@@ -30,16 +16,40 @@ export const curveGeom = {
     "type": "curve",
     "render": function (context, data, props, element) {
         element.attr("fill", "none"); //Hack to prevent filled polyline 
-        return element.attr("d", curve({
-            "x": function (datum) {
-                return context.value(props.x, datum, defaultProps.x.defaultValue);
-            },
-            "y": function (datum) {
-                return context.value(props.y, datum, defaultProps.y.defaultValue);
-            },
-            "curve": context.value(props.curve, data[0], defaultProps.curve.defaultValue),
-            "data": data
-        }));
+        element.attr("d", ""); //Reset line path
+        //Check if no data object has been provided
+        if (data === null) {
+            return context.log.warn("Curve geom needs a valid data object to be rendered");
+        }
+        //Check if data object does not have at least 2 points
+        if (data.length < 2) {
+            return context.log.warn(`Curve geom needs at least 2 points to be rendered, but provided '${data.length}'`);
+        }
+        //Initialize the curve arguments
+        let args = {
+            "curve": context.value(props.curve, data[0], defaultProps.curve)
+        };
+        if (typeof args.curve !== "string" || args.curve.length === 0) {
+            return context.log.warn("Invalid curve type provided to curve geom");
+        }
+        //Initialize the path for drawing the curve
+        let curvePath = path();
+        //Get the wanted curve name 
+        //--> if no curve is provided, linear will be used
+        let curve = getCurve(args.curve)(curvePath); //initialize the curve
+        //Start drawing the curve
+        for (let i = 0; i < data.length; i++) {
+            let x = context.value(args.x1, data[i], null); //Get x value
+            let y = context.value(args.y1, data[i], null); //Get y value
+            if (!isNumber(x) || !isNumber(y)) {
+                return context.log.warn(`Invalid pair (x,y) provided at position '${i}' of the curve geom`);
+            }
+            //Add this point
+            curve.point(x, y);
+        }
+        curve.end(); //Finish the curve
+        //Return the curve element
+        return element.attr("d", curvePath.toString());
     },
     "props": defaultProps
 };
