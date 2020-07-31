@@ -1,28 +1,32 @@
-import {propTypes, parseProps} from "../../props.js";
+//import {propTypes, parseProps} from "../../props.js";
 import {circle} from "../primitives/circle.js";
+import {isNumber} from "../../util.js";
 
 //Circle shape default props
 let defaultProps = {
-    "x": propTypes.number(),
-    "y": propTypes.number(),
-    "radius": propTypes.number(5)
+    "x": null,
+    "y": null,
+    "radius": 5
 };
 
 //Export circle geom
 export const circleGeom = {
     "tag": "path",
     "type": "circle",
-    "render": function (context, data, props, element) {
-        //Parse the circle options
-        let options = parseProps(context, data, props, defaultProps);
+    "render": function (context, datum, props, element) {
+        element.attr("d", ""); //Reset circle path
+        //Generate circle arguments
+        let args = {
+            "x": context.value(props.x, datum, null),
+            "y": context.value(props.y, datum, null),
+            "radius": context.value(props.radius, datum, null)
+        };
+        //Check if there are a not valid argument
+        if (!isNumber(args.x) || !isNumber(args.y) || !isNumber(args.radius)) {
+            return null; //TODO: display warning message
+        }
         //Build the circle element
-        return element.attr("d", circle({
-            //Circle position
-            "x": options.x, //context.getContextValue(props.x, data),
-            "y": options.y, //context.getContextValue(props.y, data),
-            //Circle radius
-            "radius": options.radius //context.getContextValue(props.radius, data)
-        }));
+        return element.attr("d", circle(args));
     },
     "props": defaultProps
 };
