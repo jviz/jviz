@@ -1,6 +1,6 @@
 import {colors} from "../color.js";
 import {polyline} from "./primitives/polyline.js";
-import {isArray, isObject} from "../util.js";
+import {isArray, isObject, span} from "../util.js";
 import {isContinuousScale, isDiscreteScale} from "../scales/index.js";
 import {getExpressionSources} from "../runtime/expression.js";
 import {getValueSources} from "../runtime/value.js";
@@ -122,6 +122,11 @@ export function updateAxisNode (context, node) {
     let props = node.props; //Object.assign({}, defaultProps, node.props);
     let draw = context.current.draw; //Get current drawing values
     let scale = context.scales[props.scale].value;
+    //Check for empty scale (no domain provided)
+    if (scale === null || scale.domain === null || scale.domain.length < 2 || span(scale.domain) === 0) {
+        context.target.selectAll(`g[data-axis='${node.id}']`).empty(); //Clear all axes related to this node
+        return null; //Ignore this axis
+    }
     //Axis positions and size
     let axisSize = Math.abs(scale.range[1] - scale.range[0]); //Axis size
     //let axisStart = scale.range[0];
