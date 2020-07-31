@@ -1,43 +1,51 @@
-import {parseProps, propTypes} from "../../props.js";
+import {isNumber} from "../../util.js";
 
 //Text default props
 let defaultProps = {
-    "text": propTypes.string(""),
-    "x": propTypes.number(),
-    "y": propTypes.number(),
-    "offsetX": propTypes.number(),
-    "offsetY": propTypes.number(),
-    "rotation": propTypes.number(null),
-    "textLength": propTypes.number(),
+    "text": "",
+    "x": null,
+    "y": null,
+    "offsetX": null,
+    "offsetY": null,
+    "rotation": 0,
+    "textLength": null,
     //https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor
-    "textAnchor": propTypes.string("middle"), //start|middle|end
+    "textAnchor": "middle", //start|middle|end
     //https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/dominant-baseline
-    "baseline": propTypes.string("middle") //hanging|middle|baseline 
+    "baseline": "middle" //hanging|middle|baseline 
 };
 
 //Export text geom
 export const textGeom = {
     "tag": "text",
     "type": "text",
-    "render": function (context, data, props, element) {
-        //Parse text props
-        let options = parseProps(context, data, props, defaultProps);
-        //Set the text positions
-        let x = options.x + ((typeof options.offsetX === "number") ? options.offsetX : 0);
-        let y = options.y + ((typeof options.offsetY === "number") ? options.offsetY : 0);
-        //Generate the text element
-        element.text(options.text);
-        //Set text position
-        element.attr("x", x);
-        element.attr("y", y);
+    "render": function (context, datum, props, element) {
+        element.attr("x", 0).attr("y", 0).text(""); //Reset text values
+        //Parse text arguments
+        let args = {
+            "x": context.value(props.x, datum, null),
+            "y": context.value(props.y, datum, null),
+            "offsetX": context.value(props.offsetX, datum, 0),
+            "offsetY": context.value(props.offsetY, datum, 0),
+            "text": context.value(props.text, datum, null),
+            "rotation": context.value(props.rotation, datum, 0)
+        };
+        //Check for valid x, y and text values
+        if (!isNumber(args.x) || !isNumber(args.y) || typeof args.text !== "string") {
+            return; //TODO: display warning
+        }
+        let x = args.x + (isNumber(args.offsetX) ? args.offsetX : 0);
+        let y = args.y + (isNumber(args.offsetY) ? args.offsetY : 0);
+        //Set the text attributes
+        element.attr("x", x).attr("y", y).text(args.text);
         //Check the rotation
-        if (options.rotation !== null) {
-            element.attr("transform", `rotate(${options.rotation}, ${x}, ${y})`);
+        if (isNumber(args.rotation)) {
+            element.attr("transform", `rotate(${args.rotation}, ${x}, ${y})`);
         }
         //Set text style attributes
         //element.attr("textLength", options.textLength);
-        element.attr("text-anchor", options.textAnchor);
-        element.attr("dominant-baseline", options.baseline);
+        element.attr("text-anchor", context.value(props.textAnchor, datum, defaultProps.textAnchor));
+        element.attr("dominant-baseline", context.value(props.baseline, datum, defaultProps.baseline));
     },
     "props": defaultProps
 };
