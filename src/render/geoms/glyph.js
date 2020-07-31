@@ -1,25 +1,41 @@
-import {parseProps, propTypes} from "../../props.js";
 import {getGlyph} from "../primitives/glyphs.js";
+import {isNumber} from "../../util.js";
 
 //Glyph default props
 let defaultProps = {
-    "x": propTypes.number(),
-    "y": propTypes.number(),
-    "type": propTypes.string("circle"),
-    "angle": propTypes.number(0),
-    "size": propTypes.number(0)
+    "x": null,
+    "y": null,
+    "type": "circle",
+    "angle": 0,
+    "size": 0
 };
 
 //Export glyph geom
 export const glyphGeom = {
     "tag": "path",
     "type": "glyph",
-    "render": function (context, data, props, element) {
-        let options = parseProps(context, data, props, defaultProps); //Parse glyph options
+    "render": function (context, datum, props, element) {
         element.attr("fill", "none"); //Hack to prevent unwanted filled glyphs
-        element.attr("transform", `translate(${options.x},${options.y})`); //Translate the glyph
-        //Return the element
-        return element.attr("d", getGlyph(options.type, options));
+        element.attr("d", ""); //Reset glyph path
+        element.attr("transform", ""); //Reset transform
+        //Initialize glyph arguments
+        let args = {
+            "x": context.value(props.x, datum, null),
+            "y": context.value(props.y, datum, null),
+            "type": context.value(props.type, datum, defaultProps.type),
+            "angle": context.value(props.angle, datum, defaultProps.angle),
+            "size": context.value(props.size, datum, 0)
+        };
+        //Check for 0 sized glyhp --> ignore this glyph
+        if (args.size === null || args.size <= 0) {
+            return; //Nothong to render
+        }
+        //Check for no valid values
+        if (!isNumber(args.x) || !isNumber(args.y) || typeof args.type !== "string") {
+            return context.log.warn("Invalid values provided to glyph geom");
+        }
+        element.attr("transform", `translate(${args.x},${args.y})`); //Translate the glyph
+        element.attr("d", getGlyph(args.type, args)); //Build the glyph
     },
     "props": defaultProps
 };
