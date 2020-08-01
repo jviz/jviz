@@ -4,7 +4,7 @@ import {getGlyph} from "./primitives/glyphs.js";
 import {isDiscreteScale} from "../scales/index.js";
 import {measureText} from "./util/text.js";
 import {rectangle} from "./primitives/rectangle.js";
-import {each, values as objectValues, isArray, isObject} from "../util.js";
+import {each, values as objectValues, isArray, isObject, isString} from "../util.js";
 import {createGradient} from "./util/defs.js";
 //import {setStyle} from "./style.js";
 import {getValueSources} from "../runtime/value.js";
@@ -105,7 +105,7 @@ let ignorePropsSources = ["type", "scale"];
 export function createLegendNode (context, name, props) {
     let node = context.addNode({
         "id": `legend:${name}`,
-        "name": name,
+        "name": name + "",
         "props": props, //Object.assign({}, defaultProps, props),
         "type": "legend",
         "targets": null, //createNodeList(),
@@ -127,8 +127,11 @@ export function createLegendNode (context, name, props) {
             source.targets.add(node.id, node);
         });
     });
+    //Check if there is a legend with this name
+    if (typeof context.legends[node.name] !== "undefined") {
+        context.log.warn(`There are more than one legends with the name '${node.name}'`);
     //Save reference to this node
-    context.legends["" + name] = node;
+    context.legends[node.name] = node;
 }
 
 //Update a legend node
@@ -136,6 +139,8 @@ export function updateLegendNode (context, node) {
     let margin = context.draw.outerMargin.value; //Get outer margins
     node.value = null; //Reset legend values
     node.parent.empty(); //Remove legend content
+    let legendName = (isString(node.props.name)) ? node.props.name : null; //Save legend name 
+    let legendItems = []; //Legend items
     let legendPosition = context.value(node.props.position, null, defaultProps.position); //Get legend position
     if (margin[legendPosition] < defaultLegendConfig.minWidth) {
         return null; //Not enought space for this scale
@@ -196,7 +201,7 @@ export function updateLegendNode (context, node) {
         }));
         //Second iteration --> render each item of the legend
         scale.domain.forEach(function (value, index) {
-            console.log("Legend value ---> " + value);
+            //console.log("Legend value ---> " + value);
             //Render the glyph
             let glyphType = context.value(node.props.glyph, value, defaultProps.glyph);
             let glyphSize = context.value(node.props.glyphSize, value, defaultProps.glyphSize); //Get glyph size
@@ -224,6 +229,8 @@ export function updateLegendNode (context, node) {
             labelElement.attr("dominant-baseline", "middle"); //Default baseline
             labelElement.attr("x", padding + maxGlyphSize + defaultProps.labelOffset);
             labelElement.attr("y", node.value.height + height / 2);
+            //Register this legend item
+            legendItems.push({"y": node.value.height, "height": height});
             //Update the height
             node.value.height = node.value.height + height + defaultProps.labelOffset;
         });
@@ -290,6 +297,19 @@ export function updateLegendNode (context, node) {
         if (orientation === "horizontal") {
             node.value.height = node.value.height + maxLabelHeight + defaultProps.labelOffset;
         }
+    }
+    //Add masks for legend
+    if (legendType === "glyph" && legendName !== null && legendItems.length > 0) {
+        legendItems.forEach(function (item, index) {
+            let target = node.parent.append("rect"); //Mask target element
+            target.attr("width", node.value.width + "px");
+            target.attr("height", item.height + "px");
+            target.attr("x", 0).attr("y", item.y); //Set mask position
+            target.style("fill", "transparent");
+            target.attr("data-type", "legend-mask");
+            target.attr("data-legend-name", legendName);
+            target.attr("data-legend-index", index);
+        });
     }
     //Add the bottom padding
     node.value.height = node.value.height + padding + border;
