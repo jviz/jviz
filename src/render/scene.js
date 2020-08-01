@@ -34,6 +34,7 @@ export function createSceneNode (context, index, props) {
     });
     //Initialize scene attributes
     node.element.attr("width", "0px").attr("height", "0px");
+    node.element.style("user-select", "none"); //Disable user selection
     //Set scene style
     //TODO: this should be moved to updateSceneNode when scene style updates where allowed
     sceneStyles.forEach(function (name) {
