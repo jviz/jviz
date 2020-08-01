@@ -141,7 +141,7 @@ let buildPanelsLayout = function (context, props) {
     }
     //Check for number --> calculate the number of rows and columns
     else if (typeof props === "number") {
-        Object.assign(newLayout, parseValuelsLayout(context, props)); //Build the layout
+        Object.assign(newLayout, parseValueLayout(context, props)); //Build the layout
     }
     //Check for no panels list 
     if (newLayout.panels === null || newLayout.panels.length === 0) {
