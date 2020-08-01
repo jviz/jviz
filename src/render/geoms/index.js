@@ -236,6 +236,13 @@ let renderGeom = function (context, node, parent, forceRender) {
         //Build geoms for each data group
         getGeomData(node.value, props).forEach(function (data, index) { 
             let element = createGeomElement(geom, parent, index, groupIndex);
+            //Assign geom attributes
+            element.attr("data-type", "geom"); //Set element type as geom
+            element.attr("data-geom-type", geom.type); //Assign geom type
+            element.attr("data-geom-index", groupIndex); //Assign geom group index
+            element.attr("data-geom-datum", index); //Assign geom datum index
+            element.attr("data-geom-name", (typeof props.name === "string") ? props.name : ""); //Assign geom name
+            element.attr("data-geom-panel", context.current.panel.index); //Save current panel
             geom.render(context, data, updateProps, element);  // --> render init + update props
             //Apply style props
             applyGeomStyle(context, data, updateProps, element);
@@ -261,28 +268,6 @@ let renderGeom = function (context, node, parent, forceRender) {
                     });
                 }
             }
-            //Register additional event listening
-            //each(props.on, function (eventIndex, eventProps) {
-            //    return setEvent(element, eventProps.type, function (event) {
-            //        //Check for signal update event
-            //        if (isString(eventProps.state) && isString(eventProps.value)) {
-            //            //Register an action to update this state
-            //            let stateNode = context.state[eventProps.state];
-            //            if (typeof stateNode !== "undefined") {
-            //                context.addAction(stateNode, context.expression(eventProps.value, {
-            //                    "datum": data,
-            //                    "event": event //TODO: process event values
-            //                }));
-            //                //Trigger the update action
-            //                context.render();
-            //            }
-            //        }
-            //        //Check for fire this event to the api
-            //        if (isString(eventProps.fire)) {
-            //            return context.events.dispatchEvent(eventProps.fire, event, data);
-            //        }
-            //    });
-            //});
             //Register tooltip handlers
             if (typeof props.tooltip === "object" && props.tooltip !== null) {
                 setTooltipEvents(context, element, data, props.tooltip);
