@@ -12,6 +12,7 @@ import {createPanelsNode, updatePanelsNode} from "../render/panels.js";
 import {createLegendNode, updateLegendNode, updateLegendPosition} from "../render/legends.js";
 import {createSceneNode, updateSceneNode} from "../render/scene.js";
 import {createTitleNode, updateTitleNode} from "../render/title.js";
+import {createEventNode, updateEventNode} from "../render/events.js";
 
 import {parseSizeValue} from "./parsers.js";
 import {parseBackgroundValue} from "./parsers.js";
@@ -25,7 +26,8 @@ let nodeUpdate = {
     "panels": updatePanelsNode,
     "legend": updateLegendNode,
     "scene": updateSceneNode,
-    "title": updateTitleNode
+    "title": updateTitleNode,
+    "event": updateEventNode
 };
 
 //Update the context
@@ -53,6 +55,9 @@ export function updateContext (context, forceUpdate) {
             //Other node type
             else {
                 node.value = action.value; //Update the node value
+                if (node.type === "height" || node.type === "width") {
+                    recomputeDraw = true; //Recompute draw and height
+                }
             }
             //updateList.add(node); //Changed node --> add to changes list
             //Add all targets nodes of this changed item
@@ -64,9 +69,20 @@ export function updateContext (context, forceUpdate) {
         });
         //Check for recompute draw
         if (recomputeDraw === true) {
-            let margins = context.draw.outerMargin.value; //Get margins
-            context.target.attr("transform", `translate(${margins.left},${margins.top})`);
+            let outerMargin = context.draw.outerMargin.value; //Get outer margins
+            let margin = context.draw.margin.value; //Get internal margins
+            //Update the current drawing values
+            Object.assign(context.current.draw, {
+                "width": context.draw.width.value - outerMargin.left - outerMargin.right - margin.left - margin.right,
+                "height": context.draw.height.value - outerMargin.top - outerMargin.bottom - margin.top - margin.bottom
+            });
+            //Translate the main group
+            context.target.attr("transform", `translate(${outerMargin.left},${outerMargin.top})`);
         }
+        //Update the current state 
+        Object.keys(context.state).forEach(function (stateName) {
+            context.current.state[stateName] = context.state[stateName].value;
+        });
         //Check for no nodes to update
         if (updateList.length() === 0 && forceUpdate === false) {
             //TODO: display in logs
@@ -74,6 +90,7 @@ export function updateContext (context, forceUpdate) {
         }
         //Loop for all nodes
         context.nodes.forEach(function (node) {
+            context.current.panel = null; //Remove current panel
             //Check if this node is not in the update list
             if (updateList.has(node.id) === false && forceUpdate === false) {
                 return null;
@@ -81,19 +98,26 @@ export function updateContext (context, forceUpdate) {
             //Nodes that we will update: data|panels|scale|axis|legend
             if (typeof nodeUpdate[node.type] === "function") {
                 nodeUpdate[node.type](context, node);
+                //Add the targets nodes of the current node ot the list of nodes to update
+                //We will ensure that all targets of the updated nodes will be visited.
+                if (forceUpdate === false && isObject(node.targets)) {
+                    return node.targets.forEach(function (targetNode) {
+                        updateList.add(targetNode.id, targetNode);
+                    });
+                }
             }
             //Update geom node
             else if (node.type === "geom") {
                 //If the geom source data has changed we will force a re-rendering
                 //If not, we will call only the update props of this shape
-                updateGeomNode(context, node, (node.source !== null && updateList.has(node.source.id)) || forceUpdate);
-            }
-            //Add the targets nodes of the current node ot the list of nodes to update
-            //We will ensure that all targets of the updated nodes will be visited.
-            if (forceUpdate === false && isObject(node.targets)) {
-                return node.targets.forEach(function (targetNode) {
-                    updateList.add(targetNode.id, targetNode);
-                });
+                let forceGeomUpdate = node.source !== null && updateList.has(node.source.id);
+                updateGeomNode(context, node, forceGeomUpdate || forceUpdate);
+                //Add sources for the geom node only if force update is enabled
+                if ((forceGeomUpdate || forceUpdate) && isObject(node.targets)) {
+                    return node.targets.forEach(function (targetNode) {
+                        updateList.add(targetNode.id, targetNode);
+                    });
+                }
             }
         });
         updateLegendPosition(context); //Fix legend nodes
@@ -205,6 +229,7 @@ export function initContext (context, schema) {
             "type": "state"
         });
         //createStateNode(context, name, stateProps);
+        context.current.state[name] = context.state[name].value; //Save the value reference
     });
     //Build data props
     each(schema["data"], function (index, props) {
@@ -229,6 +254,10 @@ export function initContext (context, schema) {
     //Render all legends
     each(schema["legends"], function (index, props) {
         createLegendNode(context, index, props);
+    });
+    //Register event nodes
+    each(schema["events"], function (index, props) {
+        createEventNode(context, index, props);
     });
     //Add title node
     createTitleNode(context, null, schema["title"]);
