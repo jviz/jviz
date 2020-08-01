@@ -9,6 +9,7 @@ import {createGradient} from "./util/defs.js";
 //import {setStyle} from "./style.js";
 import {getValueSources} from "../runtime/value.js";
 import {getExpressionSources} from "../runtime/expression.js";
+import {createHashMap} from "../hashmap.js";
 
 //Legend positions values
 let positionValues = ["left", "right"];
@@ -102,13 +103,14 @@ let getGradientTicks = function (context, props, scale) {
 let ignorePropsSources = ["type", "scale"];
 
 //Create a legend node
-export function createLegendNode (context, name, props) {
+export function createLegendNode (context, index, props) {
+    let name = (typeof props.name === "string") ? props.name : "" + index;
     let node = context.addNode({
         "id": `legend:${name}`,
-        "name": name + "",
+        "name": name,
         "props": props, //Object.assign({}, defaultProps, props),
         "type": "legend",
-        "targets": null, //createNodeList(),
+        "targets": createHashMap(),
         "parent": context.scene.element.append("g"),
         "value": null
     });
@@ -231,7 +233,7 @@ export function updateLegendNode (context, node) {
             labelElement.attr("x", padding + maxGlyphSize + defaultProps.labelOffset);
             labelElement.attr("y", node.value.height + height / 2);
             //Register this legend item
-            legendItems.push({"y": node.value.height, "height": height});
+            legendItems.push({"y": node.value.height, "height": height + defaultProps.labelOffset, "value": value});
             //Update the height
             node.value.height = node.value.height + height + defaultProps.labelOffset;
         });
@@ -310,6 +312,7 @@ export function updateLegendNode (context, node) {
             target.attr("data-type", "legend-mask");
             target.attr("data-legend-name", legendName);
             target.attr("data-legend-index", index);
+            //target.attr("data-legend-value", value);
         });
     }
     //Add the bottom padding
@@ -338,5 +341,20 @@ export function updateLegendPosition (context) {
         //Increment the legends position
         positions[node.value.position] = positions[node.value.position] + node.value.height + defaultLegendConfig.offset;
     });
+}
+
+//Get a legend scale
+export function getLegendScale (context, name) {
+    if (typeof context.legends[name] === "undefined") {
+        return null;
+    }
+    //Return the related scale to this legend
+    let node = context.legends[name]; //Get legend node
+    let legendScale = node.props.scale; //context.value(node.props.scale, null);
+    if (typeof legendScale !== "string" || typeof context.scales[legendScale] === "undefined") {
+        return null; //TODO: throw error --> undefined scale for this legend
+    }
+    //Return the scale
+    return context.scales[legendScale].value;
 }
 
