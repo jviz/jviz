@@ -242,6 +242,11 @@ export function span (values, valueOf) {
     return (values.length > 1) ? values[values.length - 1] - values[0] : 0;
 }
 
+//Check if the provided value is in the provided range
+export function inrange (value, array) {
+    return isArray(array) && array.length > 1 && array[0] <= value && value <= array[array.length - 1];
+}
+
 
 //String utils
 
