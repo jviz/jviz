@@ -130,6 +130,7 @@ export function createLegendNode (context, name, props) {
     //Check if there is a legend with this name
     if (typeof context.legends[node.name] !== "undefined") {
         context.log.warn(`There are more than one legends with the name '${node.name}'`);
+    }
     //Save reference to this node
     context.legends[node.name] = node;
 }
