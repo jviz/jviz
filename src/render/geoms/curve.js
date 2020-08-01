@@ -1,6 +1,5 @@
 import {path} from "../path.js";
 import {getCurve} from "../curves/index.js";
-//import {propTypes} from "../../props.js";
 import {isNumber} from "../../util.js";
 
 //Curve default props
@@ -39,8 +38,8 @@ export const curveGeom = {
         let curve = getCurve(args.curve)(curvePath); //initialize the curve
         //Start drawing the curve
         for (let i = 0; i < data.length; i++) {
-            let x = context.value(args.x1, data[i], null); //Get x value
-            let y = context.value(args.y1, data[i], null); //Get y value
+            let x = context.value(props.x, data[i], null); //Get x value
+            let y = context.value(props.y, data[i], null); //Get y value
             if (!isNumber(x) || !isNumber(y)) {
                 return context.log.warn(`Invalid pair (x,y) provided at position '${i}' of the curve geom`);
             }
