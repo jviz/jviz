@@ -13,7 +13,7 @@ import {initContext, buildContext, updateContext} from "./lifecycle/index.js";
 
 //Initialize logger
 let initializeLogger = function (options) {
-    if (typeof options.logger === "function") {
+    if (typeof options.logger !== "undefined") {
         return options.logger; //Custom logger
     }
     else if (typeof options.logLevel === "number") {
@@ -27,6 +27,12 @@ let initializeLogger = function (options) {
 export function Context (schema, options) {
     //let self = this;
     //this.scene = createScene(); //Create a new scene
+    this.current = {
+        "timers": {},
+        "state": {},
+        "draw": {"width": 0, "height": 0},
+        "panel": null
+    };
     //Assign context 
     Object.assign(this, {
         "nodes": createHashMap(), //Context data nodes
@@ -39,6 +45,9 @@ export function Context (schema, options) {
         "data": {}, //Data nodes by Ids
         "scales": {}, //Scale nodes by ids
         "legends": {}, //Legend nodes by ids
+        "geoms": {}, //Geoms nodes by id
+        "forces": null, //Forces node
+        //"events": [], //Events nodes
         "panels": null, //Panels configuration
         "theme": null, //Theme definition
         "scene": null, //Scene
@@ -117,6 +126,39 @@ Context.prototype = {
     //Clear all pending actions
     "clearActions": function () {
         return this.actions.clear(); //Clear actions list
+    },
+    //Add a new timer to the context
+    "addTimer": function (name, delay, listener) {
+        if (typeof this.current.timers[name] !== "undefined") {
+            return; //This timer has been registered and is live
+        }
+        //Register the timer
+        this.current.timers[name] = setInterval(listener, delay);
+    },
+    //Add a new timer to the context
+    "addTimerOnce": function (name, delay, listener) {
+        let self = this; //Save this
+        if (typeof this.current.timers[name] !== "undefined") {
+            return; //This timeout has been registered
+        }
+        //Register the timeout
+        this.current.timers[name] = setTimeout(function () {
+            delete self.current.timers[name]; //Remove the timer reference
+            return listener(); //Call the listener
+        }, delay);
+    },
+    //Clear timer
+    "clearTimer": function (name) {
+        if (typeof this.current.timers[name] !== "undefined") {
+            clearInterval(this.current.timers[name]); //Stop timeout
+            delete this.current.timers[name]; //Remove timeout
+        }
+    },
+    //Remove timer (only remove the reference)
+    "removeTimer": function (name) {
+        if (typeof this.current.timers[name] !== "undefined") {
+            delete this.current.timers[name];
+        }
     },
     //Error handler
     "error": errorHandler
