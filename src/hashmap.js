@@ -18,6 +18,10 @@ HashMap.prototype = {
     "forEach": function (callback) {
         return this.list.forEach(callback);
     },
+    //Returns a list of filtered items
+    "filter": function (cb) {
+        return this.list.filter(cb);
+    },
     //Add a new item in the list
     "add": function (key, value) {
         //Check if this node is not in the list
