@@ -149,6 +149,9 @@ let defaultValues = {
 
 //Evaluate the provided expression
 export function expression (expr, values) {
+    if (typeof expr !== "string") {
+        return expr; //Return the expression value instead
+    }
     let context = this;
     let currentPanel = isObject(context.current.panel) ? context.current.panel : {};
     let currentState = context.current.state; //Get current state values
