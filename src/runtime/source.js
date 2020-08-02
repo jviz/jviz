@@ -45,6 +45,10 @@ export function source (props) {
         if (isArray(props) === true) {
             return [props];
         }
+        //Check for forces data
+        if (typeof props.force === "string") {
+            return [context.forces.value[props.force]]; //Get from force data
+        }
         //Check for undefined data source
         if (typeof props.data !== "string") {
             //TODO: throw error
