@@ -151,6 +151,17 @@ export function createGeomNode (context, key, props) {
             //Add this geom node as a target node for this data object
             source.targets.add(node.id, node);
         }
+        else if (typeof props.source.force === "string") {
+            if (context.forces === null) {
+                return context.error("No forces has been registered");
+            }
+            if (props.source.force !== "nodes" && props.source.force !== "links") {
+                return context.error(`Geoms can only get data from 'nodes' or 'links' forces, but provided '${props.source.force}'`);
+            }
+            //Get source data
+            context.forces.targets.add(node.id, node);
+            node.source = context.forces; //Set the source as the forces node
+        }
     } 
     //Get values sources
     getGeomGroups(node.props).forEach(function (groupProps) {
