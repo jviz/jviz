@@ -15,7 +15,7 @@ let defaultProps = {
 export const lineGeom = {
     "tag": "path",
     "type": "line",
-    "render": function (context, data, props, element) {
+    "render": function (context, datum, props, element) {
         element.attr("d", ""); //Reset line path
         element.attr("fill", "none"); //Hack to prevent filled polyline 
         let args = {}; //Initialize line arguments
