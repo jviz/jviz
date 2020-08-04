@@ -3,7 +3,9 @@ import {parseSchemaAsync, parseSchemaSync} from "./schema.js";
 import {evaluate} from "./evaluate.js";
 import {select, selectAll} from "./render/selection.js";
 import {mountScene, unmountScene} from "./render/scene.js";
+import {exportSVG, exportBlob} from "./render/export.js";
 import {createContext} from "./context.js";
+import {createLogger, logLevels} from "./logger.js";
 import * as math from "./math.js";
 import * as util from "./util.js";
 
@@ -23,7 +25,9 @@ let getOrSetContextValue = function (self, node, name, value) {
 
 //Default options
 let defaultOptions = {
-    "parent": null
+    "parent": null,
+    "logger": null,
+    "logLevel": logLevels.info
 };
 
 //Main Jviz instance
@@ -77,6 +81,14 @@ jviz.prototype = {
     "removeEventListener": function (name, listener) {
         return this.context.events.removeEventListener(name, listener);
     },
+    //Export to svg string
+    "toString": function () {
+        return exportSVG(this.context);
+    },
+    //Export to blob with the provided type
+    "toBlob": function (type) {
+        return exportBlob(this.context, {"type": type});
+    },
     //Destroy the viewer --> unmount the scene and remove listeners
     "destroy": function () {
         unmountScene(this.context); //Unmount scene
@@ -106,7 +118,9 @@ Object.assign(jvizSync, {
     "select": select,
     "selectAll": selectAll,
     "math": math,
-    "util": util
+    "util": util,
+    "logger": createLogger,
+    "level": logLevels
 });
 
 //Export jviz
