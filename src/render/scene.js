@@ -1,5 +1,6 @@
-import {isObject} from "../util.js";
+import {isObject, entries as objectEntries} from "../util.js";
 import {createNode, selectNodes, removeNode} from "./util/nodes.js";
+import {metadata as svgMetadata} from "./util/svg.js";
 import {select, Selection} from "./selection.js";
 import {setStyle} from "./style.js";
 
@@ -32,6 +33,10 @@ export function createSceneNode (context, index, props) {
         "element": select(createNode("svg", null)),
         "value": (isObject(props)) ? props : {}
     });
+    //Add svg metadata
+    objectEntries(svgMetadata).forEach(function (item) {
+        return node.element.attr(item[0], item[1]);
+    });
     //Initialize scene attributes
     node.element.attr("width", "0px").attr("height", "0px");
     node.element.style("user-select", "none"); //Disable user selection
@@ -51,6 +56,11 @@ export function createSceneNode (context, index, props) {
 export function updateSceneNode (context, node) {
     node.element.attr("width", context.draw.width.value); //Update width
     node.element.attr("height", context.draw.height.value); //Update height
+}
+
+//Export scene as an svg
+export function exportScene (context) {
+    return context.scene.element.nodes[0].outerHTML; //Get full SVG image
 }
 
 
