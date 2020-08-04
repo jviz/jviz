@@ -9,7 +9,7 @@ export function setEvent (context, element, name, parser, listener) {
     //Check for basic event
     if (typeof basicEventTypes[name] !== "undefined") {
         return element.on(basicEventTypes[name], function (event) {
-            let parsedEvent = parser(context, event); //Parse this event
+            let parsedEvent = parser(context, event, event); //Parse this event
             if (parsedEvent === null) {
                 return; //Not valid event --> ignore this event
             }
@@ -21,14 +21,14 @@ export function setEvent (context, element, name, parser, listener) {
     }
     //Check for drag event
     else if (name === "drag") {
-        return element.on("mousedown", function (e) {
-            let parsedEvent = parser(context, e); //Parse the event
+        return element.on("mousedown", function (originalEvent) {
+            let parsedEvent = parser(context, originalEvent, originalEvent); //Parse the event
             if (parsedEvent === null) {
                 return; //Not valid event --> ignore this event
             }
             //Handle drag event
             let handleDragListener = function (e) {
-                let event = parser(context, e);
+                let event = parser(context, e, originalEvent);
                 //Check for null event --> remove listeners
                 if (event === null) {
                     context.scene.element.off("mousemove", handleDragListener);
@@ -49,10 +49,12 @@ export function setEvent (context, element, name, parser, listener) {
             let removeDragListener = function () {
                 context.scene.element.off("mousemove", handleDragListener);
                 context.scene.element.off("mouseup", removeDragListener);
+                context.scene.element.off("mouseleave", removeDragListener);
             };
             //Add event listeners
             context.scene.element.on("mousemove", handleDragListener);
             context.scene.element.on("mouseup", removeDragListener);
+            context.scene.element.on("mouseleave", removeDragListener);
         });
     }
     //Other event --> display error
@@ -129,9 +131,9 @@ let registerPanelEvent = function (context, node, selector, listener) {
 };
 
 //Parse geom event
-let parseGeomEvent = function (context, e) {
+let parseGeomEvent = function (context, e, originalEvent) {
     //console.log(e.target);
-    let target = e.target; //Get target element
+    let target = originalEvent.target; //Get target element
     let panelIndex = parseInt(target.dataset.geomPanel);
     if (isNaN(panelIndex) || typeof panelIndex !== "number" || panelIndex < 1) {
         return null; //Undefined panel --> ignore this event
@@ -141,8 +143,12 @@ let parseGeomEvent = function (context, e) {
     if (event === null) {
         return null; //Ignore this event
     }
+    let name = target.dataset.geomName; //Get geom name
+    let index = parseInt(target.dataset.geomDatum); //Get geom datum index
+    let datum = context.geoms[name].value[0][index];
+    //console.log(datum);
     //Return parsed event
-    return Object.assign(event, {"datum": null});
+    return Object.assign(event, {"datum": datum});
 };
 
 //Register geoms events
@@ -234,10 +240,10 @@ export function createEventNode (context, index, props) {
 
 //Update an event node
 export function updateEventNode (context, node) {
-    console.log(`Update event '${node.id}'`);
+    //console.log(`Update event '${node.id}'`);
     let updateState = (typeof node.props.update !== "undefined") ? toArray(node.props.update) : []; //Get update states
     updateState = updateState.filter(function (update) {
-        return isObject(update) && isString(update.value) && isString(update.state);
+        return isObject(update) && typeof update.value !== "undefined" && isString(update.state);
     });
     //Register events
     return node.selectors.forEach(function (selector) {
@@ -257,8 +263,8 @@ export function updateEventNode (context, node) {
                 let newValue = context.expression(update.value, {"datum": null, "event": event});
                 context.addAction(stateNode, newValue); //Register action
                 //Trigger a render update
-                context.addTimeout("events", 10, function () {
-                    context.removeTimeout("events"); //Remove timeout
+                context.addTimerOnce("events", 10, function () {
+                    //context.removeTimeout("events"); //Remove timeout
                     return context.render(); //Call the render method
                 });
                 //context.render();
