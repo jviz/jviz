@@ -79,6 +79,13 @@ export function keys (obj) {
     return Object.keys(obj);
 }
 
+//Object entries --> return an array with the pair [key,value] of the object
+export function entries (obj) {
+    return Object.keys(obj).map(function (key) {
+        return [key, obj[key]];
+    });
+}
+
 //Get nested values
 export function nest (obj, path) {
     if (path.trim() === "") {
