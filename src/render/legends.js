@@ -5,7 +5,7 @@ import {isDiscreteScale} from "../scales/index.js";
 import {measureText} from "./util/text.js";
 import {rectangle} from "./primitives/rectangle.js";
 import {each, values as objectValues, isArray, isObject, isString} from "../util.js";
-import {gradient as createGradient} from "./util/defs.js";
+import {gradient as createGradient} from "./util/svg.js";
 //import {setStyle} from "./style.js";
 import {getValueSources} from "../runtime/value.js";
 import {getExpressionSources} from "../runtime/expression.js";
