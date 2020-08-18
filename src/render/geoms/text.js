@@ -1,4 +1,4 @@
-import {isNumber} from "../../util.js";
+import {isNumber, isValid} from "../../util.js";
 
 //Text default props
 let defaultProps = {
@@ -31,7 +31,7 @@ export const textGeom = {
             "rotation": context.value(props.rotation, datum, 0)
         };
         //Check for valid x, y and text values
-        if (!isNumber(args.x) || !isNumber(args.y) || typeof args.text !== "string") {
+        if (!isNumber(args.x) || !isNumber(args.y) || !isValid(args.text)) {
             return; //TODO: display warning
         }
         let x = args.x + (isNumber(args.offsetX) ? args.offsetX : 0);
