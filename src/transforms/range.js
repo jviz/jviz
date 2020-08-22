@@ -8,6 +8,8 @@ export const rangeTransform = {
         context.state[props.state].value = range(data, function (datum) {
             return datum[props.field];
         });
+        //Update the current state
+        context.updateCurrentState();
         //Return the data without modification
         return data;
     },
