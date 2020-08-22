@@ -1,5 +1,6 @@
 //import {propTypes} from "../props.js";
 import {applyOperation, isOperation} from "./util/operations.js";
+import {isArray} from "../util.js";
 
 //Default props
 let defaultProps = {
