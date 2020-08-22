@@ -79,7 +79,7 @@ export class Export extends React.Component {
         return (
             <Modal width="500px">
                 <ModalHeader title="Export as..." onClose={this.props.onClose} />
-                <ModalBody>
+                <ModalBody style={{"backgroundColor":"#ffffff"}}>
                     {/* Export type */}
                     <PlaceholderGroup className="siimple--flex siimple--flex-row">
                         <ForEach items={typesList} render={function (key, index) {

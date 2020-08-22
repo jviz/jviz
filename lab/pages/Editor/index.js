@@ -65,11 +65,14 @@ export class EditorPage extends React.Component {
     //Update sandbox with new data
     updateSandbox(newData) {
         let self = this;
-        let sandbox = Object.assign(this.ref.editor.current.getSandbox(), newData);
-        //Save new sandbox data
-        return this.setState({"sandbox": sandbox}, function () {
-            return self.saveSandbox(sandbox, false).then(function () {
-                return window.toast.success({"message": "Sandbox saved"});
+        //let sandbox = null; //Object.assign(this.ref.editor.current.getSandbox(), newData);
+        return this.ref.editor.current.getSandbox().then(function (sandbox) {
+            sandbox = Object.assign(sandbox, newData); //Update sandbox data
+            //Save new sandbox data
+            return this.setState({"sandbox": sandbox}, function () {
+                return self.saveSandbox(sandbox, false).then(function () {
+                    return window.toast.success({"message": "Sandbox saved"});
+                });
             });
         });
     }
@@ -112,9 +115,12 @@ export class EditorPage extends React.Component {
     }
     //Handle editor exit
     handleExit() {
-        let sandbox = this.ref.editor.current.getSandbox();
-        return this.saveSandbox(sandbox, false).then(function () {
-            return redirect("/");
+        let self = this;
+        //let sandbox = this.ref.editor.current.getSandbox();
+        this.ref.editor.current.getSandbox().then(function (sandbox) {
+            return self.saveSandbox(sandbox, false).then(function () {
+                return redirect("/");
+            });
         });
     }
     //Handle delete sandbox
@@ -142,42 +148,47 @@ export class EditorPage extends React.Component {
     //Handle save
     handleSave() {
         let self = this;
-        let sandbox = this.ref.editor.current.getSandbox();
-        //Check for local sandbox ---> save it without asking
-        if (this.state.local === true) {
-            return this.saveSandbox(sandbox, false).then(function (newSandbox) {
-                window.toast.success({"message": "Sandbox saved"});
-                return self.setState({"sandbox": newSandbox});
-            });
-        }
-        //No local sandbox --> ask for saving as a new local sandbox
-        return window.confirm.show({
-            "title": "Clone and save sandbox",
-            "content": "You can not save a remote sandbox. Do you want to create a local clone of this sandbox?",
-            "onConfirm": function () {
-                let newSandbox = Object.assign(createSandbox(sandbox), {
-                    "readonly": false, //Disable readonly
-                    "created_at": Date.now() //Update the sandbox creation date
+        //let sandbox = this.ref.editor.current.getSandbox();
+        this.ref.editor.current.getSandbox().then(function (sandbox) {
+            //Check for local sandbox ---> save it without asking
+            if (self.state.local === true) {
+                return self.saveSandbox(sandbox, false).then(function (newSandbox) {
+                    window.toast.success({"message": "Sandbox saved"});
+                    return self.setState({"sandbox": newSandbox});
                 });
-                return self.saveSandbox(sandbox, true).then(function () {
-                    window.toast.success({"message": "Sandbox cloned"}); //Show confirmation toast
-                    let newState = {
-                        "sandbox": newSandbox,
-                        "local": true
-                    };
-                    return self.setState(newState, function () {
-                        return redirectToSandbox("sandbox", newSandbox.id);
+            }
+            //No local sandbox --> ask for saving as a new local sandbox
+            return window.confirm.show({
+                "title": "Clone and save sandbox",
+                "content": "You can not save a remote sandbox. Do you want to create a local clone of this sandbox?",
+                "onConfirm": function () {
+                    let newSandbox = Object.assign(createSandbox(sandbox), {
+                        "readonly": false, //Disable readonly
+                        "created_at": Date.now() //Update the sandbox creation date
                     });
-                });
-            },
-            "confirmText": "Yes, create a clone"
+                    return self.saveSandbox(sandbox, true).then(function () {
+                        window.toast.success({"message": "Sandbox cloned"}); //Show confirmation toast
+                        let newState = {
+                            "sandbox": newSandbox,
+                            "local": true
+                        };
+                        return self.setState(newState, function () {
+                            return redirectToSandbox("sandbox", newSandbox.id);
+                        });
+                    });
+                },
+                "confirmText": "Yes, create a clone"
+            });
         });
     }
     //Handle export
     handleExport() {
-        return this.setState({
-            "sandbox": this.ref.editor.current.getSandbox(),
-            "exportVisible": true
+        let self = this;
+        return this.ref.editor.current.getSandbox().then(function (sandbox) {
+            return self.setState({
+                "sandbox": sandbox,
+                "exportVisible": true
+            });
         });
     }
     //Handle export close

@@ -61,7 +61,7 @@ export function loadLocalSandboxes () {
         //});
     }).then(function () {
         return request.result.map(function (item) {
-            return {"id": item.id, "name": item.name, "remote": false};
+            return {"id": item.id, "name": item.name, "remote": false, "thumbnail": item.thumbnail};
         });
     });
 }

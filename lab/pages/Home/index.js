@@ -98,7 +98,7 @@ export class HomePage extends React.Component {
             <Content size="xlarge">
                 <Row className="siimple--mb-0">
                     {/* Left column --> presentation and links */}
-                    <Column align="center">
+                    <Column size="5" align="center">
                         <div className={style.title}>
                             <strong>jviz</strong>lab
                         </div>
@@ -110,7 +110,7 @@ export class HomePage extends React.Component {
                         </div>
                     </Column>
                     {/* Right column --> content */}
-                    <Column>
+                    <Column size="7">
                         {/* Display tabs */}
                         <Tabs className="siimple--mb-3">
                             <ForEach items={Object.keys(tabsList)} render={function (key, index) {

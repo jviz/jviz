@@ -13,7 +13,8 @@ let buildStateFromProps = function (props) {
     let newState = {
         "tab": "readme",
         //"sandbox": createSandbox({"name": "Untitled"}),
-        "running": false
+        "running": false,
+        "rendered": false //To store if sandbox has been rendered
     };
     //Check for initial sandbox data
     //if (typeof props.sandbox === "object" && props.sandbox !== null) {
@@ -59,10 +60,12 @@ export class SandboxEditor extends React.Component {
             return null; //Nothing to do
         }
         //Update the state with the current sandbox data and the new tab
-        let sandbox = this.getSandbox();
-        return this.props.onSandboxUpdate(sandbox, function () {
-            return self.setState({"tab": key}, function () {
-                return self.updateTabContent();
+        //let sandbox = this.getSandbox();
+        return this.getSandbox().then(function (sandbox) {
+            return self.props.onSandboxUpdate(sandbox, function () {
+                return self.setState({"tab": key}, function () {
+                    return self.updateTabContent();
+                });
             });
         });
     }
@@ -85,24 +88,29 @@ export class SandboxEditor extends React.Component {
     //Run sandbox
     runSandbox(cb) {
         let self = this;
-        let sandbox = this.getSandbox(); //Get current sandbox state
+        let rendered = false;
+        //let sandbox = this.getSandbox(); //Get current sandbox state
         //Update the state before running the sandbox
         return this.setState({"running": true}, function () {
-            return self.ref.explore.current.run(sandbox).then(function() {
-                //Plot rendererd
+            return self.getSandbox().then(function (sandbox) {
+                return self.ref.explore.current.run(sandbox);
+            }).then(function() {
+                rendered = true; //Plot rendered
             }).catch(function (error) {
                 //Something went wrong rendering the plot
                 //console.error(error);
             }).finally(function () {
                 //In both cases, running process has been finished
                 return self.setState({
-                    "running": false
+                    "running": false,
+                    "rendered": rendered
                 });
             });
         });
     }
     //Get the current state of the sandbox
     getSandbox() {
+        let self = this;
         let sandbox = Object.assign({}, this.props.sandbox); //Get current sandbox
         //Check for schema tab --> save content into the schema field
         if (this.state.tab === "schema") {
@@ -116,8 +124,21 @@ export class SandboxEditor extends React.Component {
                 "readme": this.ref.readme.current.getCode()
             });
         }
-        //Return the snapshot of the sandbox
-        return sandbox;
+        //Check if sandbox is not rendered --> do not update the thumbnail
+        if (this.state.rendered === false) {
+            return Promise.resolve(sandbox); //Return a promise with the sandbox
+        }
+        //Generate the thumbnail
+        let viewer =  this.ref.explore.current.viewer;
+        let width = viewer.context.draw.width.value; //Get plot width
+        let thumbnailWidth = 200; //Expected thumbnail width
+        let scale = (width < thumbnailWidth) ? 1 : thumbnailWidth / width; //Get scale factor
+        return viewer.toImageUrl("png", scale).then(function (data) {
+            //console.log(data); //Thumbnail in image-url format
+            return Object.assign(sandbox, {
+                "thumbnail": data
+            });
+        });
     }
     //Render the editor page
     render() {
