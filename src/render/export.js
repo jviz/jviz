@@ -1,11 +1,28 @@
 import {createNode} from "./util/nodes.js";
 import {exportScene} from "./scene.js";
+import {isNumber} from "../util.js";
 
 //Export types
 let imageTypes = {
     "svg": "image/svg+xml",
     "png": "image/png",
     "jpeg": "image/jpeg"
+};
+
+//Blob to dataurl converter
+let blobToDataUrl = function (blob) {
+    return new Promise(function (resolve, reject) {
+        let filereader = new FileReader();
+        filereader.addEventListener("load", function (event) {
+            return resolve(event.target.result);
+        });
+        return filereader.readAsDataURL(blob);
+    });
+};
+
+//Parse size
+let parseSize = function (size, factor) {
+    return parseInt(size.replace("px", "")) * factor;
 };
 
 //Export the current scene as a SVG image
@@ -38,11 +55,14 @@ export function exportBlob (context, options) {
         };
         //Register the image on load event
         image.addEventListener("load", function () {
+            let factor = isNumber(options.scaleFactor) ? options.scaleFactor : 1;
+            let width = parseSize(context.scene.element.attr("width"), factor); //Get parsed width
+            let height = parseSize(context.scene.element.attr("height"), factor); //Get parsed height
             //Initialize canvas size
-            canvas.width = context.scene.element.attr("width");
-            canvas.height = context.scene.element.attr("height");
+            canvas.width = width + "";
+            canvas.height = height + "";
             let ctx = canvas.getContext("2d"); //Get canvas context
-            ctx.drawImage(image, 0, 0); //Render the image in the canvas
+            ctx.drawImage(image, 0, 0, width, height); //Render the image in the canvas
             //Conver the canvas to blob image
             return canvas.toBlob(saveBlob, imageTypes[options.type]);
         });
@@ -52,7 +72,9 @@ export function exportBlob (context, options) {
 }
 
 //Export as image URL
-export function exportImageURL (context, options) {
-    return null;
+export function exportImageUrl (context, options) {
+    return exportBlob(context, options).then(function (blob) {
+        return blobToDataUrl(blob);
+    });
 }
 
