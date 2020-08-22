@@ -3,7 +3,7 @@ import {parseSchemaAsync, parseSchemaSync} from "./schema.js";
 import {evaluate} from "./evaluate.js";
 import {select, selectAll} from "./render/selection.js";
 import {mountScene, unmountScene} from "./render/scene.js";
-import {exportSVG, exportBlob} from "./render/export.js";
+import {exportSVG, exportBlob, exportImageUrl} from "./render/export.js";
 import {createContext} from "./context.js";
 import {createLogger, logLevels} from "./logger.js";
 import * as math from "./math.js";
@@ -86,8 +86,12 @@ jviz.prototype = {
         return exportSVG(this.context);
     },
     //Export to blob with the provided type
-    "toBlob": function (type) {
-        return exportBlob(this.context, {"type": type});
+    "toBlob": function (type, factor) {
+        return exportBlob(this.context, {"type": type, "scaleFactor": factor});
+    },
+    //Export to image URL
+    "toImageUrl": function (type, factor) {
+        return exportImageUrl(this.context, {"type": type, "scaleFactor": factor});
     },
     //Destroy the viewer --> unmount the scene and remove listeners
     "destroy": function () {
