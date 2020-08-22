@@ -160,6 +160,13 @@ Context.prototype = {
             delete this.current.timers[name];
         }
     },
+    //Update current state
+    "updateCurrentState": function () {
+        let context = this;
+        Object.keys(context.state).forEach(function (key) {
+            context.current.state[key] = context.state[key].value;
+        });
+    },
     //Error handler
     "error": errorHandler
 };
