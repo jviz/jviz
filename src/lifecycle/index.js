@@ -13,6 +13,7 @@ import {createLegendNode, updateLegendNode, updateLegendPosition} from "../rende
 import {createSceneNode, updateSceneNode} from "../render/scene.js";
 import {createTitleNode, updateTitleNode} from "../render/title.js";
 import {createEventNode, updateEventNode} from "../render/events.js";
+import {createForceNode, updateForceNode} from "../forces/index.js";
 
 import {parseSizeValue} from "./parsers.js";
 import {parseBackgroundValue} from "./parsers.js";
@@ -27,7 +28,8 @@ let nodeUpdate = {
     "legend": updateLegendNode,
     "scene": updateSceneNode,
     "title": updateTitleNode,
-    "event": updateEventNode
+    "event": updateEventNode,
+    "force": updateForceNode
 };
 
 //Update the context
@@ -80,9 +82,10 @@ export function updateContext (context, forceUpdate) {
             context.target.attr("transform", `translate(${outerMargin.left},${outerMargin.top})`);
         }
         //Update the current state 
-        Object.keys(context.state).forEach(function (stateName) {
-            context.current.state[stateName] = context.state[stateName].value;
-        });
+        context.updateCurrentState();
+        //Object.keys(context.state).forEach(function (stateName) {
+        //    context.current.state[stateName] = context.state[stateName].value;
+        //});
         //Check for no nodes to update
         if (updateList.length() === 0 && forceUpdate === false) {
             //TODO: display in logs
@@ -238,6 +241,10 @@ export function initContext (context, schema) {
     });
     //Create panels node
     createPanelsNode(context, schema["panels"]);
+    //Create force node
+    if (typeof schema["forces"] !== "undefined" && schema["forces"] !== null) {
+        createForceNode(context, schema["forces"]);
+    }
     //Build scale props
     each(schema["scales"], function (index, props) {
         let name = (typeof props["name"] === "string") ? props["name"] : index;
