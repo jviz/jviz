@@ -1,4 +1,4 @@
-import {isArray, isObject} from "./util.js";
+import {isArray, isObject, nest as objectNest} from "./util.js";
 import {getTransformSources} from "./runtime/transform.js";
 import {createHashMap} from "./hashmap.js";
 import {load} from "./load.js";
@@ -8,7 +8,15 @@ import {csvParse} from "./dsv.js";
 let dataParser = {
     "json": function (data, options) {
         //TODO: check for array of values --> convert to array of objects
-        return JSON.parse(data); //Parse as json
+        data = JSON.parse(data); //Parse as json
+        if (typeof options === "object" && options !== null) {
+            //Check for field option --> get only the data in the provided field
+            if (typeof options.field === "string" && options.field.length > 0) {
+                data = objectNest(data, options.field);
+            }
+        }
+        //Return the parsed data
+        return data;
     },
     "csv": function (data, options) {
         return csvParse(data, options);
