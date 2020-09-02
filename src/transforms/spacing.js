@@ -1,23 +1,39 @@
-import {propTypes} from "../props.js";
+import {isString, isArray, isNumber, range} from "../util.js";
+import {clamp} from "../math.js";
 
-//Available methods
+//Default props
 let defaultMethods = ["equal", "optimized"];
-let parseMethod = function (value) {
-    if (typeof value !== "string" || defaultMethods.indexOf(value.toLowerCase()) === -1) {
-        return defaultMethods[0]; //Return first method
+let defaultProps = {
+    "method": "equal", //equal|optimized
+    "field": "",
+    "domain": null, //Domain for the data
+    "separation": 0, //Spacing distance
+    //"join": true, //Join new positions to the original data
+    "as": "x" //Field to store the new position
+};
+
+//Parse domain data
+let parseDomain = function (context, domain) {
+    if (isArray(domain) === true && domain.length === 2) {
+        let d = domain.map(function (value) {
+            return context.value(value, null, null);
+        });
+        //Validate the values of the new domain
+        return (isNumber(d[0]) && isNumber(d[1])) ? d : null;
     }
-    //Return parsed method
-    return value.toLowerCase();
+    //Other value --> domain not valid
+    return null;
 };
 
 //Parse repulsion distance
-let parseRepulsion = function (value) {
+let parseRepulsion = function (context, separation) {
+    let value = context.value(separation, null, defaultProps.separation);
     if (typeof value === "undefined" || value === null) {
-        return 0; //Return default value
+        return defaultProps.separation; //Return default value
     }
     //Convert to number
     value = Number(value);
-    return (isNaN(value) === true) ? 0 : value;
+    return (isNaN(value) === true) ? defaultProps.separation : value;
 };
 
 //Export spacing transform properties
@@ -27,23 +43,39 @@ export const spacingTransform = {
         if (data.length === 0) {
             return data; //Nothing to do
         }
-        //Get the scale to apply
-        let scale = context.scales[props.scale].value;
+        let field = isString(props.field) ? props.field.trim() : null; 
+        let as = isString(props.as) ? props.as : defaultProps.as;
+        let domain = parseDomain(context, props.domain, data);
+        let method = context.value(props.method, null, defaultProps.method);
+        let repulsion = parseRepulsion(context, props.separation); //context.value(props.distance, null, 0);
+        if (field === null) {
+            //Missing field value --> throw error
+            return context.error("Field option is mandatory for spacing transform");
+        }
+        //Check for no valid method provided
+        if (defaultMethods.indexOf(method.toLowerCase()) === -1) {
+            return context.error(`Unknown provided method '${method}' for the spacing transform`); 
+        }
+        //Check for no valid domain provided --> get from data
+        if (domain === null) {
+            domain = range(data, function (datum) {
+                return datum[field];
+            });
+        }
         //Initialize the items to space
         let items = data.map(function (item, index) {
-            let value = scale(item[props.field]);
+            //let value = scale(item[props.field]);
+            let value = clamp((value - domain[0]) / (domain[1]-domain[0]), 0, 1);
             return {
                 "origin": value,
                 "position": value
             };
         });
         //Get the other values
-        let method = parseMethod(props.method); //context.value(props.method, null, "equal");
-        let repulsion = parseRepulsion(props.distance); //context.value(props.distance, null, 0);
-        let minPosition = Math.min(scale.range[0], scale.range[1]);
-        let maxPosition = Math.max(scale.range[0], scale.range[1]);
+        let minPosition = 0; //Math.min(scale.range[0], scale.range[1]);
+        let maxPosition = 1; //Math.max(scale.range[0], scale.range[1]);
         //Optimized spaciong algorithm
-        if (method === "optimized") {
+        if (method.toLowerCase() === "optimized") {
             for (let i = 0; i < items.length; i++) {
                 //Check for not the first item
                 if (i > 0) {
@@ -111,24 +143,17 @@ export const spacingTransform = {
             let spacing = (maxPosition - minPosition) / (items.length + 1);
             //Set the end item position
             items.forEach(function (item, index) {
-                item.osition = minPosition + spacing * (index + 1);
+                item.position = minPosition + spacing * (index + 1);
             });
         }
         //Add the values to each datum
         return data.map(function (datum, index) {
             return Object.assign(datum, {
-                [props.as]: items[index].position
+                [as]: items[index].position
             });
         });
     },
-    "props": {
-        "method": propTypes.string("equal"), //equal|optimized
-        //"space": propTypes.string(), //Space reserved for the spacing
-        "field": propTypes.string(),
-        "scale": propTypes.string(), //Scale to apply
-        "distance": propTypes.number(0), //Spacing distance
-        //"join": propTypes.boolean(false), //Join new positions to the original data
-        "as": propTypes.string("x") //Field to store the new position
-    }
+    "props": defaultProps,
+    "sourceProps": ["domain", "method", "separation"]
 };
 
