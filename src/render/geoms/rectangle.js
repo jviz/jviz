@@ -40,7 +40,7 @@ export const rectangleGeom = {
             args.width = context.value(props.width, datum, null);
         }
         //Check if user has provided xCenter and width values
-        else if (typeof options.xCenter === "number" && typeof options.width === "number") {
+        else if (typeof props.xCenter !== "undefined" && typeof props.width !== "undefined") {
             args.width = context.value(props.width, datum, null);
             let x = context.value(props.xCenter, datum, null);
             args.x = (x !== null) ? x - args.width / 2 : null;
@@ -61,7 +61,7 @@ export const rectangleGeom = {
             args.height = context.value(props.height, datum, null);
         }
         //Check if user has provided yCenter and height values
-        else if (typeof options.yCenter === "number" && typeof options.height === "number") {
+        else if (typeof props.yCenter !== "undefined" && typeof props.height !== "undefined") {
             args.height = context.value(props.height, datum, null);
             let y = context.value(props.yCenter, datum, null);
             args.y = (y !== null) ? y - args.height / 2 : null;
