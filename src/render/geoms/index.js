@@ -20,12 +20,12 @@ import {curveGeom} from "./curve.js";
 import {areaGeom} from "./area.js";
 import {pathGeom} from "./path.js";
 import {glyphGeom} from "./glyph.js";
-//import {polylineGeom} from "./polyline.js";
+import {polylineGeom} from "./polyline.js";
 //import {polygonGeom} from "./polygon.js";
 
 //Geoms types
 const geomsTypes = {
-    //"polyline": polylineGeom,
+    "polyline": polylineGeom,
     //"polygon": polygonGeom,
     "text": textGeom,
     "line": lineGeom,

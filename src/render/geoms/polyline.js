@@ -1,55 +1,36 @@
-import {propTypes, parseProps} from "../props.js";
-import {polyline} from "../render/primitives/polyline.js";
+import {isNumber, isArray} from "../../util.js";
+import {polyline} from "../primitives/polyline.js";
 
 //Segment line default props
 let defaultProps = {
-    "x1": propTypes.number(),
-    "y1": propTypes.number(),
-    "x2": propTypes.number(),
-    "y2": propTypes.number(),
-    "x3": propTypes.number(),
-    "y3": propTypes.number(),
-    "x4": propTypes.number(),
-    "y4": propTypes.number(),
-    "x5": propTypes.number(),
-    "y5": propTypes.number(),
-    "x6": propTypes.number(),
-    "y6": propTypes.number(),
-    "x7": propTypes.number(),
-    "y7": propTypes.number(),
-    "x8": propTypes.number(),
-    "y8": propTypes.number(),
-    "x9": propTypes.number(),
-    "y9": propTypes.number(),
-    "x10": propTypes.number(),
-    "y10": propTypes.number(),
-    "x11": propTypes.number(),
-    "y11": propTypes.number(),
-    "x12": propTypes.number(),
-    "y12": propTypes.number(),
-    "closed": propTypes.boolean(false)
+    "points": [],
+    "closed": false
 };
 
-//Export polyline shape
-export const polylineShape = {
+//Export polyline geom
+export const polylineGeom = {
     "tag": "path",
     "type": "polyline",
-    "render": function (context, data, props, element) {
-        //element.attr("fill", "none"); //Hack to prevent filled polyline 
-        let options = parseProps(context, data, props, defaultProps); 
-        let points = [];
-        for (let i = 1; i <= 12; i++) {
-            //Check if this point is not defined
-            if (typeof options[`x${i}`] !== "number" || typeof options[`y${i}`] !== "number") {
-                break;
-            }
-            //Add this point
-            points.push([options[`x${i}`], options[`y${i}`]]);
+    "render": function (context, datum, props, element) {
+        element.attr("fill", "none"); //Hack to prevent filled polyline 
+        if (!isArray(props.points) || props.points.length === 0) {
+            return element.attr("d", ""); //Nothing to draw
         }
+        //Build points
+        let points = [];
+        props.points.forEach(function (point) {
+            if (!isArray(point) || point.length !== 2) {
+                return null; //Not valid point
+            }
+            //Save this point parsed
+            return points.push(point.map(function (value) {
+                return context.value(value, datum, 0)
+            }));
+        });
         //Draw the polyline
         return element.attr("d", polyline({
             "points": points,
-            "closed": options.closed
+            "closed": context.value(props.closed, datum, defaultProps.closed) 
         }));
     },
     "props": defaultProps
