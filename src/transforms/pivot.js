@@ -31,7 +31,7 @@ export const pivotTransform = {
         partition.groups.forEach(function (group) {
             //First generate the pivot Items by the field value
             let pivotItems = {};
-            return group.forEach(function (datum, index) {
+            group.forEach(function (datum, index) {
                 let pivotValue = datum[field]; //Get pivot value
                 if (typeof pivotItems[pivotValue] === "undefined") {
                     pivotItems[pivotValue] = [];
@@ -40,7 +40,7 @@ export const pivotTransform = {
                 pivotItems[pivotValue].values.push(datum[value]);
             });
             //Append all pivot items to the new datum object
-            return Object.keys(pivotItems).forEaach(function (name) {
+            return Object.keys(pivotItems).forEach(function (name) {
                 let items = pivotItems[name]; //Get pivot items list
                 let newDatum = {}; //New datum object
                 //Append partition grouoby items to the new datum object
