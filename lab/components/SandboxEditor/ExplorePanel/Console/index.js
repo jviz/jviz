@@ -1,8 +1,6 @@
 import React from "react";
-
-import {ForEach} from "@siimple/neutrine";
-import {Panel, PanelHeader, PanelBody} from "@siimple/lib/widgets/mocha-panel/index.js";
-import {PanelTab} from "@siimple/lib/widgets/mocha-panel/index.js";
+import {ForEach} from "neutrine/lib/components";
+import {Panel, PanelHeader, PanelBody, PanelTab} from "neutrine/lib/components";
 
 import style from "../style.scss";
 

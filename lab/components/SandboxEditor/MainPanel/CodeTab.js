@@ -1,15 +1,13 @@
 import React from "react";
 
-import {Editor as CodeEditor} from "@siimple/lib/widgets/editor/index.js";
+import {EditorComponent} from "neutrine/lib/editor";
 
 //Export code tab component
 export const CodeTab = React.forwardRef(function (props, ref) {
-    return React.createElement(CodeEditor, {
+    return React.createElement(EditorComponent, {
         "ref": ref,
-        "options": {
-            "language": props.language,
-            "theme": props.theme
-        },
+        "language": props.language,
+        "theme": props.theme,
         "value": ""
     });
 });

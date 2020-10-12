@@ -1,7 +1,7 @@
 import React from "react";
 import kofi from "kofi";
 
-import {If, Renderer} from "@siimple/neutrine";
+import {If, Renderer} from "neutrine/lib/components";
 
 import {Preview} from "./Preview/index.js";
 import {Console} from "./Console/index.js";

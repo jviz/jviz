@@ -1,7 +1,7 @@
 import React from "react";
 
-//import {ForEach} from "@siimple/neutrine";
-import {classNames} from "@siimple/neutrine";
+//import {ForEach} from "neutrine/lib/components";
+import {classNames} from "neutrine/lib/utils";
 
 //Logs colors
 let colors = {

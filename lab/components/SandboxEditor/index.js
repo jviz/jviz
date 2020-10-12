@@ -1,7 +1,7 @@
 import React from "react";
 
-import {ForEach, Renderer, If} from "@siimple/neutrine";
-import {SplitPanel, SplitPanelItem} from "@siimple/neutrine";
+import {ForEach, Renderer, If} from "neutrine/lib/components";
+import {SplitPanel, SplitPanelItem} from "neutrine/lib/components";
 
 import {ExplorePanel} from "./ExplorePanel/index.js";
 import {MainPanel} from "./MainPanel/index.js";
@@ -11,7 +11,7 @@ import {CodeTab} from "./MainPanel/CodeTab.js";
 //Build state from props
 let buildStateFromProps = function (props) {
     let newState = {
-        "tab": "readme",
+        "tab": "schema", //"readme",
         //"sandbox": createSandbox({"name": "Untitled"}),
         "running": false,
         "rendered": false //To store if sandbox has been rendered
@@ -78,11 +78,11 @@ export class SandboxEditor extends React.Component {
         let sandbox = this.props.sandbox; //Get sandbox
         //Check for schema tab --> set schema value
         if (this.state.tab === "schema") {
-            this.ref.schema.current.setCode(sandbox.schema);
+            this.ref.schema.current.setValue(sandbox.schema);
         }
         //Check for readme tab --> set readme value
         else if (this.state.tab === "readme" && typeof sandbox.readme === "string") {
-            this.ref.readme.current.setCode(sandbox.readme);
+            this.ref.readme.current.setValue(sandbox.readme);
         }
     }
     //Run sandbox
@@ -115,13 +115,13 @@ export class SandboxEditor extends React.Component {
         //Check for schema tab --> save content into the schema field
         if (this.state.tab === "schema") {
             Object.assign(sandbox, {
-                "schema": this.ref.schema.current.getCode()
+                "schema": this.ref.schema.current.getValue()
             });
         }
         //Check for readme tab --> save content into the readme field
         else if (this.state.tab === "readme") {
             Object.assign(sandbox, {
-                "readme": this.ref.readme.current.getCode()
+                "readme": this.ref.readme.current.getValue()
             });
         }
         //Check if sandbox is not rendered --> do not update the thumbnail

@@ -1,11 +1,11 @@
 import React from "react";
 import kofi from "kofi";
 
-import {ForEach, Renderer} from "@siimple/neutrine";
-import {Row, Column} from "@siimple/neutrine";
-import {Label} from "@siimple/neutrine";
-import {Range} from "@siimple/neutrine";
-import {Select} from "@siimple/neutrine";
+import {ForEach, Renderer} from "neutrine/lib/components";
+import {Row, Column} from "neutrine/lib/components";
+import {Label} from "neutrine/lib/components";
+import {Range} from "neutrine/lib/components";
+import {Select} from "neutrine/lib/components";
 
 //Build initial state from props
 let buildInitialStateFromProps = function (props) {
