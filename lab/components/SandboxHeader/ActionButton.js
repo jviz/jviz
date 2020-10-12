@@ -1,5 +1,5 @@
 import React from "react";
-import {Icon} from "@siimple/neutrine";
+import {Icon} from "neutrine/lib/components";
 
 import style from "./style.scss";
 

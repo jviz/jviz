@@ -1,5 +1,6 @@
-@use "@siimple/lib" as siimple;
+@use "siimple-lib" as siimple;
 
+//Header variables
 $header-height: 40px;
 
 //Editor header styles
@@ -8,46 +9,59 @@ $header-height: 40px;
     height: $header-height;
     //line-height: 40px;
 }
-.title,
-.sandboxName {
+.logo,
+.title {
     display: block;
     height: $header-height;
     line-height: $header-height;
-    font-size: 18px;
+    //font-size: 18px;
+}
+.logo {
+    cursor: pointer;
+    font-size: 20px;
+    opacity: 0.7;
+    &:hover {
+        transition: all 0.3s;
+        //color: siimple.color-darker("secondary");
+        opacity: 1.0;
+    }
 }
 .title {
-    cursor: pointer;
-}
-.sandboxName {
     //max-width: 200px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-size: 18px;
 }
-.actionButton,
-.menuButton {
+.button {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 30px; //$header-height;
     height: $header-height;
+    padding-left: 3px;
+    padding-right: 3px;
     cursor: pointer;
+    border-radius: siimple.$border-radius;
     opacity: 0.5;
     color: siimple.color("dark");
+    //Button hover
     &:hover {
         opacity: 1.0;
-        transition: opacity 0.3s;
+        transition: all 0.3s;
+        color: siimple.color-darker("secondary");
+        background-color: rgba(siimple.color("secondary"), 0.2);
+    }
+    //Not last button
+    &:not(:last-child) {
+        margin-right: 5px;
     }
 }
-.actionButton:not(:last-child) {
+.divider {
+    width: 3px;
+    height: $header-height;
+    background-color: siimple.light("2");
+    //margin-left: 5px;
     margin-right: 5px;
-}
-.menuButton {
-    margin-right: 10px;
-    //Active menu button
-    &Active {
-        opacity: 1.0 !important;
-        color: siimple.color("primary") !important;
-    }
 }
 

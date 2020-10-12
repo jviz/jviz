@@ -1,34 +1,43 @@
 import React from "react";
-import {Renderer} from "@siimple/neutrine";
-import {Media, MediaContent, MediaStart, MediaEnd} from "@siimple/neutrine";
+import {Renderer} from "neutrine/lib/components";
+import {Icon} from "neutrine/lib/components";
+import {Media, MediaContent, MediaStart, MediaEnd} from "neutrine/lib/components";
 
-import {ActionButton} from "./ActionButton.js";
-import {MenuButton} from "./MenuButton.js";
 import style from "./style.scss";
+
+//Button component wrapper
+let Button = function (props) {
+    return (
+        <div onClick={props.onClick} className={style.button}>
+            <Icon size="26px" icon={props.icon} />
+        </div>
+    );
+};
 
 //Export sandbox header editor component
 export const SandboxHeader = function (props) {
     let sandboxName = (typeof props.sandbox.name === "string") ? props.sandbox.name : "Untitled";
     return (
         <Media className={style.root}>
-            {/* Editor menu button */}
+                {/* Left side --> editor logo */}
             <MediaStart className="siimple--flex siimple--flex-row">
-                <MenuButton onClick={props.onMenuClick} active={props.menuActive} />
-                <div className={style.title} onClick={props.onHomeClick}>
+                <div className={style.logo} onClick={props.onLogoClick}>
                     <strong>jviz</strong>lab
                 </div>
             </MediaStart>
-            {/* Center side --> display sandbox nameand status */}
+            {/* Center side --> display sandbox name and status */}
             <MediaContent align="center">
-                <div className={style.sandboxName}>
+                <div className={style.title}>
                     <strong>{sandboxName}</strong>
                 </div>
             </MediaContent>
             {/* Right side --> sandbox actions */}
             <MediaEnd className="siimple--flex siimple--flex-row">
-                <ActionButton icon="save" onClick={props.onSaveClick} />
-                <ActionButton icon="download" onClick={props.onExportClick} />
-                <ActionButton icon="gear" onClick={props.onSettingsClick} />
+                <Button icon="save" onClick={props.onSaveClick} />
+                <Button icon="download" onClick={props.onExportClick} />
+                <Button icon="gear" onClick={props.onConfigClick} />
+                <div className={style.divider} />
+                <Button icon="trash" onClick={props.onDeleteClick} />
             </MediaEnd>
         </Media>
     );
@@ -37,11 +46,10 @@ export const SandboxHeader = function (props) {
 //Editor header default props
 SandboxHeader.defaultProps = {
     "sandbox": {},
-    "menuActive": false,
-    "onHomeClick": null,
-    "onMenuClick": null,
+    "onLogoClick": null,
     "onSaveClick": null,
     "onExportClick": null,
-    "onSettingsClick": null
+    "onConfigClick": null,
+    "onDeleteClick": null
 };
 

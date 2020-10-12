@@ -1,6 +1,6 @@
 import React from "react";
-import {Icon} from "@siimple/neutrine";
-import {classNames} from "@siimple/neutrine";
+import {Icon} from "neutrine/lib/components";
+import {classNames} from "neutrine/lib/utils";
 
 import style from "./style.scss";
 
