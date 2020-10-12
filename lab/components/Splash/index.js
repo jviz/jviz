@@ -1,34 +1,21 @@
 import React from "react";
-import {If} from "@siimple/neutrine";
-import {Icon} from "@siimple/neutrine";
+import {If} from "neutrine/lib/components";
+import {Spinner} from "neutrine/lib/components";
 
 import style from "./style.scss";
 
 //Splash screen component
 export function Splash (props) {
     return (
-        <div className={style.splash}>
-            <div className={style.splashContent} align="center">
-                {/* Show icon */}
-                <If condition={typeof props.icon === "string"} render={function () {
-                    return (
-                        <div align="center">
-                            <Icon icon={props.icon} className={style.splashIcon} />
-                        </div>
-                    );
-                }} />
-                {/* Show custom content */}
-                <div align="center">
-                    {props.children}
+        <div className={style.root}>
+            <div className={style.content} align="center">
+                <div className={style.title} align="center">
+                    <strong>jviz</strong>lab
                 </div>
+                {/* Show spinner and text */}
+                <Spinner color="dark" />
             </div>
         </div>
     );
 }
-
-//Splash default props
-Splash.defaultProps = {
-    "icon": null
-};
-
 

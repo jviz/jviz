@@ -1,7 +1,7 @@
-@use "@siimple/lib" as siimple;
+@use "siimple-lib" as siimple;
 
 //Splash content
-.splash {
+.root {
     display: flex;
     width: calc(100% - 20px);
     height: calc(100% - 20px);
@@ -9,17 +9,18 @@
     //background-color: siimple.color("light");
     justify-content: center;
     align-items: center;
-    //Splash content
-    &Content {
-        max-width: 300px;
-        //padding: 10px;
-        opacity: 0.5;
-    }
-    //Icon 
-    &Icon {
-        font-size: 100px;
-        color: siimple.color("dark");
-    }
+}
+//Splash content
+.content {
+    max-width: 300px;
+    //padding: 10px;
+    opacity: 0.5;
+}
+//Splash title
+.title {
+    font-size: 60px;
+    color: siimple.color("dark");
+    margin-bottom: 15px;
 }
 
 
