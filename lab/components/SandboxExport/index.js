@@ -1,12 +1,11 @@
 import React from "react";
-
-import {ForEach, If} from "@siimple/neutrine";
-import {Btn} from "@siimple/neutrine";
-import {Icon} from "@siimple/neutrine";
-import {Modal, ModalHeader, ModalBody} from "@siimple/neutrine";
-import {Placeholder, PlaceholderGroup} from "@siimple/neutrine";
-import {Field, FieldLabel, FieldHelper} from "@siimple/neutrine";
-import {Input} from "@siimple/neutrine";
+import {ForEach, If} from "neutrine/lib/components";
+import {Btn} from "neutrine/lib/components";
+import {Icon} from "neutrine/lib/components";
+import {ModalWrapper, ModalBody, ModalFooter} from "neutrine/lib/components";
+import {Placeholder, PlaceholderGroup} from "neutrine/lib/components";
+import {Field, FieldLabel, FieldHelper} from "neutrine/lib/components";
+import {Input} from "neutrine/lib/components";
 
 import {exportSandbox} from "../../utils/sandbox.js";
 
@@ -33,7 +32,7 @@ let downloadFile = function (exportObj, exportName){
 };
 
 //Export modal component
-export class Export extends React.Component {
+export class SandboxExport extends React.Component {
     constructor(props) {
         super(props);
         //Initial state
@@ -77,9 +76,8 @@ export class Export extends React.Component {
         let self = this;
         let typesList = Object.keys(exportTypes);
         return (
-            <Modal width="500px">
-                <ModalHeader title="Export as..." onClose={this.props.onClose} />
-                <ModalBody style={{"backgroundColor":"#ffffff"}}>
+            <ModalWrapper size="small" title="Export as" onClose={this.props.onClose}>
+                <ModalBody className="siimple--bg-light1">
                     {/* Export type */}
                     <PlaceholderGroup className="siimple--flex siimple--flex-row">
                         <ForEach items={typesList} render={function (key, index) {
@@ -102,12 +100,14 @@ export class Export extends React.Component {
                         <Input type="text" ref={this.ref.filename} fluid placeholder={this.state.defaultFilename} />
                         <FieldHelper>Type the name of the exported file</FieldHelper>
                     </Field>
-                    {/* Submit button */}
+                </ModalBody>
+                {/* Submit export */}
+                <ModalFooter className="siimple--pt-0 siimple--bg-light1">
                     <Btn color="secondary" fluid onClick={this.handleSubmit}>
                         <strong>Export</strong>
                     </Btn>
-                </ModalBody>
-            </Modal>
+                </ModalFooter>
+            </ModalWrapper>
         );
     }
 }
