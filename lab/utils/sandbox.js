@@ -24,7 +24,7 @@ export function createSandbox (initSandbox) {
         "schemaType": "json",
         "thumbnail": null,
         "created_at": Date.now(),
-        "updated_at": null,
+        "updated_at": Date.now(),
         "readonly": false
     };
     //Return sandbox merged with initial values
