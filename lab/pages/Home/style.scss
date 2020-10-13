@@ -1,7 +1,14 @@
-@use "@siimple/lib" as siimple;
+@use "siimple-lib" as siimple;
 
+//Root content
+.root {
+    min-height: 100%;
+    display: flex;
+}
+
+//Home title
 .title {
-    font-size: 60px;
+    font-size: 40px;
     line-height: 1.5;
 }
 
