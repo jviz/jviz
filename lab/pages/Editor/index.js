@@ -1,16 +1,10 @@
 import React from "react";
 import kofi from "kofi";
-import {If, Renderer} from "@siimple/neutrine";
-import {Spinner} from "@siimple/neutrine";
-import {Toolbar, ToolbarWrapper} from "@siimple/neutrine";
-import {Field, FieldLabel, FieldHelper} from "@siimple/neutrine";
-import {Input, Textarea} from "@siimple/neutrine";
-import {Btn} from "@siimple/neutrine";
-import {Rule} from "@siimple/neutrine";
-import {Tip} from "@siimple/neutrine";
+import {If, Renderer} from "neutrine/lib/components";
 
-import {Export} from "../../components/Export/index.js";
 import {Splash} from "../../components/Splash/index.js";
+import {SandboxConfig} from "../../components/SandboxConfig/index.js";
+import {SandboxExport} from "../../components/SandboxExport/index.js";
 import {SandboxHeader} from "../../components/SandboxHeader/index.js";
 import {SandboxEditor} from "../../components/SandboxEditor/index.js";
 import {getLocalSandbox, updateLocalSandbox, deleteLocalSandbox} from "../../utils/sandbox.js";
@@ -19,6 +13,18 @@ import {createSandbox, parseSandbox} from "../../utils/sandbox.js";
 import {redirect, redirectToSandbox} from "../../utils/redirect.js";
 import style from "./style.scss";
 
+//Generate a dialog to delete the sandbox
+let deleteSandboxDialog = function (cb) {
+    //Display a confirmation dialog
+    return window.confirm.show({
+        "title": "Delete sandbox",
+        "content": "This will remove this sandbox from your computer. This action can not be undone. Continue?",
+        "onConfirm": cb,
+        "confirmText": "Yes, delete",
+        "cancelText": "Cancel"
+    });
+};
+
 //Export sandbox editor component
 export class EditorPage extends React.Component {
     constructor(props) {
@@ -26,16 +32,14 @@ export class EditorPage extends React.Component {
         //Initial state
         this.state = {
             "loading": true, 
-            "menuVisible": false,
+            "configVisible": false,
             "exportVisible": false,
             "local": false,
             "sandbox": {}
         };
         //Referenced elements
         this.ref = {
-            "editor": React.createRef(),
-            "sandboxName": React.createRef(),
-            "sandboxDescription": React.createRef()
+            "editor": React.createRef()
         };
         //Bind sandbox management methods
         this.loadSandbox = this.loadSandbox.bind(this);
@@ -44,11 +48,11 @@ export class EditorPage extends React.Component {
         this.handleSave = this.handleSave.bind(this);
         this.handleExit = this.handleExit.bind(this);
         this.handleDelete = this.handleDelete.bind(this);
-        this.handleExport = this.handleExport.bind(this);
+        //this.handleExport = this.handleExport.bind(this);
+        this.handleUpdate = this.handleUpdate.bind(this);
+        this.handleConfigToggle = this.handleConfigToggle.bind(this);
+        this.handleExportOpen = this.handleExportOpen.bind(this);
         this.handleExportClose = this.handleExportClose.bind(this);
-        this.handleMenuToggle = this.handleMenuToggle.bind(this);
-        this.handleUpdateMetadataClick = this.handleUpdateMetadataClick.bind(this);
-        this.handleSandboxUpdate = this.handleSandboxUpdate.bind(this);
     }
     //Component did mount
     componentDidMount() {
@@ -63,15 +67,18 @@ export class EditorPage extends React.Component {
         return updateLocalSandbox(sandbox);
     }
     //Update sandbox with new data
-    updateSandbox(newData) {
+    updateSandbox(newData, callback) {
         let self = this;
         //let sandbox = null; //Object.assign(this.ref.editor.current.getSandbox(), newData);
         return this.ref.editor.current.getSandbox().then(function (sandbox) {
             sandbox = Object.assign(sandbox, newData); //Update sandbox data
             //Save new sandbox data
-            return this.setState({"sandbox": sandbox}, function () {
+            return self.setState({"sandbox": sandbox}, function () {
                 return self.saveSandbox(sandbox, false).then(function () {
-                    return window.toast.success({"message": "Sandbox saved"});
+                    window.toast.success({"message": "Sandbox saved"}); //Display confirmation
+                    if (typeof callback === "function") {
+                        return callback();
+                    }
                 });
             });
         });
@@ -131,18 +138,12 @@ export class EditorPage extends React.Component {
         if (this.state.local === false) {
             return; //You can not delete a non-local sandbox
         }
-        //Display a confirmation dialog
-        return window.confirm.show({
-            "title": "Delete sandbox",
-            "content": "This will remove this sandbox from your computer. Continue?",
-            "onConfirm": function () {
-                return deleteLocalSandbox(sandbox.id).then(function () {
-                    window.toast.success({"message": "Sandbox removed"}); //Display confirmation
-                    return redirect("/"); //Redirect to home
-                });
-            },
-            "confirmText": "Yes, delete",
-            "cancelText": "Cancel"
+        //Didsplay the delete dialog
+        return deleteSandboxDialog(function () {
+            return deleteLocalSandbox(sandbox.id).then(function () {
+                window.toast.success({"message": "Sandbox removed"}); //Display confirmation
+                return redirect("/"); //Redirect to home
+            });
         });
     }
     //Handle save
@@ -181,8 +182,8 @@ export class EditorPage extends React.Component {
             });
         });
     }
-    //Handle export
-    handleExport() {
+    //Handle export view open
+    handleExportOpen() {
         let self = this;
         return this.ref.editor.current.getSandbox().then(function (sandbox) {
             return self.setState({
@@ -193,25 +194,23 @@ export class EditorPage extends React.Component {
     }
     //Handle export close
     handleExportClose() {
-        return this.setState({
-            "exportVisible": false
-        });
+        return this.setState({"exportVisible": false});
     }
-    //Handle menu toggle
-    handleMenuToggle() {
+    //Handle config modal toggle
+    handleConfigToggle() {
         return this.setState({
-            "menuVisible": !this.state.menuVisible
+            "configVisible": !this.state.configVisible
         });
     }
     //Handle sandbox metadata update
-    handleUpdateMetadataClick() {
+    handleUpdate(newData) {
+        let self = this;
         if (this.state.local === false) {
             return null; //Not local sandbox --> disable metadata update
         }
-        //Update the sandbox
-        return this.updateSandbox({
-            "name": this.ref.sandboxName.current.value.trim(),
-            "description": this.ref.sandboxDescription.current.value.trim()
+        //Update the sandbox and hide config modal
+        return this.updateSandbox(newData, function () {
+            return self.setState({"configVisible": false});
         });
     }
     //Handle sandbox update
@@ -220,110 +219,58 @@ export class EditorPage extends React.Component {
             return callback();
         });
     }
-    //Render loading screen
-    renderLoadingScreen() {
-        return (
-            <Splash icon={null}>
-                <div align="center" className="siimple--mb-2">
-                    <Spinner color="dark" />
-                </div>
-                <div className="siimple--mt-0">
-                    <strong>Building your workspace...</strong>
-                </div>
-            </Splash>
-        );
-    }
-    //Render sandbox menu
-    renderMenu() {
-        let self = this;
-        let sandbox = this.state.sandbox;
-        let local = this.state.local; //Get local sandbox
-        return (
-            <React.Fragment>
-                {/* Sandbox metadata */}
-                <div className="siimple--mb-4">
-                    {/* Sandbox name */}
-                    <Field style={{"fontSize":"14px"}} className="siimple--mb-2">
-                        <FieldLabel>Sandbox name</FieldLabel>
-                        <Input type="text" ref={this.ref.sandboxName} fluid defaultValue={sandbox.name} disabled={!local} />
-                        <FieldHelper>Name or your sandbox</FieldHelper>
-                    </Field>
-                    {/* Sandbox description */}
-                    <Field style={{"fontSize":"14px"}} className="siimple--mb-2">
-                        <FieldLabel>Sandbox description</FieldLabel>
-                        <Textarea ref={this.ref.sandboxDescription} fluid defaultValue={sandbox.description} disabled={!local} />
-                        <FieldHelper>Description or your sandbox</FieldHelper>
-                    </Field>
-                    {/* Update sandbox data */}
-                    <Field className="siimple--mb-0">
-                        <Btn color="primary" small fluid onClick={this.handleUpdateMetadataClick} disabled={!local}>
-                            <strong>Update metadata</strong>
-                        </Btn>
-                    </Field>
-                </div>
-                <Rule />
-                {/* Delete this sandbox */}
-                <div className="siimple--mt-4">
-                    <Btn color="error" fluid small onClick={this.handleDelete} disabled={!local}>
-                        <strong>Delete this sandbox</strong>
-                    </Btn>
-                    <FieldHelper>
-                        This will remove this sandbox from your computer. This action <strong>can not be undone</strong>.
-                    </FieldHelper>
-                </div>
-            </React.Fragment>
-        );
-    }
     //Render the editor
     render() {
         let self = this;
         //Check for loading --> display the loading animation
         if (this.state.loading === true) {
-            return this.renderLoadingScreen();
+            return React.createElement(Splash, {});
         }
         console.log("---> update editor");
         //Render the editor panels
         return (
-            <ToolbarWrapper collapsed={!this.state.menuVisible}>
-                {/* Editor menu */}
-                <Toolbar className="siimple--bg-gray0">
-                    <If condition={this.state.menuVisible} render={function () {
-                        return self.renderMenu();
-                    }} />
-                </Toolbar>
-                <div className={style.root}>
-                    {/* Sandbox header */}
-                    <div className={style.header}>
-                        <Renderer render={function () {
-                            return React.createElement(SandboxHeader, {
-                                "sandbox": self.state.sandbox,
-                                "menuActive": self.state.menuVisible,
-                                "onHomeClick": self.handleExit,
-                                "onMenuClick": self.handleMenuToggle,
-                                "onSaveClick": self.handleSave,
-                                "onExportClick": self.handleExport
-                            });
-                        }} />
-                    </div>
-                    {/* Sandbox editor */}
-                    <div className={style.editor}>
-                        <Renderer render={function () {
-                            return React.createElement(SandboxEditor, {
-                                "ref": self.ref.editor,
-                                "sandbox": self.state.sandbox,
-                                "onSandboxUpdate": self.handleSandboxUpdate
-                            });
-                        }} />
-                    </div>
-                    {/* Export sandbox modal */}
-                    <If condition={this.state.exportVisible} render={function () {
-                        return React.createElement(Export, {
+            <div className={style.root}>
+                {/* Sandbox header */}
+                <div className={style.header}>
+                    <Renderer render={function () {
+                        return React.createElement(SandboxHeader, {
                             "sandbox": self.state.sandbox,
-                            "onClose": self.handleExportClose
+                            //"menuActive": self.state.menuVisible,
+                            "onLogoClick": self.handleExit,
+                            "onSaveClick": self.handleSave,
+                            "onExportClick": self.handleExportOpen,
+                            "onConfigClick": self.handleConfigToggle,
+                            "onDeleteClick": self.handleDelete
                         });
                     }} />
                 </div>
-            </ToolbarWrapper>
+                {/* Sandbox editor */}
+                <div className={style.editor}>
+                    <Renderer render={function () {
+                        return React.createElement(SandboxEditor, {
+                            "ref": self.ref.editor,
+                            "sandbox": self.state.sandbox,
+                            "onSandboxUpdate": self.handleSandboxUpdate
+                        });
+                    }} />
+                </div>
+                {/* Config sandbox modal */}
+                <If condition={this.state.configVisible} render={function () {
+                    return React.createElement(SandboxConfig, {
+                        "onClose": self.handleConfigToggle,
+                        "onSubmit": self.handleUpdate,
+                        "sandbox": self.state.sandbox,
+                        "localSandbox": self.state.local
+                    });
+                }} />
+                {/* Export sandbox modal */}
+                <If condition={this.state.exportVisible} render={function () {
+                    return React.createElement(SandboxExport, {
+                        "sandbox": self.state.sandbox,
+                        "onClose": self.handleExportClose
+                    });
+                }} />
+            </div>
         );
     }
 }

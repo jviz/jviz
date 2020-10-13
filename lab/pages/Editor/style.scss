@@ -1,4 +1,4 @@
-@use "@siimple/lib" as siimple;
+@use "siimple-lib" as siimple;
 
 //Variables
 $editor-padding: 10px;
@@ -9,7 +9,7 @@ $editor-padding: 10px;
     flex-direction: column;
     width: 100%;
     height: 100%;
-    background-color: siimple.gray("0");
+    //background-color: siimple.light("1");
     //padding: $editor-padding;
 }
 .header {
