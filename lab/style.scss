@@ -1,8 +1,8 @@
-@use "@siimple/lib" as siimple;
+@use "siimple-lib" as siimple;
 
 //Page style
 html {
-    background-color: siimple.gray("0");
+    background-color: siimple.light("1");
 }
 
 
