@@ -1,0 +1,35 @@
+@use "siimple-lib" as siimple;
+
+//File item
+.item {
+    border-radius: siimple.$border-radius;
+    cursor: pointer;
+    padding: 5px;
+    margin-bottom: 3px;
+}
+.item:hover {
+    background-color: siimple.light("1");
+}
+.itemActive {
+    background-color: siimple.light("1");
+    font-weight: bold;
+    color: siimple.color("primary");
+}
+.itemName {
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.itemDelete {
+    color: siimple.color("dark");
+    padding-top: 3px;
+    padding-bottom: 3px;
+    opacity: 0.4;
+}
+//.item:hover .itemDelete {
+.itemDelete:hover {
+    color: siimple.color("error") !important;
+    opacity: 1.0 !important;
+}
+
