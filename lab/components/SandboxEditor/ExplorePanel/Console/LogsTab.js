@@ -14,7 +14,7 @@ let colors = {
 export function ConsoleLogsTab (props) {
     return React.createElement("div", {}, props.logs.map(function (item, index) {
         return (
-            <div className="siimple--mb-5" key={index}>
+            <div className="siimple--mb-1" key={index}>
                 <strong className={colors[item.type]}>[{item.type}] </strong> 
                 <span> {item.message}</span>
             </div>
