@@ -50,6 +50,7 @@ export class EditorPage extends React.Component {
         this.handleDelete = this.handleDelete.bind(this);
         //this.handleExport = this.handleExport.bind(this);
         this.handleUpdate = this.handleUpdate.bind(this);
+        this.handleChange = this.handleChange.bind(this);
         this.handleConfigToggle = this.handleConfigToggle.bind(this);
         this.handleExportOpen = this.handleExportOpen.bind(this);
         this.handleExportClose = this.handleExportClose.bind(this);
@@ -213,10 +214,16 @@ export class EditorPage extends React.Component {
             return self.setState({"configVisible": false});
         });
     }
-    //Handle sandbox update
-    handleSandboxUpdate(newSandbox, callback) {
-        return this.setState({"sandbox": newSandbox}, function () {
-            return callback();
+    //Handle sandbox change
+    handleChange(newSandbox, callback) {
+        let self = this;
+        //return this.setState({"sandbox": newSandbox}, function () {
+        //    return callback();
+        //});
+        return this.saveSandbox(newSandbox, false).then(function () {
+            return self.setState({"sandbox": newSandbox}, function () {
+                return callback();
+            });
         });
     }
     //Render the editor
@@ -250,7 +257,7 @@ export class EditorPage extends React.Component {
                         return React.createElement(SandboxEditor, {
                             "ref": self.ref.editor,
                             "sandbox": self.state.sandbox,
-                            "onSandboxUpdate": self.handleSandboxUpdate
+                            "onChange": self.handleChange
                         });
                     }} />
                 </div>
