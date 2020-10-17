@@ -1,6 +1,5 @@
 import React from "react";
 import kofi from "kofi";
-
 import {If, Renderer} from "neutrine/lib/components";
 
 import {Preview} from "./Preview/index.js";
@@ -59,7 +58,7 @@ export class ExplorePanel extends React.Component {
         return this.setState({"logs": logs});
     }
     //Run content
-    run(sandbox) {
+    run(sandbox, currentFile) {
         let self = this;
         return new Promise(function (resolve, reject) {
             self.clear(); //Remove the current plot
@@ -72,7 +71,7 @@ export class ExplorePanel extends React.Component {
             //Update the new state
             return self.setState(newState, function () {
                 return kofi.delay(self.props.delayTime).then(function () {
-                    return parseSandbox(sandbox);
+                    return parseSandbox(sandbox, currentFile);
                 }).then(function (schema) {
                     //console.log(schema); //Print schema
                     window.currentSchema = schema; //Save current schema
