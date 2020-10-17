@@ -3,6 +3,7 @@ import {ForEach, If, Renderer} from "neutrine/lib/components";
 import {Btn} from "neutrine/lib/components";
 import {Spinner} from "neutrine/lib/components";
 import {Panel, PanelHeader, PanelBody, PanelTab} from "neutrine/lib/components";
+import {PanelTitle} from "neutrine/lib/components";
 import {Media, MediaContent, MediaEnd} from "neutrine/lib/components";
 import {EditorComponent} from "neutrine/lib/editor";
 
@@ -14,7 +15,8 @@ export const EditorPanel = React.forwardRef(function (props, ref) {
             <PanelHeader>
                 <Media className="siimple--mb-0 siimple--width-100">
                     <MediaContent className="siimple--flex">
-                        <PanelTab active text={props.filename} />
+                        <PanelTitle>{props.filename}</PanelTitle>
+                        {/*<PanelTab active text={props.filename} />*/}
                     </MediaContent>
                     {/* Run sandbox */}
                     <MediaEnd>
