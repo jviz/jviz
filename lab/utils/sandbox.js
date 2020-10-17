@@ -1,4 +1,5 @@
 import kofi from "kofi";
+import lzString from "lz-string";
 import {createDatabase} from "./database.js";
 
 //Sandbox database
@@ -11,30 +12,73 @@ export function initSandboxStorage () {
     });
 }
 
+//Encode sandbox file
+export function encodeSandboxFile (content) {
+    return lzString.compressToBase64(content);
+}
+
+//Decode sandbox file
+export function decodeSandboxFile (content) {
+    return lzString.decompressFromBase64(content);
+}
+
+//Create a new sandbox file
+export function createSandboxFile (type, content) {
+    return {"type": type, "content": encodeSandboxFile(content)};
+}
+
 //Create a new sandbox
 export function createSandbox (initSandbox) {
     let newSandbox = {
-        "$type": "jviz/sandbox",
+        "version": "2",
         "id": kofi.tempid(),
         "name": "Untitled",
         "description": "",
         "author": "",
-        "readme": "",
-        "schema": "",
-        "schemaType": "json",
+        "files": {
+            "schema.json": createSandboxFile("schema.json", "")
+        },
+        "main": "schema.json",
+        "runConfig": null,
         "thumbnail": null,
         "created_at": Date.now(),
-        "updated_at": Date.now(),
-        "readonly": false
+        "updated_at": Date.now()
     };
     //Return sandbox merged with initial values
     return Object.assign(newSandbox, initSandbox);
 }
 
+//Validate a sandbox --> validate fields and convert to the latest version
+export function validateSandbox (sandbox) {
+    //If there is no sandbox version --> add the "v1" version
+    if (typeof sandbox["version"] === "undefined") {
+        sandbox["version"] = "1";
+    }
+    //Check for upgrading to v2 schema
+    if (sandbox["version"] === "1") {
+        //Update sandbox to v2
+        Object.assign(sandbox, {
+            "version": "2",
+            "files": {
+                "schema.json": createSandboxFile("schema", sandbox["schema"] + "")
+            },
+            "main": "schema.json",
+            "runConfig": null
+        });
+        //Remove some fields
+        delete sandbox["schema"];
+        delete sandbox["schemaType"];
+        delete sandbox["readme"];
+        delete sandbox["readonly"];
+    }
+    //Return validated sandbox
+    return sandbox;
+}
+
 //Parse a sandbox ---> get schema in json format
-export function parseSandbox (sandbox) {
+export function parseSandbox (sandbox, currentFile) {
     return new Promise(function (resolve, reject) {
-        return resolve(JSON.parse(sandbox.schema));
+        return resolve(JSON.parse(decodeSandboxFile(sandbox.files[currentFile].content)));
     });
 }
 
@@ -94,7 +138,7 @@ export function getRemoteSandbox (source) {
     return kofi.request({"url": source, "json": true}).then(function (response) {
         let sandbox = response.body; //Get sandbox content
         delete sandbox["id"]; //Remove sandbox ID
-        return sandbox;
+        return validateSandbox(sandbox);
     });
 }
 
@@ -128,7 +172,7 @@ export function getLocalSandbox (id) {
     return sandboxDB.tx(["sandbox"], "readonly", function (tx) {
         request = tx.objectStore("sandbox").get(id);
     }).then(function () {
-        return request.result;
+        return validateSandbox(request.result);
     });
 }
 
