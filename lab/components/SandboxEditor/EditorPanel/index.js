@@ -19,13 +19,13 @@ export const EditorPanel = React.forwardRef(function (props, ref) {
                     {/* Run sandbox */}
                     <MediaEnd>
                         {/* Not running --> display run button */}
-                        <If condition={props.running === false}>
+                        <If condition={props.running === false && props.filetype === "schema"}>
                             <Btn color="secondary" small onClick={props.onRun}>
-                                <strong>Run sandbox</strong>
+                                <strong>Run</strong>
                             </Btn>
                         </If>
                         {/* Running --> display spinner */}
-                        <If condition={props.running === true}>
+                        <If condition={props.running === true && props.filetype === "schema"}>
                             <Spinner color="secondary" style={{"margin":"2px"}} />
                         </If>
                     </MediaEnd>
@@ -49,6 +49,7 @@ export const EditorPanel = React.forwardRef(function (props, ref) {
 //Editor panel default props
 EditorPanel.defaultProps = {
     "filename": "schema.json",
+    "filetype": "schema",
     "theme": "light",
     "language": "json"
 };
