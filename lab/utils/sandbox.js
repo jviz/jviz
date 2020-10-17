@@ -82,17 +82,9 @@ export function parseSandbox (sandbox, currentFile) {
     });
 }
 
-//Export a sandbox
-export function exportSandbox (sandbox, options) {
-    return new Promise(function (resolve, reject) {
-        if (options.mode === "sandbox") {
-            return resolve(sandbox); //Export sandbox
-        }
-        //Default --> export only the schema
-        let schema = JSON.parse(sandbox.schema);
-        //TODO: check for adding metadata
-        return resolve(schema);
-    });
+//Get the content of a file
+export function getSandboxFile (sandbox, file) {
+    return decodeSandboxFile(sandbox.files[file].content);
 }
 
 //Load user sandboxes
