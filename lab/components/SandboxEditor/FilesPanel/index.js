@@ -7,6 +7,7 @@ import {PanelTitle} from "neutrine/lib/components";
 import {Media, MediaStart, MediaContent, MediaEnd} from "neutrine/lib/components";
 import {classNames} from "neutrine/lib/utils";
 
+import {sandboxFileTypes} from "../../../utils/sandbox.js";
 import style from "./style.scss";
 
 //Export file panel component
@@ -15,7 +16,7 @@ export function FilesPanel (props) {
     if (props.visible === false) {
         return null;
     }
-    let files = Object.keys(props.sandbox.files);
+    let files = Object.keys(props.sandbox.files).sort();
     return (
         <div style={{"width": props.width,"paddingRight":"5px"}}>
             <Panel>
@@ -26,7 +27,7 @@ export function FilesPanel (props) {
                             <PanelTitle>{props.title}</PanelTitle>
                         </MediaContent>
                         <MediaEnd>
-                            <Btn color="secondary" small onClick={props.onCreate}>
+                            <Btn className="siimple--px-2" color="" small onClick={props.onCreate}>
                                 <Icon icon="plus" size="21px" />
                             </Btn>
                         </MediaEnd>
@@ -41,7 +42,7 @@ export function FilesPanel (props) {
                             [style.item]: true,
                             [style.itemActive]: filename === props.currentFile
                         });
-                        let fileIcon = (file.type === "schema") ? "code" : "file";
+                        let fileIcon = sandboxFileTypes[file.type].icon;
                         let handleFileClick = function () {
                             if (filename === props.currentFile) {
                                 return null; //Nothing to do --> file is open
