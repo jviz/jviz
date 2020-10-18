@@ -7,7 +7,7 @@ import {Placeholder, PlaceholderGroup} from "neutrine/lib/components";
 import {Field, FieldLabel, FieldHelper} from "neutrine/lib/components";
 import {Input, Select, Switch, Label} from "neutrine/lib/components";
 
-import {getSandboxFile} from "../../utils/sandbox.js";
+import {exportSandboxFile, exportSandboxSchema} from "../../utils/sandbox.js";
 
 //Export types
 let exportTypes = {
@@ -68,9 +68,8 @@ export class SandboxExport extends React.Component {
         //Check for exporting individual schema
         else if (this.state.type === "schema") {
             let file = this.ref.schemaFile.current.value; //File to export
-            exportPromise = Promise.resolve({
-                "content": getSandboxFile(sandbox, file),
-                "name": file
+            exportPromise = exportSandboxFile(sandbox, file).then(function (content) {
+                return {"content": content, "name": file};
             });
         }
         //Handle export
