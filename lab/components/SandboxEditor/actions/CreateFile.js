@@ -9,11 +9,7 @@ import {Input, Label} from "neutrine/lib/components";
 import {Icon} from "neutrine/lib/components";
 import {Placeholder, PlaceholderGroup} from "neutrine/lib/components";
 
-//Available file types
-let fileTypes = {
-    "schema": {"name": "Jviz Schema", "icon": "code"},
-    "data": {"name": "JSON Data", "icon": "file"}
-};
+import {sandboxFileTypes} from "../../../utils/sandbox.js";
 
 //Create a new file
 export class CreateFile extends React.Component {
@@ -25,8 +21,7 @@ export class CreateFile extends React.Component {
         };
         //Referenced elements
         this.ref = {
-            "name": React.createRef(),
-            "description": React.createRef()
+            "name": React.createRef()
         };
         //Bind methods
         this.handleTypeChange = this.handleTypeChange.bind(this);
@@ -42,7 +37,7 @@ export class CreateFile extends React.Component {
         if (this.ref.name.current.value.trim() === "") {
             return this.setState({"error": "You should provide a valid name for your file."});
         }
-        let name = this.ref.name.current.value.trim() + ".json";
+        let name = this.ref.name.current.value.trim();
         if (typeof this.props.sandbox.files[name] !== "undefined") {
             return this.setState({
                 "error": `There is a file with the name '${name}' in your sandbox.`
@@ -70,13 +65,14 @@ export class CreateFile extends React.Component {
                     {/* File type */}
                     <PlaceholderGroup className="siimple--flex">
                         <ForEach items={this.props.fileTypes} render={function (type) {
-                            let item = fileTypes[type]; //Get file type info
+                            let item = sandboxFileTypes[type]; //Get file type info
                             let active = self.state.currentType === type; //Type active
+                            let border = (active) ? "solid" : "dashed";
                             let onClick = function () {
                                 return self.handleTypeChange(type);
                             };
                             return (
-                                <Placeholder key={type} onClick={onClick} active={active} align="center" border="solid">
+                                <Placeholder key={type} onClick={onClick} active={active} align="center" border={border}>
                                     <Icon icon={item.icon} size="30px" className="siimple--mb-1" />
                                     <div className="siimple--text-bold">{item.name}</div>
                                 </Placeholder>
@@ -86,22 +82,14 @@ export class CreateFile extends React.Component {
                     {/* File name */}
                     <Field>
                         <FieldLabel>File name</FieldLabel>
-                        <Media className="siimple--mb-0">
-                            <MediaContent>
-                                <Input type="text" ref={this.ref.name} fluid placeholder="new-file" />
-                            </MediaContent>
-                            <MediaEnd>
-                                <Label>.json</Label>
-                            </MediaEnd>
-                        </Media>
+                        <Input type="text" ref={this.ref.name} fluid placeholder="new.json" />
                         <FieldHelper>
                             Type the name or your new file. 
-                            The file extension will be added for you, so please do not add the <strong>.json</strong> extension.
                         </FieldHelper>
                     </Field>
                 </ModalBody>
                 <ModalFooter className="siimple--bg-light1 siimple--pt-0">
-                    <Btn color="success" fluid onClick={this.handleSubmit}>
+                    <Btn color="secondary" fluid onClick={this.handleSubmit}>
                         <strong>Create file</strong>
                     </Btn>
                 </ModalFooter>
@@ -112,6 +100,6 @@ export class CreateFile extends React.Component {
 
 //Create file default props
 CreateFile.defaultProps = {
-    "fileTypes": ["schema", "data"]
+    "fileTypes": ["schema", "json"]
 };
 
