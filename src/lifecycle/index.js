@@ -229,6 +229,7 @@ export function initContext (context, schema) {
             "id": `state:${name}`,
             "value": props["value"],
             "targets": createHashMap(),
+            "bind": props.bind,
             "type": "state"
         });
         //createStateNode(context, name, stateProps);
