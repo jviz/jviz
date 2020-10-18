@@ -6,7 +6,7 @@ import {Preview} from "./Preview/index.js";
 import {Console} from "./Console/index.js";
 import {ConsoleLogsTab} from "./Console/LogsTab.js";
 import {ConsoleStateTab} from "./Console/StateTab.js";
-import {parseSandbox} from "../../../utils/sandbox.js";
+import {runSandbox} from "../../../utils/sandbox.js";
 import style from "./style.scss";
 
 //Export explorer panel component
@@ -17,15 +17,15 @@ export class ExplorePanel extends React.Component {
         this.state = {
             "consoleTab": "logs",
             "deployed": false,
-            "ready": false, //Plot is ready to interact
-            "logs": []
+            "ready": false //Plot is ready to interact
         };
         //Referenced elements
         this.ref = {
             "parent": React.createRef()
         };
         this.schema = null; //Deployed schema
-        this.viewer = null; //jviz viewer instance
+        this.viewer = {}; //jviz viewers instance
+        this.logs = [];
         //Bind methods
         this.run = this.run.bind(this);
         this.clear = this.clear.bind(this);
@@ -42,51 +42,48 @@ export class ExplorePanel extends React.Component {
         return this.setState({"consoleTab": newTab});
     }
     //Handle state variable change
-    handleStateChange(name, value) {
-        this.viewer.state(name, value);
-        this.viewer.render(); //Render the plot
+    handleStateChange(file, name, value) {
+        this.viewer[file].state(name, value);
+        this.viewer[file].render(); //Render the plot
     }
     //Register a log message
     log(type, message) {
-        let logs = this.state.logs;
-        logs.push({
+        this.logs.push({
             "type": type, 
             "message": message,
             "date": Date.now()
         });
-        //Update the state with the new logs
-        return this.setState({"logs": logs});
     }
     //Run content
     run(sandbox, currentFile) {
         let self = this;
+        this.logs = []; //Clear logs messages
         return new Promise(function (resolve, reject) {
             self.clear(); //Remove the current plot
+            self.log("info", "Run started");
             let newState = {
                 "consoleTab": "logs", //Return to logs tab
                 "deployed": true,
-                "logs": [], //Clear logs
                 "ready": false
             };
             //Update the new state
             return self.setState(newState, function () {
-                return kofi.delay(self.props.delayTime).then(function () {
-                    return parseSandbox(sandbox, currentFile);
-                }).then(function (schema) {
+                return runSandbox(sandbox, currentFile, function (name, schema, index) {
+                    self.log("info", `Running '${name}'`);
                     //console.log(schema); //Print schema
-                    window.currentSchema = schema; //Save current schema
-                    self.schema = schema; //Save current schema
+                    //window.currentSchema = schema; //Save current schema
+                    //self.schema = schema; //Save current schema
                     //Create the viewer
-                    self.viewer = jviz(schema, {
+                    self.viewer[name] = jviz(schema, {
                         "parent": self.ref.parent.current
                     });
-                    window.viewer = self.viewer; //Save the viewer instance in the window object
                     //console.log(self.viewer); //Print viewer instance
-                    return self.viewer.render();
+                    return self.viewer[name].render();
                 }).then(function () {
+                    window.viewer = self.viewer; //Save the viewer instance in the window object
                     //Update the state
                     return self.setState({"ready": true}, function () {
-                        self.log("info", "Graphic ready"); //Display in logs
+                        self.log("info", "Run finished"); //Display in logs
                         return resolve(); //Ready
                     });
                 }).catch(function (error) {
@@ -101,11 +98,12 @@ export class ExplorePanel extends React.Component {
     }
     //Clear the preview
     clear() {
-        if (typeof this.viewer !== "object" || this.viewer === null) {
-            return null; //Nothing to do
-        }
-        this.viewer.destroy(); //Remove bounds
-        delete this.viewer; //Remove reference
+        let self = this;
+        Object.keys(this.viewer).forEach(function (file) {
+            return self.viewer[file].destroy(); //Remove bounds and elements
+        });
+        //Remove all references to the old viewers
+        this.viewer = {};
     }
     //Render preview panel
     render() {
@@ -125,13 +123,8 @@ export class ExplorePanel extends React.Component {
                 <If condition={this.state.deployed} render={function () {
                     let ready = self.state.ready;
                     let tab = self.state.consoleTab; //Get current tab
-                    let tabs = (self.state.ready) ? ["logs", "state", "data"] : ["logs"]; //Available tabs
-                    let getCurrentSchema = function () {
-                        return self.schema; //Return schema definition
-                    };
-                    let getCurrentViewer = function () {
-                        return self.viewer; //Return viewer instance
-                    };
+                    //let tabs = (self.state.ready) ? ["logs", "state", "data"] : ["logs"]; //Available tabs
+                    let tabs = ["logs", "state"]; //At this momento only logs tab is enabled
                     //Return console panel
                     return (
                         <div className={style.secondaryItem}>
@@ -139,14 +132,16 @@ export class ExplorePanel extends React.Component {
                                 {/* Render logs tab */}
                                 <If condition={tab === "logs"} render={function () {
                                     return React.createElement(ConsoleLogsTab, {
-                                        "logs": self.state.logs
+                                        "logs": self.logs
                                     });
                                 }} />
                                 {/* Render state tab */}
                                 <If condition={tab ==="state" && ready} render={function () {
                                     return React.createElement(ConsoleStateTab, {
-                                        "getCurrentSchema": getCurrentSchema,
-                                        "getCurrentViewer": getCurrentViewer,
+                                        "files": Object.keys(self.viewer),
+                                        "getViewer": function (name) {
+                                            return self.viewer[name];
+                                        },
                                         "onChange": self.handleStateChange
                                     });
                                 }} />
