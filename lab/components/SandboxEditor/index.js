@@ -55,6 +55,7 @@ export class SandboxEditor extends React.Component {
         //Bind sandbox methods
         this.getSandbox = this.getSandbox.bind(this);
         this.runSandbox = this.runSandbox.bind(this);
+        this.getThumbnail = this.getThumbnail.bind(this);
         //Bind dialogs methods
         this.handleCreateToggle = this.handleCreateToggle.bind(this);
         //Bind files methods
@@ -182,18 +183,6 @@ export class SandboxEditor extends React.Component {
         let self = this;
         let currentFile = this.state.currentFile; //Get current file
         let sandbox = Object.assign({}, this.props.sandbox); //Get current sandbox
-        //Check for schema tab --> save content into the schema field
-        //if (this.state.tab === "schema") {
-        //    Object.assign(sandbox, {
-        //        "schema": this.ref.editor.current.getValue()
-        //    });
-        //}
-        ////Check for readme tab --> save content into the readme field
-        //else if (this.state.tab === "readme") {
-        //    Object.assign(sandbox, {
-        //        "readme": this.ref.readme.current.getValue()
-        //    });
-        //}
         //Save the current file content
         sandbox.files[currentFile].content = encodeSandboxFile(this.ref.editor.current.getValue());
         //Check if sandbox is not rendered --> do not update the thumbnail
@@ -201,16 +190,24 @@ export class SandboxEditor extends React.Component {
             return Promise.resolve(sandbox); //Return a promise with the sandbox
         }
         //Generate the thumbnail
-        let viewer =  this.ref.explore.current.viewer;
-        let width = viewer.context.draw.width.value; //Get plot width
-        let thumbnailWidth = 200; //Expected thumbnail width
-        let scale = (width < thumbnailWidth) ? 1 : thumbnailWidth / width; //Get scale factor
-        return viewer.toImageUrl("png", scale).then(function (data) {
+        return this.getThumbnail(200).then(function (data) {
             //console.log(data); //Thumbnail in image-url format
             return Object.assign(sandbox, {
                 "thumbnail": data
             });
         });
+    }
+    //Generate a sandbox thumbnail
+    getThumbnail(maxWidth) {
+        let self = this;
+        //Get the list of displayed viewers
+        let viewers = Object.keys(this.ref.explore.current.viewer).map(function (key) {
+            return self.ref.explore.current.viewer[key];
+        });
+        //TODO: at this momment we are only to generate the thumbnail of the first viewer
+        let width = viewers[0].context.draw.width.value; //Get plot width
+        let scale = (width < maxWidth) ? 1 : maxWidth / width; //Get scale factor
+        return viewers[0].toImageUrl("png", scale);
     }
     //Render the editor page
     render() {
