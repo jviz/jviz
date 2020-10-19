@@ -301,5 +301,51 @@ export function nth (value, expr) {
     return nthCheck(value, nthParse(expr));
 }
 
+//Binary search tree
+let BinarySearchTreeHandler = function () {
+    this.root = null; //Initial node
+};
+
+//Prototype
+BinarySearchTreeHandler.prototype = {
+    //Add a new node to the tree
+    "add": function (value) {
+        let node = {"value": value, "left": null, "right": null};
+        if (this.root === null) {
+            this.root = node;
+            return true; //Node has been inserted
+        }
+        //Search in the tree
+        let current = this.root;
+        while (true) {
+            //Check if there is no
+            if (node.value.end < current.value.start) {
+                if (current.left === null) {
+                    current.left = node;
+                    return true;
+                }
+                //Now check the left node
+                current = current.left;
+            }
+            else if (current.value.end < node.value.start) {
+                if (current.right === null) {
+                    current.right = node;
+                    return true;
+                }
+                //Now check the right side
+                current = current.right;
+            }
+            else {
+                //This node intersects the current node --> reject
+                return false;
+            }
+        }
+    }
+};
+
+//Create a new binary search tree
+export function binarySearchTree () {
+    return new BinarySearchTreeHandler();
+}
 
 
