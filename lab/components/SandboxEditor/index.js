@@ -201,13 +201,14 @@ export class SandboxEditor extends React.Component {
     getThumbnail(maxWidth) {
         let self = this;
         //Get the list of displayed viewers
-        let viewers = Object.keys(this.ref.explore.current.viewer).map(function (key) {
-            return self.ref.explore.current.viewer[key];
-        });
-        //TODO: at this momment we are only to generate the thumbnail of the first viewer
-        let width = viewers[0].context.draw.width.value; //Get plot width
+        let cell = this.ref.explore.current.getCurrentCell();
+        if (typeof cell !== "object" || cell.viewer === null) {
+            return Promise.resolve(null);
+        }
+        //TODO: at this momment we are only to generate the thumbnail of the current viewer
+        let width = cell.viewer.context.draw.width.value; //Get plot width
         let scale = (width < maxWidth) ? 1 : maxWidth / width; //Get scale factor
-        return viewers[0].toImageUrl("png", scale);
+        return cell.viewer.toImageUrl("png", scale);
     }
     //Render the editor page
     render() {
