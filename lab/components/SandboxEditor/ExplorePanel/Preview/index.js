@@ -1,18 +1,29 @@
 import React from "react";
 import {If} from "neutrine/lib/components";
+import {Btn} from "neutrine/lib/components";
 import {Heading} from "neutrine/lib/components";
 import {Icon} from "neutrine/lib/components";
+import {Media, MediaStart, MediaContent, MediaEnd} from "neutrine/lib/components";
 import {Panel, PanelHeader, PanelBody} from "neutrine/lib/components";
 import {PanelTitle} from "neutrine/lib/components";
 
-import style from "../style.scss";
+import style from "./style.scss";
 
 //Export preview panel wrapper
-export const Preview = React.forwardRef(function (props, ref) {
+export function Preview (props) {
     return (
         <Panel>
             <PanelHeader>
-                <PanelTitle>{props.title}</PanelTitle>
+                <Media className="siimple--mb-0 siimple--width-100">
+                    <MediaContent className="siimple--flex">
+                        <PanelTitle>{props.title}</PanelTitle>
+                    </MediaContent>
+                    <MediaEnd>
+                        <Btn className="siimple--px-2" color="" small onClick={props.onClear}>
+                            <Icon icon="erase" size="21px" />
+                        </Btn>
+                    </MediaEnd>
+                </Media>
             </PanelHeader>
             <PanelBody>
                 {/* Content not deployed */}
@@ -32,18 +43,19 @@ export const Preview = React.forwardRef(function (props, ref) {
                 {/* Content deployed */}
                 <If condition={props.deployed === true}>
                     <div className={style.content}>
-                        <div align="center" ref={ref} />
+                        {props.children}
                     </div>
                 </If>
             </PanelBody>
         </Panel>
     );
-});
+};
 
 //Preview panel default props
 Preview.defaultProps = {
     "title": "Preview",
     "visible": true,
-    "deployed": false
+    "deployed": true,
+    "onClear": null
 };
 

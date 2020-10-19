@@ -1,0 +1,55 @@
+@use "siimple-lib" as siimple;
+
+//Content wrapper
+.content {
+    width: 100%;
+    height: 100%;
+    //max-height: 400px;
+    overflow: auto;
+}
+
+//Cell style
+.cell {
+    position: relative;
+    //padding-left: 5px;
+    margin-bottom: 5px;
+    padding: 10px;
+    border-left: 30px solid transparent; //siimple.light("1");
+    border-radius: siimple.$border-radius;
+}
+.cell:before {
+    content: "[" attr(data-index) "]";
+    position: absolute;
+    font-size: 12px;
+    font-weight: bold;
+    left: -15px;
+    top: 5px;
+    opacity: 0.5;
+    transform: translateX(-50%);
+}
+.cell:hover {
+    border-left-color: siimple.light("1");
+}
+.cell:hover:before {
+    opacity: 1.0 !important;
+}
+.cellActive {
+    border-left-color: rgba(siimple.color("secondary"), 0.8) !important;
+}
+.cellActive:before {
+    //color: siimple.color("secondary");
+    color: siimple.color("white");
+    //font-weight: bold;
+    opacity: 1.0 !important;
+}
+.cellError {
+    background-color: rgba(siimple.color("error"), 0.3) !important;
+    border-left-color: siimple.color("error") !important;
+    font-size: 14px;
+}
+.cellError:before {
+    //content: "[!]" !important;
+    opacity: 1.0 !important;
+    color: siimple.color("white");
+}
+
