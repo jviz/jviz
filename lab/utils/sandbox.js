@@ -46,7 +46,6 @@ export function createSandbox (initSandbox) {
             "schema.jviz": createSandboxFile("schema", "")
         },
         "main": "schema.jviz",
-        "runConfig": null,
         "thumbnail": null,
         "created_at": Date.now(),
         "updated_at": Date.now()
@@ -69,8 +68,7 @@ export function validateSandbox (sandbox) {
             "files": {
                 "schema.jviz": createSandboxFile("schema", sandbox["schema"] + "")
             },
-            "main": "schema.jviz",
-            "runConfig": null
+            "main": "schema.jviz"
         });
         //Remove some fields
         delete sandbox["schema"];
@@ -130,42 +128,10 @@ export function exportSandboxSchema (sandbox, file) {
     });
 }
 
-//Get a list of schema files to run
-let getSchemaFilesForRunning = function (sandbox, currentFile) {
-    //Check for custom run configuration
-    if (Array.isArray(sandbox.runConfig) && sandbox.runConfig !== null) {
-        return sandbox.runConfig;
-    }
-    //Default --> return only the current file
-    return [currentFile];
-};
-
 //Run sandbox
-export function runSandbox (sandbox, currentFile, callback) {
-    return new Promise(function (resolve, reject) {
-        //Get the list of schema files to execute
-        let files = getSchemaFilesForRunning(sandbox, currentFile);
-        if (files.length === 0) {
-            return reject(new Error("No schema files to run"));
-        }
-        //Method to execute each file
-        let runSandboxSchema = function (index) {
-            if (index >= files.length) {
-                return resolve(null); //Run finished
-            }
-            //Export this file
-            exportSandboxSchema(sandbox, files[index]).then(function (schema) {
-                return callback(files[index], schema, index);
-            }).then(function () {
-                return runSandboxSchema(index + 1);
-            }).catch(function (error) {
-                return reject(error);
-            });
-        };
-        //Start parsing all schemas
-        return runSandboxSchema(0);
-    });
-};
+export function runSandbox (sandbox, currentFile) {
+    return exportSandboxSchema(sandbox, currentFile);
+}
 
 //Load user sandboxes
 export function loadLocalSandboxes () {
