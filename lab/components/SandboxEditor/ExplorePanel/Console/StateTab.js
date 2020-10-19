@@ -5,31 +5,28 @@ import {Row, Column} from "neutrine/lib/components";
 import {Label} from "neutrine/lib/components";
 import {Range} from "neutrine/lib/components";
 import {Select} from "neutrine/lib/components";
-import {Field, FieldLabel, FieldHelper} from "neutrine/lib/components";
 
 //Build initial state from props
 let buildInitialStateFromProps = function (props) {
     let newState = {
-        "names": [],
-        "items": {},
-        "current": props.files[0]
+        "names": []
     };
     //Generate for each rendered file
-    props.files.forEach(function (file) {
-        newState.items[file] = {}; //Initialize items store
-        let viewer = props.getViewer(file); //Get current viewer
-        //Build each state variable
-        Object.keys(viewer.context.state).forEach(function (key) {
-            let item = viewer.context.state[key];
-            if (typeof item.bind !== "object" || item.bind === null) {
-                return null; //Skip this variable
-            }
-            //Add this variable name
-            newState.names.push(file + ":" + key);
-            newState.items[file][key] = Object.assign({}, item.bind, {
-                "defaultValue": viewer.state(key),
-                "currentValue": viewer.state(key)
-            });
+    let viewer = props.getCurrentViewer(); //Get current viewer
+    if (viewer === null) {
+        return newState; //No viewer available --> exit
+    }
+    //Build each state variable
+    Object.keys(viewer.context.state).forEach(function (key) {
+        let item = viewer.context.state[key];
+        if (typeof item.bind !== "object" || item.bind === null) {
+            return null; //Skip this variable
+        }
+        //Add this variable name
+        newState.names.push(key);
+        newState[key] = Object.assign({}, item.bind, {
+            "defaultValue": viewer.state(key),
+            "currentValue": viewer.state(key)
         });
     });
     //console.log(newState);
@@ -101,30 +98,25 @@ export class ConsoleStateTab extends React.Component {
         this.timmer = null;
         //Bind methods
         this.handleStateChange = this.handleStateChange.bind(this);
-        this.handleFileChange = this.handleFileChange.bind(this);
     }
     //Handle state change
-    handleStateChange(file, key) {
+    handleStateChange(key) {
         let self = this;
         //clearTimeout(this.timmer); //Clear the current timeout (if any)
-        let options = this.state.items[file][key]; //Get state variable options
-        let value = stateBindParse[options.type](this.ref[file + ":" + key].current, options); //Get value
+        let options = this.state[key]; //Get state variable options
+        let value = stateBindParse[options.type](this.ref[key].current, options); //Get value
         //console.log(`${name} ---> ${value}`);
         //Register the timeout method
         //this.timmer = kofi.delay(this.props.changeDelay, function () {
         //    return self.props.onChange(name, value); //Call the change method
         //});
         //Call the on-change event
-        this.props.onChange(file, key, value);
+        this.props.onChange(key, value);
         //Terrible hack to update the current value in range element
         if (options.type === "range") {
-            this.state.items[file][key].currentValue = value;
+            this.state[key].currentValue = value;
             this.forceUpdate(); //Force update to display the value
         }
-    }
-    //Handle file change --> display the state binds for the new file
-    handleFileChange(event) {
-        return this.setState({"current": event.target.value});
     }
     //Render
     render() {
@@ -133,25 +125,15 @@ export class ConsoleStateTab extends React.Component {
         if (this.state.names.length === 0) {
             return "No state variables";
         }
-        let currentFile = this.state.current; //Current file
-        let items = Object.keys(this.state.items[this.state.current]);
         //Return the state viewer
         return (
             <React.Fragment>
-                {/* Select schema to edit */}
-                <Field>
-                    <Select fluid onChange={this.handleFileChange} defaultValue={this.state.current}>
-                        <ForEach items={this.props.files} render={function (file) {
-                            return <option key={file} value={file}>{file}</option>
-                        }} />
-                    </Select>
-                </Field>
-                <ForEach items={items} render={function (name, index) {
-                    let options = self.state.items[currentFile][name]; //Get options
-                    let ref = self.ref[currentFile + ":" + name]; //Get referende
+                <ForEach items={this.state.names} render={function (name, index) {
+                    let options = self.state[name]; //Get options
+                    let ref = self.ref[name]; //Get referende
                     //Render element
                     let element = stateBindRender[options.type](ref, options, function () {
-                        return self.handleStateChange(currentFile, name);
+                        return self.handleStateChange(name);
                     });
                     return (
                         <Row key={index} className="siimple--mb-0 siimple--mr-0">
