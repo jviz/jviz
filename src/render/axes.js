@@ -1,6 +1,6 @@
 import {colors} from "../color.js";
 import {polyline} from "./primitives/polyline.js";
-import {isArray, isObject, span} from "../util.js";
+import {isArray, isObject, isNumber, span} from "../util.js";
 import {isContinuousScale, isDiscreteScale} from "../scales/index.js";
 import {getExpressionSources} from "../runtime/expression.js";
 import {getValueSources} from "../runtime/value.js";
@@ -14,6 +14,8 @@ let positionValues = ["top", "bottom", "left", "right"];
 
 //Axis default props
 let defaultProps = {
+    "values": [],
+    //Line configuration
     "line": true,
     "lineColor": "black",
     "lineWidth": "1px",
@@ -23,27 +25,17 @@ let defaultProps = {
     "labelColor": "black",
     "labelSize": "11px",
     "labelOpacity": 0.8,
-    "labelPadding": 5,
+    "labelOffset": 5,
     "labelRotation": 0,
     "labelBaseline": "middle", //hanging|middle|baseline
     "labelAnchor": "middle",   //start|middle|center
+    "labelFormat": null,
+    "labelInterval": 0.5,      //Label position for interval scales
     //Default ticks attributes
-    "ticks": false,
-    "tickCount": 0,
-    "tickValues": [],
+    "tick": false,
     "tickColor": "black",
-    "tickSize": "11px",
-    "tickOpacity": 0.8,
-    "tickOffset": 5,
-    "tickRotation": 0,
-    "tickFormat": null,
-    "tickBaseline": "middle",   //hanging|middle|baseline
-    "tickAnchor": "middle",     //start|middle|end
-    "tickInterval": 0.5,        //Tick interval for interval scales
-    "slot": true,    //Display a line indication the tick position
-    "slotColor": "black",
-    "slotOpacity": 1,
-    "slotWidth": "1px",
+    "tickWidth": "1px",
+    "tickOpacity": 1,
     //Default grid attributes
     "grid": false,
     "gridColor": "black",
@@ -135,24 +127,25 @@ export function updateAxisNode (context, node) {
     //let position = context.value(props.position, 0, 0); //defaultProps.position);
     //Get the axis type
     let position = getPosition(props.position);
-    let hasAxisLine = context.value(props.line, null, defaultProps.line); //Display axis line
     let isXAxis = position === "top" || position === "bottom";
-    let hasAxisTicks = context.value(props.ticks, null, defaultProps.ticks); //Display ticks
+    //let hasAxisLabels = context.value(props.label, null, defaultProps.label); //Display labels
+    //let hasAxisTicks = context.value(props.tick, null, defaultProps.tick); //Display axis ticks
     let hasAxisGrid = context.value(props.grid, null, defaultProps.grid); //Display axis grid
-    let ticksValues = []; //Values to display
-    if (hasAxisTicks === true) {
-        if (isArray(props.tickValues) === true) {
-            ticksValues = props.ticksValues.map(function (value) {
-                return context.value(value, 0, 0);
-            });
-        }
-        else if (isObject(props.tickValues)) {
-            tickValues = context.value(props.tickValues, [], []); //Get values from context
-        }
-        else {
-            //Generate values from counts
-            ticksValues = generateValues(scale, context.value(props.tickCount, 0, defaultProps.tickCount));
-        }
+    let hasAxisLine = context.value(props.line, null, defaultProps.line); //Display axis line
+    //TODO: this should be moved inside panel iterator?
+    let values = []; //Values to display
+    if (isArray(props.values) === true) {
+        values = props.values.map(function (value) {
+            return context.value(value, 0, 0);
+        });
+    }
+    //Check for object --> get from context
+    else if (isObject(props.values)) {
+        values = context.value(props.values, [], []); //Get values from context
+    }
+    //Other value --> generate values from scale
+    else {
+        values = generateValues(scale, isNumber(props.values) ? props.values : 0);
     }
     //Get panels where this axis will be rendered
     getPanelsLayout(context, props.panel).forEach(function (panelItem) {
@@ -187,14 +180,17 @@ export function updateAxisNode (context, node) {
         }
         //console.log(axisPosition);
         //Display ticks
-        //if (props.ticks === true) { // && (typeof props.tickCount === "number" || viz.isArray(props.tickValues))) {
-        if (context.value(props.ticks, null, defaultProps.ticks) === true) {
-            let angle = context.value(props.tickRotation, null, defaultProps.tickRotation); //Get rotation angle
-            let tickOffset = context.value(props.tickOffset, 0, defaultProps.tickOffset); //Get ticks offset
-            let tickSlot = context.value(props.slot, null, defaultProps.slot); //Display tick slot
-            let tickInterval = (scale.type === "interval") ? context.value(props.tickInterval, null, defaultProps.tickInterval) : 0;
+        //if (props.ticks === true) { // && (typeof props.tickCount === "number" || viz.isArray(props.values))) {
+        if (context.value(props.label, null, defaultProps.label) === true) {
+            let labelAngle = context.value(props.labelRotation, null, defaultProps.labelRotation); //Get rotation angle
+            let labelOffset = context.value(props.labelOffset, 0, defaultProps.labelOffset); //Get ticks offset
+            let labelTick = context.value(props.tick, null, defaultProps.tick); //Display tick slot
+            let labelInterval = 0; //Interval position
+            if (scale.type === "interval") {
+                labelInterval = context.value(props.labelInterval, null, defaultProps.labelInterval);
+            }
             //Display each label value
-            ticksValues.forEach(function (value, index) {
+            values.forEach(function (value, index) {
                 //Calculate the label positions
                 let valuePosition = scale(value, index);
                 //console.log(value + " --> " + valuePosition);
@@ -204,27 +200,24 @@ export function updateAxisNode (context, node) {
                 }
                 //Check for interval scale
                 if (scale.type === "interval") {//if (typeof props.scale.step === "number") {
-                    valuePosition = valuePosition + scale.step * tickInterval;
+                    valuePosition = valuePosition + scale.step * labelInterval;
                 }
                 //let labelX = (isXAxis) ? position : props.x - props.labelMargin;
                 //let labelY = (props.type === "y") ? position : props.y + props.labelMargin;
-                let tickX = 0, tickY = 0; //, tickAnchor = "middle", tickBaseline = "middle";
-                let slotLine = null;
+                let labelX = 0, labelY = 0; //, tickAnchor = "middle", tickBaseline = "middle";
+                let tickLine = null;
                 let gridLine = null;
                 //let labelAnchor = (props.position === "left") ? "end" : "start";
                 //Calculate the label positions
                 if (position === "left" || position === "right") {
-                    tickX = axisPosition.x1 + (((position === "left") ? -1 : +1) * tickOffset);
-                    tickY = valuePosition + 0; //props.y + props.height - position;
+                    labelX = axisPosition.x1 + (((position === "left") ? -1 : +1) * labelOffset);
+                    labelY = valuePosition + 0; //props.y + props.height - position;
                     //Check for displaying the tick slot
-                    if (tickSlot === true && hasAxisLine === true) {
-                        let px2 = axisPosition.x1 + (((position === "left") ? -1 : +1) * tickOffset / 3);
-                        slotLine = target.append("path");
-                        slotLine.attr("d", polyline({
-                            "points": [
-                                [axisPosition.x1, tickY],
-                                [px2, tickY]
-                            ],
+                    if (labelTick === true && hasAxisLine === true) {
+                        let px2 = axisPosition.x1 + (((position === "left") ? -1 : +1) * labelOffset / 3);
+                        tickLine = target.append("path");
+                        tickLine.attr("d", polyline({
+                            "points": [[axisPosition.x1, labelY], [px2, labelY]],
                             "closed": false
                         }));
                     }
@@ -232,25 +225,21 @@ export function updateAxisNode (context, node) {
                     if (hasAxisGrid === true) {
                         gridLine = target.append("path");
                         gridLine.attr("d", polyline({
-                            //"points": [[0, tickY], [draw.width, tickY]],
-                            "points": [[0, tickY], [panel.width, tickY]],
+                            "points": [[0, labelY], [panel.width, labelY]],
                             "closed": false
                         }));
                     }
                 }
                 else {
-                    tickX = valuePosition + 0;
-                    tickY = axisPosition.y1 + (((position === "top") ? -1 : +1) * tickOffset);
+                    labelX = valuePosition + 0;
+                    labelY = axisPosition.y1 + (((position === "top") ? -1 : +1) * labelOffset);
                     //Check for displaying the tick slot
                     //if (props.tickSlot === true && props.line === true) {
-                    if (tickSlot === true && hasAxisLine === true) {
-                        let py2 = axisPosition.y1 + (((position === "top") ? -1 : +1) * tickOffset / 3);
-                        slotLine = target.append("path");
-                        slotLine.attr("d", polyline({
-                            "points": [
-                                [tickX, axisPosition.y1],
-                                [tickX, py2]
-                            ],
+                    if (labelTick === true && hasAxisLine === true) {
+                        let py2 = axisPosition.y1 + (((position === "top") ? -1 : +1) * labelOffset / 3);
+                        tickLine = target.append("path");
+                        tickLine.attr("d", polyline({
+                            "points": [[labelX, axisPosition.y1], [labelX, py2]],
                             "closed": false
                         }));
                     }
@@ -258,18 +247,18 @@ export function updateAxisNode (context, node) {
                     if (hasAxisGrid === true) {
                         gridLine = target.append("path");
                         gridLine.attr("d", polyline({
-                            //"points": [[tickX, 0], [tickX, draw.height]],
-                            "points": [[tickX, 0], [tickX, panel.height]],
+                            //"points": [[labelX, 0], [labelX, draw.height]],
+                            "points": [[labelX, 0], [labelX, panel.height]],
                             "closed": false
                         }));
                     }
                 }
                 //Check for slot line --> set slot style
-                if (slotLine !== null) {
-                    slotLine.attr("fill", "none");
-                    slotLine.attr("stroke-width", context.value(props.slotWidth, null, defaultProps.slotWidth)); //Default slot width
-                    slotLine.attr("stroke", context.value(props.slotColor, null, context.theme.axesSlotColor));
-                    slotLine.style("opacity", context.value(props.slotOpacity, 0, defaultProps.slotOpacity));
+                if (tickLine !== null) {
+                    tickLine.attr("fill", "none");
+                    tickLine.attr("stroke-width", context.value(props.tickWidth, null, defaultProps.tickWidth)); //Default tick width
+                    tickLine.attr("stroke", context.value(props.tickColor, null, context.theme.axesTickColor));
+                    tickLine.style("opacity", context.value(props.tickOpacity, 0, defaultProps.tickOpacity));
                 }
                 //Check for grid line --> set grid line
                 if (gridLine !== null) {
@@ -280,17 +269,17 @@ export function updateAxisNode (context, node) {
                 }
                 //Display the text element
                 let text = target.append("text");
-                text.text(context.value(props.tickFormat, value, value));
-                text.attr("x", tickX);
-                text.attr("y", tickY);
-                text.attr("text-anchor", context.value(props.tickAnchor, null, defaultProps.tickAnchor));
-                text.attr("alignment-baseline", context.value(props.tickBaseline, null, defaultProps.tickBaseline));
-                text.attr("transform", `rotate(${angle}, ${tickX}, ${tickY})`); 
+                text.text(context.value(props.labelFormat, value, value));
+                text.attr("x", labelX);
+                text.attr("y", labelY);
+                text.attr("text-anchor", context.value(props.labelAnchor, null, defaultProps.labelAnchor));
+                text.attr("alignment-baseline", context.value(props.labelBaseline, null, defaultProps.labelBaseline));
+                text.attr("transform", `rotate(${labelAngle}, ${labelX}, ${labelY})`); 
                 //Tick text style
-                text.attr("fill", context.value(props.tickColor, null, context.theme.axesTickColor));
+                text.attr("fill", context.value(props.labelColor, null, context.theme.axesLabelColor));
                 text.style("font-weight", "bold"); //Default font-weight
-                text.style("font-size", context.value(props.tickSize, null, defaultProps.tickSize));
-                text.style("opacity", context.value(props.tickOpacity, null, defaultProps.tickOpacity));
+                text.style("font-size", context.value(props.labelSize, null, defaultProps.labelSize));
+                text.style("opacity", context.value(props.labelOpacity, null, defaultProps.labelOpacity));
             });
         }
         //Display the axis edge
