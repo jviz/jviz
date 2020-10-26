@@ -184,7 +184,7 @@ export function ticks (start, end, n, tight) {
     //Check for tight option --> remove ticks outside of the [start, end] interval
     //and add start and end values
     if (typeof tight === "boolean" && tight === true) {
-        ticksValues.filter(function (value) {
+        ticksValues = ticksValues.filter(function (value) {
             return start < value && value < end;
         });
         //Insert start and end values
