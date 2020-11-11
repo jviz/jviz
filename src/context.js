@@ -13,7 +13,7 @@ import {initContext, buildContext, updateContext} from "./lifecycle/index.js";
 
 //Initialize logger
 let initializeLogger = function (options) {
-    if (typeof options.logger !== "undefined") {
+    if (typeof options.logger !== "undefined" && options.logger !== null) {
         return options.logger; //Custom logger
     }
     else if (typeof options.logLevel === "number") {
